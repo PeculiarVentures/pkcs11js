@@ -24,23 +24,23 @@ $ npm install pkcs11js
 
 SoftHSM2 is optional but as a software implementation of PKCS#11 it makes it easy to test the package. The bellow steps assume Ubuntu.
 
-* Install SoftHSM2
+**Install SoftHSM2**
 
     ```
     apt-get install softhsm
     ```
     
-* Initialize the first slot
+**Initialize the first slot**
 
     ```
     softhsm2-util --init-token --slot 0 --label "My token 1"
     ```
 
-* The PKCS1 #11 module you can now use can be found here:
+The PKCS1 #11 module you can now use can be found here:
 
   `/usr/local/lib/softhsm/libsofthsm.so`
   
-* Adjust permissions so the user your code will be able to access the PKCS #11 module:
+**Adjust permissions so the user your code will be able to access the PKCS #11 module**
 
   ```
   sudo chmod –R 755 /var/lib/softhsm
