@@ -1,0 +1,5 @@
+.vscode
+typings
+node_modules
+src
+includes

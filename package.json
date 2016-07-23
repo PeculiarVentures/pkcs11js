@@ -1,0 +1,25 @@
+{
+  "name": "pkcs11js",
+  "version": "1.0.0",
+  "description": "NodeJS implementation of PKCS#11 interface",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/PeculiarVentures/pkcs11js.git"
+  },
+  "keywords": [
+    "pkcs11", "token", "rsa", "ecdsa", "aes", "crypto"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "PeculiarVentures",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^2.4.0"
+  },
+  "bugs": {
+    "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
+  },
+  "readme": "https://github.com/PeculiarVentures/pkcs11js#readme"
+}

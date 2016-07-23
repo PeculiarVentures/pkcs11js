@@ -1,0 +1,1 @@
+module.exports = require("./build/Debug/pkcs11.node");
