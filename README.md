@@ -174,7 +174,7 @@ var label = pkcs11.C_GetAttributeValue(session, nObject, [
     { type: pkcs11.CKA_TOKEN }
 ]);
 console.log(label[0].value.toString()); // My custom data!!!
-console.log(!!label[1].value.readUInt8LE()); // false
+console.log(!!label[1].value[0]; // false
 
 // Copying Object
 var cObject = pkcs11.C_CopyObject(session, nObject, [
@@ -186,6 +186,159 @@ var cObject = pkcs11.C_CopyObject(session, nObject, [
 
 // Removing Object
 pkcs11.C_DestroyObject(session, cObject);
+```
+
+### Example #4
+
+Searching objects
+
+**NOTE:** If template is not setted for C_FindObjectsInit, then C_FindObjects returns all objects from slot  
+
+```javascript
+pkcs11.C_FindObjectsInit(session, [{ type: pkcs11.CKA_CLASS, value: pkcs11.CKO_DATA }]);
+var hObject = pkcs11.C_FindObjects(session);
+while (hObject) {
+    var attrs = pkcs11.C_GetAttributeValue(session, hObject, [
+        { type: pkcs11.CKA_CLASS },
+        { type: pkcs11.CKA_TOKEN },
+        { type: pkcs11.CKA_LABEL }
+    ]);
+    // Output info for objects from token only
+    if (attrs[1].value[0]){
+        console.log(`Object #${hObject}: ${attrs[2].value.toString()}`);
+    }
+    hObject = pkcs11.C_FindObjects(session);
+}
+pkcs11.C_FindObjectsFinal(session);
+```
+
+### Example #5
+
+Generating random values
+
+```javascript
+var random = pkcs11.C_GenerateRandom(session, new Buffer(20));
+console.log(random.toString("hex"));
+```
+
+or
+
+```javascript
+var random = new Buffer(20);
+pkcs11.C_GenerateRandom(session, random);
+console.log(random.toString("hex"));
+```
+
+### Example #6
+
+Digest
+
+```javascript
+pkcs11.C_DigestInit(_session, { mechanism: pkcs11.CKM_SHA256 });
+
+pkcs11.C_DigestUpdate(session, new Buffer("Incomming message 1"));
+pkcs11.C_DigestUpdate(session, new Buffer("Incomming message N"));
+
+var digest = pkcs11.C_DigestFinal(_session, Buffer(256 / 8));
+
+console.log(digest.toString("hex"));
+```
+
+### Example #7
+
+Signing data
+
+```javascript
+pkcs11.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
+
+pkcs11.C_SignUpdate(session, new Buffer("Incomming message 1"));
+pkcs11.C_SignUpdate(session, new Buffer("Incomming message N"));
+
+var signature = pkcs11.C_SignFinal(session, Buffer(256));
+```
+
+Verifying data
+
+```javascript
+pkcs11.C_VerifyInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.publicKey);
+
+pkcs11.C_VerifyUpdate(session, new Buffer("Incomming message 1"));
+pkcs11.C_VerifyUpdate(session, new Buffer("Incomming message N"));
+
+var verify = pkcs11.C_VerifyFinal(session, signature);
+```
+
+### Example #8
+
+Encrypting data with AES-CBC mechanism
+
+```javascript
+var cbc_param = pkcs11.C_GenerateRandom(new Buffer(16));
+
+pkcs11.C_EncryptInit(
+    session,
+    {
+        mechanism: pkcs11.CKM_AES_CBC,
+        parameter: cbc_param
+    },
+    secretKey
+);
+
+var enc = new Buffer(0);
+enc = Buffer.concat([enc, pkcs11.C_EncryptUpdate(session, new Buffer("Incomming data 1"), new Buffer(16))]);
+enc = Buffer.concat([enc, pkcs11.C_EncryptUpdate(session, new Buffer("Incomming data N"), new Buffer(16))]);
+enc = Buffer.concat([enc, pkcs11.C_EncryptFinal(session, new Buffer(16))]);
+
+console.log(enc.toString("hex"));
+```
+
+Decrypting data with AES-CBC mechanism
+
+```javascript
+pkcs11.C_DecryptInit(
+    session,
+    {
+        mechanism: pkcs11.CKM_AES_CBC,
+        parameter: cbc_param
+    },
+    secretKey
+);
+
+var dec = new Buffer(0);
+dec = Buffer.concat([dec, pkcs11.C_DecryptUpdate(session, enc, new Buffer(32))]);
+dec = Buffer.concat([dec, pkcs11.C_DecryptFinal(session, new Buffer(16))]);
+
+console.log(dec.toString());
+```
+
+### Example #9
+
+Deriving key with ECDH mechanism
+
+```javascript
+// Recieve public data from EC public key
+var attrs = pkcs11.C_GetAttributeValue(session, publicKeyEC, [{ type: pkcs11.CKA_EC_POINT }])
+var ec = attrs[0].value;
+
+var derivedKey = pkcs11.C_DeriveKey(
+    session,
+    {
+        mechanism: pkcs11.CKM_ECDH1_DERIVE,
+        parameter: {
+            kdf: 2,
+            publicData: ec
+        }
+    },
+    privateKeyEC,
+    [
+        { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
+        { type: pkcs11.CKA_TOKEN, value: false },
+        { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_AES },
+        { type: pkcs11.CKA_LABEL, value: "Derived AES key" },
+        { type: pkcs11.CKA_ENCRYPT, value: true },
+        { type: pkcs11.CKA_VALUE_LEN, value: 256 / 8 }
+    ]
+);
 ```
 
 ## Suitability
