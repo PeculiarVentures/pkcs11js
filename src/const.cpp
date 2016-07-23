@@ -109,6 +109,13 @@ void declare_attributes(Local<Object> target) {
 	SET_CONST(target, CKA_VENDOR_DEFINED);
 }
 
+void declare_flags(Local<Object> target){
+    Nan::HandleScope();
+
+	SET_CONST(target, CKF_RW_SESSION);
+	SET_CONST(target, CKF_SERIAL_SESSION);
+}
+
 void declare_objects(Local<Object> target){
     Nan::HandleScope();
 

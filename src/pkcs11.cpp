@@ -595,6 +595,7 @@ NAN_METHOD(PKCS11::New) {
 		declare_attributes(info.This());
 		declare_ket_types(info.This());
 		declare_mechanisms(info.This());
+		declare_flags(info.This());
 
 		info.GetReturnValue().Set(info.This());
 	}

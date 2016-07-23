@@ -25,6 +25,7 @@ using namespace node;
 		static_cast<PropertyAttribute>(ReadOnly | DontDelete));
 
 void declare_attributes(Local<Object> target);
+void declare_flags(Local<Object> target);
 void declare_objects(Local<Object> target);
 void declare_ket_types(Local<Object> target);
 void declare_mechanisms(Local<Object> target);
