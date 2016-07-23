@@ -1,4 +1,4 @@
-# PKCS11js
+# PKCS11js - A Node.js implementation of the PKCS#11 2.3 interface
 
 [![license](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/graphene/master/LICENSE)
 
