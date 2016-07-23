@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/graphene/master/LICENSE)
 
-We make a package called [Graphene](https://github.com/PeculiarVentures/graphene) that provides a simplistic Object Oriented interface for interacting with PKCS#11 devices, for most people this is the right level to build on. In some cases you may want to interact directly with the PKCS#11 API, if so this is the package for you.
+We make a package called [Graphene](https://github.com/PeculiarVentures/graphene), it provides a simplistic Object Oriented interface for interacting with PKCS#11 devices, for most people this is the right level to build on. In some cases you may want to interact directly with the PKCS#11 API, if so PKCS11js is the package for you.
 
 PKCS#11 (also known as CryptoKI or PKCS11) is the standard interface for interacting with hardware crypto devices such as Smart Cards and Hardware Security Modules (HSMs). 
 
@@ -26,11 +26,15 @@ SoftHSM2 is optional but as a software implementation of PKCS#11 it makes it eas
 
 * Install SoftHSM2
 
-    `apt-get install softhsm`
-
+    '''
+    apt-get install softhsm
+    '''
+    
 * Initialize the first slot
 
-    `softhsm2-util --init-token --slot 0 --label "My token 1"`
+    '''
+    softhsm2-util --init-token --slot 0 --label "My token 1"
+    '''
 
 * The PKCS1 #11 module you can now use can be found here:
 
