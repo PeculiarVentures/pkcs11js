@@ -53,8 +53,140 @@ The PKCS1 #11 module you can now use can be found here:
  
 **NOTE**: This may be more generous than needed. It works out to : 0755 = User:rwx Group:r-x World:r-x. 
 ## Examples
+
 ### Example #1
+
+```javascript
+var pkcs11js = require("pkcs11js");
+
+var pkcs11 = new pkcs11js.PKCS11();
+pkcs11.load("/usr/local/lib/softhsm/libsofthsm2.so");
+
+pkcs11.C_Initialize();
+
+// Getting info about PKCS11 Module
+var module_info = pkcs11.C_GetInfo();
+
+// Getting list of slots
+var slots = pkcs11.C_GetSlotList(true);
+var slot = slots[0];
+
+// Getting info about slot
+var slot_info = pkcs11.C_GetSlotInfo(slot);
+// Getting info about token
+var token_info = pkcs11.C_GetTokenInfo(slot);
+
+// Getting info about Mechanism
+var mechs = pkcs11.C_GetMechanismList(slot);
+var mech_info = pkcs11.C_GetMechanismInfo(slot, mechs[0]);
+
+var session = pkcs11.C_OpenSession(slot, pkcs11.CKF_RW_SESSION | pkcs11.CKF_SERIAL_SESSION);
+
+// Getting info about Session
+var info = pkcs11.C_GetSessionInfo(session);
+pkcs11.C_Login(session, 1, "password");
+
+/**
+ * Your app code here
+ */
+
+pkcs11.C_Logout(session);
+pkcs11.C_CloseSession(session);
+pkcs11.C_Finalize();
+```
+
 ### Example #2
+
+Generating secret key using AES mechanism
+
+```javascript
+var template = [
+    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
+    { type: pkcs11.CKA_TOKEN, value: false },
+    { type: pkcs11.CKA_LABEL, value: "My AES Key" },
+    { type: pkcs11.CKA_VALUE_LEN, value: 256 / 8 },
+    { type: pkcs11.CKA_ENCRYPT, value: true },
+    { type: pkcs11.CKA_DECRYPT, value: true },
+];
+var key = pkcs11.C_GenerateKey(session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, template);
+```
+
+### Example #3
+
+Generating key pair using RSA-PKCS1 mechanism
+
+```javascript
+var publicKeyTemplate = [
+    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+    { type: pkcs11.CKA_TOKEN, value: false },
+    { type: pkcs11.CKA_LABEL, value: "My RSA Public Key" },
+    { type: pkcs11.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
+    { type: pkcs11.CKApkcs11ULUS_BITS, value: 2048 },
+    { type: pkcs11.CKA_VERIFY, value: true }
+];
+var privateKeyTemplate = [
+    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+    { type: pkcs11.CKA_TOKEN, value: false },
+    { type: pkcs11.CKA_LABEL, value: "My RSA Private Key" },
+    { type: pkcs11.CKA_SIGN, value: true },
+];
+var keys = pkcs11.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
+```
+
+### Example #4
+
+Generating key pair using ECDSA mechanism
+
+```javascript
+var publicKeyTemplate = [
+    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+    { type: pkcs11.CKA_TOKEN, value: false },
+    { type: pkcs11.CKA_LABEL, value: "My EC Public Key" },
+    { type: pkcs11.CKA_EC_PARAMS, value: new Buffer("06082A8648CE3D030107", "hex") }, // secp256r1
+];
+var privateKeyTemplate = [
+    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+    { type: pkcs11.CKA_TOKEN, value: false },
+    { type: pkcs11.CKA_LABEL, value: "My EC Private Key" },
+    { type: pkcs11.CKA_DERIVE, value: true },
+];
+var keys = pkcs11.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_EC_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
+```
+
+### Example #4
+
+Working with Object
+
+```javascript
+var nObject = pkcs11.C_CreateObject(session, [
+    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_DATA },
+    { type: pkcs11.CKA_TOKEN, value: false },
+    { type: pkcs11.CKA_PRIVATE, value: false },
+    { type: pkcs11.CKA_LABEL, value: "My custom data" },
+]);
+
+// Updating lable of Object
+pkcs11.C_SetAttributeValue(session, nObject, [{ type: pkcs11.CKA_LABEL, value: nObjetcLabel + "!!!" }]);
+
+// Getting attribute value
+var label = pkcs11.C_GetAttributeValue(session, nObject, [
+    { type: pkcs11.CKA_LABEL },
+    { type: pkcs11.CKA_TOKEN }
+]);
+console.log(label[0].value.toString()); // My custom data!!!
+console.log(!!label[1].value.readUInt8LE()); // false
+
+// Copying Object
+var cObject = pkcs11.C_CopyObject(session, nObject, [
+    { type: pkcs11.CKA_CLASS},
+    { type: pkcs11.CKA_TOKEN},
+    { type: pkcs11.CKA_PRIVATE},
+    { type: pkcs11.CKA_LABEL},
+])
+
+// Removing Object
+pkcs11.C_DestroyObject(session, cObject);
+```
 
 ## Suitability
 At this time this solution should be considered suitable for research and experimentation, further code and security review is needed before utilization in a production application.
