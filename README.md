@@ -26,15 +26,15 @@ SoftHSM2 is optional but as a software implementation of PKCS#11 it makes it eas
 
 * Install SoftHSM2
 
-    '''
+    ```
     apt-get install softhsm
-    '''
+    ```
     
 * Initialize the first slot
 
-    '''
+    ```
     softhsm2-util --init-token --slot 0 --label "My token 1"
-    '''
+    ```
 
 * The PKCS1 #11 module you can now use can be found here:
 
