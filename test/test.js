@@ -98,11 +98,11 @@ describe("PKCS11", () => {
             assert.equal(!!info.model, true);
             assert.equal(!!info.serialNumber, true);
             assert.equal("flags" in info, true);
-            assert.equal("ulMaxSessionCount" in info, true);
-            assert.equal("ulSessionCount" in info, true);
-            assert.equal("ulMaxRwSessionCount" in info, true);
-            assert.equal("ulRwSessionCount" in info, true);
-            assert.equal("ulMaxPinLen" in info, true);
+            assert.equal("maxSessionCount" in info, true);
+            assert.equal("sessionCount" in info, true);
+            assert.equal("maxRwSessionCount" in info, true);
+            assert.equal("rwSessionCount" in info, true);
+            assert.equal("maxPinLen" in info, true);
             assert.equal("hardwareVersion" in info, true);
             assert.equal("firmwareVersion" in info, true);
             assert.equal("utcTime" in info, true);
@@ -118,8 +118,8 @@ describe("PKCS11", () => {
 
             var info = _mod.C_GetMechanismInfo(_slot, list[0]);
 
-            assert.equal("ulMinKeySize" in info, true);
-            assert.equal("ulMaxKeySize" in info, true);
+            assert.equal("minKeySize" in info, true);
+            assert.equal("maxKeySize" in info, true);
             assert.equal("flags" in info, true);
         });
 
@@ -145,7 +145,7 @@ describe("PKCS11", () => {
             assert.equal("slotID" in info, true);
             assert.equal("state" in info, true);
             assert.equal("flags" in info, true);
-            assert.equal("ulDeviceError" in info, true);
+            assert.equal("deviceError" in info, true);
         });
 
         it("login", () => {

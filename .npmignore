@@ -1,5 +1,6 @@
 .vscode
 typings
 node_modules
+build
 src
 includes

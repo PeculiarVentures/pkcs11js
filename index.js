@@ -1,1 +1,1 @@
-module.exports = require("./build/Debug/pkcs11.node");
+module.exports = require("./build/Release/pkcs11.node");

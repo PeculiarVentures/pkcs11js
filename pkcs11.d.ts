@@ -64,6 +64,8 @@ declare module "pkcs11" {
         C_GetMechanismList(slot: Handle): void;
         C_GetMechanismInfo(slot: Handle, mech: Handle): MechanismInfo;
         C_OpenSession(slot: Handle, flags: number): Handle;
+        C_CloseSession(session: Handle);
+        C_CloseAllSessions(slot: Handle);
         C_GetSessionInfo(session: Handle): SessionInfo;
     }
 
