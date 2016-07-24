@@ -41,7 +41,7 @@ The PKCS1 #11 module you can now use can be found here:
 softhsm2-util --init-token --slot 0 --label "My token 1"
 ```
   
-**Adjust permissions so the user your code will be able to access the PKCS #11 module**
+**Adjust permissions so the user your code runs as will be able to access the PKCS #11 module**
 
   ```
   sudo chmod –R 755 /var/lib/softhsm
