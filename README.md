@@ -31,16 +31,15 @@ SoftHSM2 is optional but as a software implementation of PKCS#11 it makes it eas
 ```
 apt-get install softhsm
 ```
-    
+The PKCS1 #11 module you can now use can be found here:
+
+`/usr/local/lib/softhsm/libsofthsm.so`
+
 **Initialize the first slot**
 
 ```
 softhsm2-util --init-token --slot 0 --label "My token 1"
 ```
-
-The PKCS1 #11 module you can now use can be found here:
-
-`/usr/local/lib/softhsm/libsofthsm.so`
   
 **Adjust permissions so the user your code will be able to access the PKCS #11 module**
 
