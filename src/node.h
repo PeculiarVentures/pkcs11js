@@ -3,20 +3,12 @@
 
 #include <nan.h>
 
-#ifdef WIN32
-#pragma pack(push, cryptoki, 1)
-#endif
-#include <pkcs11/pkcs11.h>
-#ifdef WIN32
-#pragma pack(pop, cryptoki)
-#endif
-
-#include <strings.h>
+#include "pkcs11/pkcs11.h"
 
 using namespace v8;
 using namespace node;
 
-class PKCS11 : public node::ObjectWrap {
+class WPKCS11 : public node::ObjectWrap {
 public:
 	static v8::Local<v8::Object> NewInstance() {
 		v8::Local<v8::Function> cons = Nan::New(constructor());
@@ -53,7 +45,7 @@ public:
 	static NAN_METHOD(C_Login);
 	static NAN_METHOD(C_Logout);
 	
-	/* Object management */
+	///* Object management */
 	static NAN_METHOD(C_CreateObject);
 	static NAN_METHOD(C_CopyObject);
 	static NAN_METHOD(C_DestroyObject);
@@ -64,7 +56,7 @@ public:
 	static NAN_METHOD(C_GetAttributeValue);
 	static NAN_METHOD(C_SetAttributeValue);
 
-	/* Encryption and decryption */
+	///* Encryption and decryption */
 	static NAN_METHOD(C_EncryptInit);
 	static NAN_METHOD(C_Encrypt);
 	static NAN_METHOD(C_EncryptUpdate);
@@ -74,14 +66,14 @@ public:
 	static NAN_METHOD(C_DecryptUpdate);
 	static NAN_METHOD(C_DecryptFinal);
 
-	/* Message digesting */
+	///* Message digesting */
 	static NAN_METHOD(C_DigestInit);
 	static NAN_METHOD(C_Digest);
 	static NAN_METHOD(C_DigestUpdate);
 	static NAN_METHOD(C_DigestFinal);
 	static NAN_METHOD(C_DigestKey);
 
-	/* Signing and MACing */
+	///* Signing and MACing */
 	static NAN_METHOD(C_SignInit);
 	static NAN_METHOD(C_Sign);
 	static NAN_METHOD(C_SignUpdate);
@@ -108,10 +100,9 @@ public:
 	static NAN_METHOD(C_SeedRandom);
 	static NAN_METHOD(C_GenerateRandom);
 
-protected:
+	PKCS11 pkcs11;
 
-	void* dlHandle;
-	CK_FUNCTION_LIST_PTR functionList;
+protected:
 
 	static inline Nan::Persistent<v8::Function> & constructor() {
 		static Nan::Persistent<v8::Function> my_constructor;

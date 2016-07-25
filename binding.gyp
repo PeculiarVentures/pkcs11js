@@ -12,7 +12,14 @@
                  "src/main.cpp",
                  "src/dl.cpp",
                  "src/const.cpp",
-                 "src/pkcs11.cpp"
+                 "src/pkcs11/error.cpp",
+                 "src/pkcs11/v8_convert.cpp",
+                 "src/pkcs11/template.cpp",
+                 "src/pkcs11/mech.cpp",
+                 "src/pkcs11/param_ecdh.cpp",
+                 "src/pkcs11/pkcs11.cpp",
+                #  "src/async.cpp",
+                 "src/node.cpp"
             ],
             'conditions': [
                 ['OS=="mac"', {

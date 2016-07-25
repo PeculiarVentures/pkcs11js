@@ -4,11 +4,11 @@
 const pkcs11 = require("../index");
 const assert = require("assert");
 
-// const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
-const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
+const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
+// const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
 // const libPath = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so";
 
-const tokenPin = "12345";
+const tokenPin = "12345678";
 const slot_index = 0;
 
 const mod_assert = "Module is not initialized";
@@ -411,11 +411,9 @@ describe("PKCS11", () => {
             assert.notEqual(_privateKeyEC, undefined, private_assert);
             assert.notEqual(_publicKeyEC, undefined, public_assert);
 
-            var crypto_param = new Buffer([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
-
             var attrs = _mod.C_GetAttributeValue(_session, _publicKeyEC, [{ type: _mod.CKA_EC_POINT }])
             var ec = attrs[0].value;
-            console.log(ec.toString("hex"));
+            
             var derivedKey = _mod.C_DeriveKey(
                 _session,
                 {
@@ -433,8 +431,7 @@ describe("PKCS11", () => {
                     {type: _mod.CKA_LABEL, value: "Derived key"},
                     {type: _mod.CKA_ENCRYPT, value: true},
                     {type: _mod.CKA_VALUE_LEN, value: 256 / 8}
-                ],
-                new Buffer(32)
+                ]
             );
 
             // assert.notEqual(dec.toString(), "12345678123456781234567812345678");
