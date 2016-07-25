@@ -43,8 +43,8 @@ public:
 	///* Object management */
 	CK_OBJECT_HANDLE C_CreateObject(CK_SESSION_HANDLE session, Scoped<Attributes> tmpl);
 	CK_OBJECT_HANDLE C_CopyObject(CK_SESSION_HANDLE session, CK_OBJECT_HANDLE object, Scoped<Attributes> tmpl);
-	void PKCS11::C_DestroyObject(CK_SESSION_HANDLE session, CK_OBJECT_HANDLE object);
-	CK_ULONG PKCS11::C_GetObjectSize(CK_SESSION_HANDLE session, CK_OBJECT_HANDLE object);
+	void C_DestroyObject(CK_SESSION_HANDLE session, CK_OBJECT_HANDLE object);
+	CK_ULONG C_GetObjectSize(CK_SESSION_HANDLE session, CK_OBJECT_HANDLE object);
 	void C_FindObjectsInit(CK_SESSION_HANDLE session, Scoped<Attributes> attrs);
 	void C_FindObjectsInit(CK_SESSION_HANDLE session);
 	CK_OBJECT_HANDLE C_FindObjects(CK_SESSION_HANDLE session);

@@ -7,6 +7,8 @@
                 "<!(node -e \"require(\'nan\')\")",
                 "includes"
             ],
+            'cflags!': [ '-fno-exceptions' ],
+            'cflags_cc!': [ '-fno-exceptions' ],
             "target_name": "pkcs11",
             "sources": [
                  "src/main.cpp",
