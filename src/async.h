@@ -14,7 +14,7 @@ public:
 		CK_SESSION_HANDLE hSession,
 		Scoped<Mechanism> mech,
 		Scoped<Attributes> tmpl
-		) : AsyncWorker(callback), hSession(hSession), mech(mech), tmpl(tmpl) {}
+		) : AsyncWorker(callback), pkcs11(pkcs11), hSession(hSession), mech(mech), tmpl(tmpl) {}
 	~AsyncGenerateKey() {}
 
 	void Execute();
@@ -27,6 +27,31 @@ protected:
 	Scoped<Attributes> tmpl;
 	// Result
 	CK_OBJECT_HANDLE hKey;
+};
+
+class AsyncGenerateKeyPair : public Nan::AsyncWorker {
+public:
+	AsyncGenerateKeyPair(
+		Nan::Callback *callback,
+		Scoped<PKCS11> pkcs11,
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		Scoped<Attributes> publicKeyTemplate,
+		Scoped<Attributes> privateKeyTemplate
+	) : AsyncWorker(callback), pkcs11(pkcs11), hSession(hSession), mech(mech), publicKeyTemplate(publicKeyTemplate), privateKeyTemplate(privateKeyTemplate) {}
+	~AsyncGenerateKeyPair() {}
+
+	void Execute();
+	void HandleOKCallback();
+
+protected:
+	CK_SESSION_HANDLE hSession;
+	Scoped<PKCS11> pkcs11;
+	Scoped<Mechanism> mech;
+	Scoped<Attributes> publicKeyTemplate;
+	Scoped<Attributes> privateKeyTemplate;
+	// Result
+	Scoped<KEY_PAIR> keyPair;
 };
 
 #endif // INCLUDE_H_ASYNC

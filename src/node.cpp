@@ -1019,14 +1019,21 @@ NAN_METHOD(WPKCS11::C_GenerateKeyPair) {
 
 		UNWRAP_PKCS11;
 
-		Scoped<KEY_PAIR> keyPair = __pkcs11->C_GenerateKeyPair(hSession, mech, publicKey, privateKey);
+		if (!info[4]->IsFunction()) {
+			Scoped<KEY_PAIR> keyPair = __pkcs11->C_GenerateKeyPair(hSession, mech, publicKey, privateKey);
 
-		// Result
-		Local<Object> v8Result = Nan::New<Object>();
-		v8Result->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->privateKey));
-		v8Result->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->publicKey));
+			// Result
+			Local<Object> v8Result = Nan::New<Object>();
+			v8Result->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->privateKey));
+			v8Result->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->publicKey));
 
-		info.GetReturnValue().Set(v8Result);
+			info.GetReturnValue().Set(v8Result);
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[4].As<Function>());
+
+			AsyncQueueWorker(new AsyncGenerateKeyPair(callback, __pkcs11, hSession, mech, publicKey, privateKey));
+		}
 	}
 	CATCH_V8_ERROR;
 }

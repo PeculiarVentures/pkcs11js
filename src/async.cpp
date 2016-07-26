@@ -19,3 +19,27 @@ void AsyncGenerateKey::HandleOKCallback() {
 
 	callback->Call(2, argv);
 }
+
+void AsyncGenerateKeyPair::Execute() {
+	try {
+		keyPair = pkcs11->C_GenerateKeyPair(hSession, mech, publicKeyTemplate, privateKeyTemplate);
+	}
+	catch (Scoped<Error> e) {
+		this->SetErrorMessage(e->ToString()->c_str());
+	}
+}
+
+void AsyncGenerateKeyPair::HandleOKCallback() {
+	Nan::HandleScope scope;
+
+	Local<Object> v8KeyPair = Nan::New<Object>();
+	v8KeyPair->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->privateKey));
+	v8KeyPair->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->publicKey));
+
+	v8::Local<v8::Value> argv[] = {
+		Nan::Null(),
+		v8KeyPair
+	};
+
+	callback->Call(2, argv);
+}
