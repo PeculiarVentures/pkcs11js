@@ -54,24 +54,24 @@ public:
 
 	///* Encryption and decryption */
 	void C_EncryptInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_SESSION_HANDLE hObject);
-	void C_Encrypt();
+	Scoped<string> C_Encrypt(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> encMsg);
 	Scoped<string> C_EncryptUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part, Scoped<string> encPart);
 	Scoped<string> C_EncryptFinal(CK_SESSION_HANDLE hSession, Scoped<string> encPart);
 	void C_DecryptInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_SESSION_HANDLE hObject);
-	void C_Decrypt();
+	Scoped<string> C_Decrypt(CK_SESSION_HANDLE hSession, Scoped<string> encMsg, Scoped<string> msg);
 	Scoped<string> C_DecryptUpdate(CK_SESSION_HANDLE hSession, Scoped<string> encPart, Scoped<string> decPart);
 	Scoped<string> C_DecryptFinal(CK_SESSION_HANDLE hSession, Scoped<string> decPart);
 
 	///* Message digesting */
 	void C_DigestInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech);
-	void C_Digest();
+	Scoped<string> C_Digest(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> output);
 	void C_DigestUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part);
 	Scoped<string> C_DigestFinal(CK_SESSION_HANDLE hSession, Scoped<string> output);
 	void C_DigestKey(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject);
 
 	///* Signing and MACing */
 	void C_SignInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey);
-	void C_Sign();
+	Scoped<string> C_Sign(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> output);
 	void C_SignUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part);
 	Scoped<string> C_SignFinal(CK_SESSION_HANDLE hSession, Scoped<string> output);
 	void C_SignRecoverInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey);
@@ -79,7 +79,7 @@ public:
 
 	///* Verifying signatures and MACs */
 	void C_VerifyInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey);
-	void C_Verify();
+	void C_Verify(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> signature);
 	void C_VerifyUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part);
 	void C_VerifyFinal(CK_SESSION_HANDLE hSession, Scoped<string> signature);
 	void C_VerifyRecoverInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hObject);

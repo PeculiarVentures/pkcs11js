@@ -630,8 +630,13 @@ void PKCS11::C_EncryptInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, C
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Encrypt() {
-	THROW_ERROR("Not implemented", NULL);
+Scoped<string> PKCS11::C_Encrypt(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> encMsg) {
+	try {
+
+		return crypto_update(functionList->C_Encrypt, hSession, msg, encMsg);
+
+	}
+	CATCH_ERROR;
 }
 
 Scoped<string> PKCS11::C_EncryptUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part, Scoped<string> encPart) {
@@ -661,8 +666,13 @@ void PKCS11::C_DecryptInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, C
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Decrypt() {
-	THROW_ERROR("Not implemented", NULL);
+Scoped<string> PKCS11::C_Decrypt(CK_SESSION_HANDLE hSession, Scoped<string> encMsg, Scoped<string> msg) {
+	try {
+
+		return crypto_update(functionList->C_Decrypt, hSession, encMsg, msg);
+
+	}
+	CATCH_ERROR;
 }
 
 Scoped<string> PKCS11::C_DecryptUpdate(CK_SESSION_HANDLE hSession, Scoped<string> encPart, Scoped<string> decPart) {
@@ -697,8 +707,13 @@ void PKCS11::C_DigestInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech) {
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Digest() {
-	THROW_ERROR("Not implemented", NULL);
+Scoped<string> PKCS11::C_Digest(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> output) {
+	try {
+
+		return crypto_update(functionList->C_Digest, hSession, msg, output);
+
+	}
+	CATCH_ERROR;
 }
 
 void PKCS11::C_DigestUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part) {
@@ -730,13 +745,20 @@ void PKCS11::C_DigestKey(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject) {
 
 void PKCS11::C_SignInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey) {
 	try {
+
 		crypto_init(functionList->C_SignInit, hSession, mech, hKey);
+
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Sign() {
-	THROW_ERROR("Not implemented", NULL);
+Scoped<string> PKCS11::C_Sign(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> output) {
+	try {
+
+		return crypto_update(functionList->C_Sign, hSession, msg, output);
+
+	}
+	CATCH_ERROR;
 }
 
 void PKCS11::C_SignUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part) {
@@ -784,8 +806,17 @@ void PKCS11::C_VerifyInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Verify() {
-	THROW_ERROR("Not implemented", NULL);
+void PKCS11::C_Verify(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> signature) {
+	try {
+
+		CHECK_PKCS11_RV(functionList->C_Verify(
+			hSession,
+			(CK_BYTE_PTR)msg->c_str(), (CK_ULONG)msg->length(),
+			(CK_BYTE_PTR)signature->c_str(), (CK_ULONG)signature->length()
+		));
+
+	}
+	CATCH_ERROR;
 }
 
 void PKCS11::C_VerifyUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part) {

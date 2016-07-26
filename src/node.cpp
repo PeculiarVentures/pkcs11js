@@ -669,9 +669,22 @@ NAN_METHOD(WPKCS11::C_EncryptInit) {
 
 NAN_METHOD(WPKCS11::C_Encrypt) {
 	try {
+		GET_SESSION_HANDLE(hSession, 0);
+		GET_BUFFER(input, 1);
+		GET_BUFFER(output, 2);
+
 		UNWRAP_PKCS11;
 
-		__pkcs11->C_Encrypt();
+		if (!info[3]->IsFunction()) {
+			Scoped<string> res = __pkcs11->C_Encrypt(hSession, input, output);
+
+			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+
+			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_ENCRYPT, hSession, input, output));
+		}
 	}
 	CATCH_V8_ERROR
 }
@@ -722,9 +735,22 @@ NAN_METHOD(WPKCS11::C_DecryptInit) {
 
 NAN_METHOD(WPKCS11::C_Decrypt) {
 	try {
+		GET_SESSION_HANDLE(hSession, 0);
+		GET_BUFFER(input, 1);
+		GET_BUFFER(output, 2);
+		
 		UNWRAP_PKCS11;
 
-		__pkcs11->C_Decrypt();
+		if (!info[3]->IsFunction()) {
+			Scoped<string> res = __pkcs11->C_Decrypt(hSession, input, output);
+
+			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+
+			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_DECRYPT, hSession, input, output));
+		}
 	}
 	CATCH_V8_ERROR
 }
@@ -774,9 +800,22 @@ NAN_METHOD(WPKCS11::C_DigestInit) {
 
 NAN_METHOD(WPKCS11::C_Digest) {
 	try {
+		GET_SESSION_HANDLE(hSession, 0);
+		GET_BUFFER(input, 1);
+		GET_BUFFER(output, 2);
+
 		UNWRAP_PKCS11;
 
-		__pkcs11->C_Digest();
+		if (!info[3]->IsFunction()) {
+			Scoped<string> res = __pkcs11->C_Digest(hSession, input, output);
+
+			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+
+			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_DIGEST, hSession, input, output));
+		}
 	}
 	CATCH_V8_ERROR;
 }
@@ -840,9 +879,22 @@ NAN_METHOD(WPKCS11::C_SignInit) {
 
 NAN_METHOD(WPKCS11::C_Sign) {
 	try {
+		GET_SESSION_HANDLE(hSession, 0);
+		GET_BUFFER(input, 1);
+		GET_BUFFER(output, 2);
+
 		UNWRAP_PKCS11;
 
-		__pkcs11->C_Sign();
+		if (!info[3]->IsFunction()) {
+			Scoped<string> res = __pkcs11->C_Sign(hSession, input, output);
+
+			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+
+			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_SIGN, hSession, input, output));
+		}
 	}
 	CATCH_V8_ERROR
 }
@@ -922,9 +974,22 @@ NAN_METHOD(WPKCS11::C_VerifyInit) {
 
 NAN_METHOD(WPKCS11::C_Verify) {
 	try {
+		GET_SESSION_HANDLE(hSession, 0);
+		GET_BUFFER(input, 1);
+		GET_BUFFER(signature, 2);
+
 		UNWRAP_PKCS11;
 
-		__pkcs11->C_Verify();
+		if (!info[3]->IsFunction()) {
+			__pkcs11->C_Verify(hSession, input, signature);
+
+			info.GetReturnValue().Set(Nan::New<Boolean>(true));
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+
+			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_VERIFY, hSession, input, signature));
+		}
 	}
 	CATCH_V8_ERROR;
 }
