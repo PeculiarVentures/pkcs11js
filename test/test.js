@@ -4,6 +4,7 @@
 const pkcs11 = require("../index");
 const assert = require("assert");
 
+// const libPath = "C:\\Windows\\System32\\jcPKCS11.dll";
 const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
 // const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
 // const libPath = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so";
@@ -182,6 +183,22 @@ describe("PKCS11", () => {
             _secretKey = key;
         });
 
+        it("generate key async", (done) => {
+            var template = [
+                { type: _mod.CKA_CLASS, value: _mod.CKO_SECRET_KEY },
+                { type: _mod.CKA_TOKEN, value: false },
+                { type: _mod.CKA_LABEL, value: "My AES Key" },
+                { type: _mod.CKA_VALUE_LEN, value: 256 / 8 },
+                { type: _mod.CKA_ENCRYPT, value: true },
+                { type: _mod.CKA_DECRYPT, value: true },
+            ];
+            _mod.C_GenerateKey(_session, { mechanism: _mod.CKM_AES_KEY_GEN }, template, (err, key) => {
+                assert.equal(!!key, true);
+                _secretKey = key;
+                done();
+            });
+        });
+
         it("generate key pair RSA", () => {
             var publicKeyTemplate = [
                 { type: _mod.CKA_CLASS, value: _mod.CKO_PUBLIC_KEY },
@@ -205,6 +222,33 @@ describe("PKCS11", () => {
             assert.equal(!!keys.publicKey, true);
             _privateKey = keys.privateKey;
             _publicKey = keys.publicKey;
+        }).timeout(20000);
+
+        it("generate key pair RSA async", (done) => {
+            var publicKeyTemplate = [
+                { type: _mod.CKA_CLASS, value: _mod.CKO_PUBLIC_KEY },
+                { type: _mod.CKA_TOKEN, value: false },
+                { type: _mod.CKA_LABEL, value: "My RSA Public Key" },
+                { type: _mod.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
+                { type: _mod.CKA_MODULUS_BITS, value: 1024 },
+                { type: _mod.CKA_VERIFY, value: true }
+            ];
+            var privateKeyTemplate = [
+                { type: _mod.CKA_CLASS, value: _mod.CKO_PRIVATE_KEY },
+                { type: _mod.CKA_TOKEN, value: false },
+                { type: _mod.CKA_LABEL, value: "My RSA Private Key" },
+                { type: _mod.CKA_SIGN, value: true },
+            ];
+            _mod.C_GenerateKeyPair(_session, { mechanism: _mod.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate, (err, keys) => {
+                assert.equal(!!keys, true);
+                assert.equal("privateKey" in keys, true);
+                assert.equal(!!keys.privateKey, true);
+                assert.equal("publicKey" in keys, true);
+                assert.equal(!!keys.publicKey, true);
+                _privateKey = keys.privateKey;
+                _publicKey = keys.publicKey;
+                done();
+            });
         }).timeout(20000);
 
         it("generate key pair EC", () => {
@@ -413,7 +457,7 @@ describe("PKCS11", () => {
 
             var attrs = _mod.C_GetAttributeValue(_session, _publicKeyEC, [{ type: _mod.CKA_EC_POINT }])
             var ec = attrs[0].value;
-            
+
             var derivedKey = _mod.C_DeriveKey(
                 _session,
                 {
@@ -425,12 +469,12 @@ describe("PKCS11", () => {
                 },
                 _privateKeyEC,
                 [
-                    {type: _mod.CKA_CLASS, value: _mod.CKO_SECRET_KEY},
-                    {type: _mod.CKA_TOKEN, value: false},
-                    {type: _mod.CKA_KEY_TYPE, value: _mod.CKK_AES},
-                    {type: _mod.CKA_LABEL, value: "Derived key"},
-                    {type: _mod.CKA_ENCRYPT, value: true},
-                    {type: _mod.CKA_VALUE_LEN, value: 256 / 8}
+                    { type: _mod.CKA_CLASS, value: _mod.CKO_SECRET_KEY },
+                    { type: _mod.CKA_TOKEN, value: false },
+                    { type: _mod.CKA_KEY_TYPE, value: _mod.CKK_AES },
+                    { type: _mod.CKA_LABEL, value: "Derived key" },
+                    { type: _mod.CKA_ENCRYPT, value: true },
+                    { type: _mod.CKA_VALUE_LEN, value: 256 / 8 }
                 ]
             );
 
