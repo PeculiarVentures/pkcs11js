@@ -39,9 +39,9 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 				case CKM_ECDH1_DERIVE: {
 					ParamEcdh1* p = new ParamEcdh1();
 					this->param = p;
-					p->FromV8(v8Parameter->ToObject());
-					data.pParameter = p;
-					data.ulParameterLen = sizeof(*p);
+					p->FromV8(v8Parameter);
+					data.pParameter = p->Get();
+					data.ulParameterLen = sizeof(*p->Get());
 					break;
 				}
 			default:
