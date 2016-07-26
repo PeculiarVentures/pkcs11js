@@ -10,8 +10,9 @@
 
 #include "const.h"
 #include "node.h"
+#include "async.h"
 
-#define UNWRAP_PKCS11 PKCS11* __pkcs11= &WPKCS11::Unwrap<WPKCS11>(info.This())->pkcs11
+#define UNWRAP_PKCS11 auto __pkcs11= WPKCS11::Unwrap<WPKCS11>(info.This())->pkcs11
 
 #define SET_PKCS11_METHOD(name) SetPrototypeMethod(tpl, #name, name)
 
@@ -192,7 +193,7 @@ NAN_METHOD(WPKCS11::New) {
 	if (info.IsConstructCall()) {
 
 		WPKCS11* obj = new WPKCS11();
-		obj->pkcs11 = PKCS11();
+		obj->pkcs11 = Scoped<PKCS11>(new PKCS11());
 		obj->Wrap(info.This());
 
 		declare_objects(info.This());
@@ -994,9 +995,17 @@ NAN_METHOD(WPKCS11::C_GenerateKey) {
 
 		UNWRAP_PKCS11;
 
-		CK_OBJECT_HANDLE hObject = __pkcs11->C_GenerateKey(hSession, mech, tmpl);
+		if (!info[3]->IsFunction()) {
 
-		info.GetReturnValue().Set(Nan::New<Number>(hObject));
+			CK_OBJECT_HANDLE hObject = __pkcs11->C_GenerateKey(hSession, mech, tmpl);
+			info.GetReturnValue().Set(Nan::New<Number>(hObject));
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
+
+			AsyncQueueWorker(new AsyncGenerateKey(callback, __pkcs11, hSession, mech, tmpl));
+		}
+
 	}
 	CATCH_V8_ERROR;
 }

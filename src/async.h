@@ -1,7 +1,7 @@
 #ifndef INCLUDE_H_ASYNC
 #define INCLUDE_H_ASYNC
 
-#include "pkcs11.h"
+#include "pkcs11/pkcs11.h"
 
 using namespace node;
 using namespace v8;
@@ -10,9 +10,10 @@ class AsyncGenerateKey : public Nan::AsyncWorker {
 public:
 	AsyncGenerateKey(
 		Nan::Callback *callback,
+		Scoped<PKCS11> pkcs11,
 		CK_SESSION_HANDLE hSession,
-		MECHANISM* mech,
-		TEMPLATE* tmpl
+		Scoped<Mechanism> mech,
+		Scoped<Attributes> tmpl
 		) : AsyncWorker(callback), hSession(hSession), mech(mech), tmpl(tmpl) {}
 	~AsyncGenerateKey() {}
 
@@ -21,10 +22,11 @@ public:
 
 protected:
 	CK_SESSION_HANDLE hSession;
-	MECHANISM* mech;
-	TEMPLATE* tmpl;
+	Scoped<PKCS11> pkcs11;
+	Scoped<Mechanism> mech;
+	Scoped<Attributes> tmpl;
 	// Result
-	CK_ULONG key;
+	CK_OBJECT_HANDLE hKey;
 };
 
 #endif // INCLUDE_H_ASYNC

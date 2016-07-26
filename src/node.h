@@ -100,7 +100,7 @@ public:
 	static NAN_METHOD(C_SeedRandom);
 	static NAN_METHOD(C_GenerateRandom);
 
-	PKCS11 pkcs11;
+	Scoped<PKCS11> pkcs11;
 
 protected:
 

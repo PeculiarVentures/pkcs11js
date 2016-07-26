@@ -20,7 +20,7 @@
                  "src/pkcs11/mech.cpp",
                  "src/pkcs11/param_ecdh.cpp",
                  "src/pkcs11/pkcs11.cpp",
-                #  "src/async.cpp",
+                 "src/async.cpp",
                  "src/node.cpp"
             ],
             'conditions': [

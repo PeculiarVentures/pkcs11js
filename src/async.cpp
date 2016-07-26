@@ -2,23 +2,19 @@
 
 void AsyncGenerateKey::Execute() {
 	try {
-		key = ScopedAES::generate(keySize);
+		hKey =  pkcs11->C_GenerateKey(hSession, mech, tmpl);
 	}
-	catch (std::exception& e) {
-		this->SetErrorMessage(e.what());
+	catch (Scoped<Error> e) {
+		this->SetErrorMessage(e->ToString()->c_str());
 	}
 }
 
 void AsyncGenerateKey::HandleOKCallback() {
 	Nan::HandleScope scope;
 
-	v8::Local<v8::Object> v8Key = WAes::NewInstance();
-	WAes *wkey = WAes::Unwrap<WAes>(v8Key);
-	wkey->data = this->key;
-
 	v8::Local<v8::Value> argv[] = {
 		Nan::Null(),
-		v8Key
+		Nan::New<Number>(hKey)
 	};
 
 	callback->Call(2, argv);
