@@ -2,7 +2,7 @@
 
 void declare_attributes(Local<Object> target) {
 	Nan::HandleScope();
-	
+
 	SET_CONST(target, CKA_CLASS);
 	SET_CONST(target, CKA_TOKEN);
 	SET_CONST(target, CKA_PRIVATE);
@@ -109,17 +109,17 @@ void declare_attributes(Local<Object> target) {
 	SET_CONST(target, CKA_VENDOR_DEFINED);
 }
 
-void declare_flags(Local<Object> target){
-    Nan::HandleScope();
+void declare_flags(Local<Object> target) {
+	Nan::HandleScope();
 
 	SET_CONST(target, CKF_RW_SESSION);
 	SET_CONST(target, CKF_SERIAL_SESSION);
 }
 
-void declare_objects(Local<Object> target){
-    Nan::HandleScope();
+void declare_objects(Local<Object> target) {
+	Nan::HandleScope();
 
-    SET_CONST(target, CKO_DATA);
+	SET_CONST(target, CKO_DATA);
 	SET_CONST(target, CKO_CERTIFICATE);
 	SET_CONST(target, CKO_PUBLIC_KEY);
 	SET_CONST(target, CKO_PRIVATE_KEY);
@@ -131,7 +131,7 @@ void declare_objects(Local<Object> target){
 	SET_CONST(target, CKO_VENDOR_DEFINED);
 }
 
-void declare_ket_types(Local<Object> target){
+void declare_ket_types(Local<Object> target) {
 	Nan::HandleScope();
 	SET_CONST(target, CKK_RSA);
 	SET_CONST(target, CKK_DSA);
@@ -479,4 +479,11 @@ void declare_mechanisms(Local<Object> target) {
 	SET_CONST(target, CKM_RSA_PKCS_TPM_1_1);
 	SET_CONST(target, CKM_RSA_PKCS_OAEP_TPM_1_1);
 	SET_CONST(target, CKM_VENDOR_DEFINED);
+}
+
+void declare_certificates(Local<Object> target) {
+	Nan::HandleScope();
+	SET_CONST(target, CKC_WTLS);
+	SET_CONST(target, CKC_X_509);
+	SET_CONST(target, CKC_X_509_ATTR_CERT);
 }
