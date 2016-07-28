@@ -7,8 +7,6 @@
 #include <dlfcn.h>
 #endif // WIN32
 
-
-#include "const.h"
 #include "node.h"
 #include "async.h"
 
@@ -196,12 +194,6 @@ NAN_METHOD(WPKCS11::New) {
 		obj->pkcs11 = Scoped<PKCS11>(new PKCS11());
 		obj->Wrap(info.This());
 
-		declare_objects(info.This());
-		declare_attributes(info.This());
-		declare_ket_types(info.This());
-		declare_mechanisms(info.This());
-		declare_flags(info.This());
-
 		info.GetReturnValue().Set(info.This());
 	}
 	else {
@@ -327,6 +319,10 @@ NAN_METHOD(WPKCS11::C_GetTokenInfo) {
 		v8Object->Set(Nan::New(STR_HARDWARE_VERSION).ToLocalChecked(), GetVersion(_info->hardwareVersion));
 		v8Object->Set(Nan::New(STR_FIRMWARE_VERSION).ToLocalChecked(), GetVersion(_info->firmwareVersion));
 		v8Object->Set(Nan::New(STR_UTC_TIME).ToLocalChecked(), Nan::New((char*)_info->utcTime, 16).ToLocalChecked());
+		v8Object->Set(Nan::New(STR_TOTAL_PUBLIC_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulTotalPublicMemory));
+		v8Object->Set(Nan::New(STR_FREE_PUBLIC_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulFreePublicMemory));
+		v8Object->Set(Nan::New(STR_TOTAL_PRIVATE_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulTotalPrivateMemory));
+		v8Object->Set(Nan::New(STR_FREE_PRIVATE_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulFreePrivateMemory));
 
 		info.GetReturnValue().Set(v8Object);
 	}
