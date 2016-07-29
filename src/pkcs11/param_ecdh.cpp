@@ -1,12 +1,4 @@
-#include "param_ecdh.h"
-
-ParamEcdh1::ParamEcdh1() {
-	New();
-}
-
-ParamEcdh1::~ParamEcdh1() {
-	Free();
-}
+#include "param.h"
 
 void ParamEcdh1::FromV8(Local<Value> v8Value) {
 	try {

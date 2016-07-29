@@ -15,6 +15,8 @@ NAN_MODULE_INIT(init) {
 	declare_mechanisms(target);
 	declare_flags(target);
 	declare_certificates(target);
+	declare_mgf(target);
+	declare_kdf(target);
 }
 
 NODE_MODULE(pkcs11, init)

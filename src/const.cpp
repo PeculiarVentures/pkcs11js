@@ -487,3 +487,25 @@ void declare_certificates(Local<Object> target) {
 	SET_CONST(target, CKC_X_509);
 	SET_CONST(target, CKC_X_509_ATTR_CERT);
 }
+
+void declare_mgf(Local<Object> target) {
+	Nan::HandleScope();
+	SET_CONST(target, CKG_MGF1_SHA1);
+	SET_CONST(target, CKG_MGF1_SHA256);
+	SET_CONST(target, CKG_MGF1_SHA384);
+	SET_CONST(target, CKG_MGF1_SHA512);
+	SET_CONST(target, CKG_MGF1_SHA224);
+}
+
+void declare_kdf(Local<Object> target) {
+	Nan::HandleScope();
+	SET_CONST(target, CKD_NULL);
+	SET_CONST(target, CKD_SHA1_KDF);
+	SET_CONST(target, CKD_SHA1_KDF_ASN1);
+	SET_CONST(target, CKD_SHA1_KDF_CONCATENATE);
+	SET_CONST(target, CKD_SHA224_KDF);
+	SET_CONST(target, CKD_SHA256_KDF);
+	SET_CONST(target, CKD_SHA384_KDF);
+	SET_CONST(target, CKD_SHA512_KDF);
+	SET_CONST(target, CKD_CPDIVERSIFY_KDF);
+}

@@ -30,5 +30,7 @@ void declare_objects(Local<Object> target);
 void declare_ket_types(Local<Object> target);
 void declare_mechanisms(Local<Object> target);
 void declare_certificates(Local<Object> target);
+void declare_mgf(Local<Object> target);
+void declare_kdf(Local<Object> target);
 
 #endif // INCLUDE_H_CONST

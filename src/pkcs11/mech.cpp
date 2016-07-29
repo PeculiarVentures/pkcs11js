@@ -1,5 +1,5 @@
 #include "mech.h"
-#include "param_ecdh.h"
+#include "param.h"
 
 Mechanism::Mechanism() {
 	New();
