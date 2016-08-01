@@ -401,7 +401,7 @@ CK_OBJECT_HANDLE PKCS11::C_FindObjects(CK_SESSION_HANDLE session) {
 			&hObject, 1,
 			&ulObjectCount));
 
-		return ulObjectCount ? hObject : NULL;
+		return ulObjectCount ? hObject : 0;
 	}
 	CATCH_ERROR;
 }

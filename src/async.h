@@ -21,8 +21,8 @@ public:
 	void HandleOKCallback();
 
 protected:
-	CK_SESSION_HANDLE hSession;
 	Scoped<PKCS11> pkcs11;
+	CK_SESSION_HANDLE hSession;
 	Scoped<Mechanism> mech;
 	Scoped<Attributes> tmpl;
 	// Result
@@ -45,8 +45,8 @@ public:
 	void HandleOKCallback();
 
 protected:
-	CK_SESSION_HANDLE hSession;
 	Scoped<PKCS11> pkcs11;
+	CK_SESSION_HANDLE hSession;
 	Scoped<Mechanism> mech;
 	Scoped<Attributes> publicKeyTemplate;
 	Scoped<Attributes> privateKeyTemplate;

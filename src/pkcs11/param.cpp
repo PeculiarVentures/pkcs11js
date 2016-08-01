@@ -7,10 +7,6 @@ bool check_param_##name(Local<Object> obj, const char* paramName) {			\
 	return check_##name(v8Value);											\
 }
 
-static bool check_buffer(Local<Object> obj) {
-	return node::Buffer::HasInstance(obj);
-}
-
 static bool check_buffer(Local<Value> obj) {
 	return node::Buffer::HasInstance(obj);
 }

@@ -87,7 +87,7 @@ static Scoped<string> buffer_to_string(Local<Value> v8Value) {
 #define GET_SLOT_ID_HANDLE(name, argsIndex)										\
 	GET_HANDLE(CK_SLOT_ID, name, argsIndex)
 
-static Scoped<string> get_string(Local<Value> v8String, char* defaultValue = "") {
+static Scoped<string> get_string(Local<Value> v8String, const char* defaultValue = "") {
 	Scoped<string> res;
 	if (v8String->IsString()) {
 		res = Scoped<string>(new string(*String::Utf8Value(v8String)));
@@ -538,7 +538,7 @@ NAN_METHOD(WPKCS11::C_FindObjects) {
 
 		CK_OBJECT_HANDLE hObject = __pkcs11->C_FindObjects(hSession);
 
-		Local<Value> v8Res = hObject != NULL ? Nan::New<Number>(hObject).As<Value>() : Nan::Null().As<Value>();
+		Local<Value> v8Res = (hObject != 0) ? Nan::New<Number>(hObject).As<Value>() : Nan::Null().As<Value>();
 
 		info.GetReturnValue().Set(v8Res);
 	}
@@ -734,7 +734,7 @@ NAN_METHOD(WPKCS11::C_Decrypt) {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
 		GET_BUFFER(output, 2);
-		
+
 		UNWRAP_PKCS11;
 
 		if (!info[3]->IsFunction()) {

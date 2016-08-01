@@ -68,7 +68,7 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 						break;
 					}
 					default:
-						THROW_ERROR("Unknown type of Mech param in use", NULL);
+						THROW_ERROR("Unknown type Mech param in use", NULL);
 					}
 			}
 			else {

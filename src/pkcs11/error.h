@@ -17,16 +17,16 @@ protected:
 public:
 	Scoped<string> message;
 	Error(const char* msg, Scoped<Error> stack, const char* function, int line) :
-		message(Scoped<string>(new string(msg))),
 		stack(stack),
 		function(new string(function)),
-		line(line)
+		line(line),
+		message(Scoped<string>(new string(msg)))
 	{};
 	Error(Scoped<string> msg, Scoped<Error> stack, const char* function, int line) :
-		message(msg),
 		stack(stack),
 		function(new string(function)),
-		line(line)
+		line(line),
+		message(msg)
 	{};
 	~Error() {};
 	Scoped<string> ToString();
