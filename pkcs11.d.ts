@@ -89,7 +89,7 @@ declare module "pkcs11js" {
     }
 
     interface AesCCM extends IParapms {
-        dataLen: Buffer;
+        dataLen: number;
         nonce?: Buffer;
         aad?: Buffer;
         macLen: number;
