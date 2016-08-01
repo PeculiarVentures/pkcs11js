@@ -1,6 +1,13 @@
 #include "mech.h"
 #include "param.h"
 
+#define CREATE_PARAM(class_name)					\
+	class_name* p = new class_name();				\
+	this->param = p;								\
+	p->FromV8(v8Parameter);							\
+	data.pParameter = p->Get();						\
+	data.ulParameterLen = sizeof(*p->Get())
+
 Mechanism::Mechanism() {
 	New();
 }
@@ -37,18 +44,35 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 			// Buffer
 			switch (data.mechanism) {
 				case CKM_ECDH1_DERIVE: {
-					ParamEcdh1* p = new ParamEcdh1();
-					this->param = p;
-					p->FromV8(v8Parameter);
-					data.pParameter = p->Get();
-					data.ulParameterLen = sizeof(*p->Get());
+					CREATE_PARAM(ParamEcdh1);
+					break;
+				}
+				case CKM_AES_CBC:
+				case CKM_AES_CBC_PAD: {
+					CREATE_PARAM(ParamAesCBC);
+					break;
+				}
+				case CKM_AES_GCM: {
+					CREATE_PARAM(ParamAesGCM);
+					break;
+				}
+				case CKM_AES_CCM: {
+					CREATE_PARAM(ParamAesCCM);
+					break;
+				}
+				case CKM_RSA_PKCS_OAEP: {
+					CREATE_PARAM(ParamRsaOAEP);
+					break;
+				}
+				case CKM_RSA_PKCS_PSS: {
+					CREATE_PARAM(ParamRsaPSS);
 					break;
 				}
 			default:
 				GET_BUFFER_SMPL(buf, v8Parameter->ToObject());
 				data.pParameter = (char*)malloc(bufLen);
 				memcpy(data.pParameter, buf, bufLen);
-				data.ulParameterLen = bufLen;
+				data.ulParameterLen = (CK_ULONG) bufLen;
 			}
 		}
 	}
