@@ -41,33 +41,41 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 
 		data.mechanism = v8MechType->ToNumber()->Uint32Value();
 		if (!(v8Parameter->IsUndefined() || v8Parameter->IsNull())) {
-			// Buffer
-			switch (data.mechanism) {
-				case CK_PARAMS_EC_DH: {
-					CREATE_PARAM(ParamEcdh1);
-					break;
-				}
-				case CK_PARAMS_AES_GCM: {
-					CREATE_PARAM(ParamAesGCM);
-					break;
-				}
-				case CK_PARAMS_AES_CCM: {
-					CREATE_PARAM(ParamAesCCM);
-					break;
-				}
-				case CK_PARAMS_RSA_OAEP: {
-					CREATE_PARAM(ParamRsaOAEP);
-					break;
-				}
-				case CK_PARAMS_RSA_PSS: {
-					CREATE_PARAM(ParamRsaPSS);
-					break;
-				}
-			default:
+			Local<Object> v8Param = v8Parameter->ToObject();
+			if (!node::Buffer::HasInstance(v8Param)) {
+				Local<Object> v8Param = v8Parameter->ToObject();
+				Local<Value> v8Type = v8Param->Get(Nan::New(STR_TYPE).ToLocalChecked());
+				CK_ULONG type = v8Type->IsNumber() ? v8Type->ToNumber()->Uint32Value() : 0;
+					switch (type) {
+					case CK_PARAMS_EC_DH: {
+						CREATE_PARAM(ParamEcdh1);
+						break;
+					}
+					case CK_PARAMS_AES_GCM: {
+						CREATE_PARAM(ParamAesGCM);
+						break;
+					}
+					case CK_PARAMS_AES_CCM: {
+						CREATE_PARAM(ParamAesCCM);
+						break;
+					}
+					case CK_PARAMS_RSA_OAEP: {
+						CREATE_PARAM(ParamRsaOAEP);
+						break;
+					}
+					case CK_PARAMS_RSA_PSS: {
+						CREATE_PARAM(ParamRsaPSS);
+						break;
+					}
+					default:
+						THROW_ERROR("Unknown type of Mech param in use", NULL);
+					}
+			}
+			else {
 				GET_BUFFER_SMPL(buf, v8Parameter->ToObject());
 				data.pParameter = (char*)malloc(bufLen);
 				memcpy(data.pParameter, buf, bufLen);
-				data.ulParameterLen = (CK_ULONG) bufLen;
+				data.ulParameterLen = (CK_ULONG)bufLen;
 			}
 		}
 	}

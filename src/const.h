@@ -14,6 +14,8 @@
 #pragma pack(pop, cryptoki)
 #endif
 
+#include "pkcs11/param.h"
+
 using namespace v8;
 using namespace node;
 
@@ -32,5 +34,6 @@ void declare_mechanisms(Local<Object> target);
 void declare_certificates(Local<Object> target);
 void declare_mgf(Local<Object> target);
 void declare_kdf(Local<Object> target);
+void declare_params(Local<Object> target);
 
 #endif // INCLUDE_H_CONST
