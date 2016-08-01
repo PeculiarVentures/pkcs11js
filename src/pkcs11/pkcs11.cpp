@@ -563,7 +563,7 @@ static Scoped<string> crypto_update(
 ) {
 	try {
 
-		auto outLen = input->length();
+		auto outLen = output->length();
 
 		CHECK_PKCS11_RV(fn(
 			hSession,
