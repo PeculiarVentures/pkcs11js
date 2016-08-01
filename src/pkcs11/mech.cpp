@@ -43,28 +43,23 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 		if (!(v8Parameter->IsUndefined() || v8Parameter->IsNull())) {
 			// Buffer
 			switch (data.mechanism) {
-				case CKM_ECDH1_DERIVE: {
+				case CK_PARAMS_EC_DH: {
 					CREATE_PARAM(ParamEcdh1);
 					break;
 				}
-				case CKM_AES_CBC:
-				case CKM_AES_CBC_PAD: {
-					CREATE_PARAM(ParamAesCBC);
-					break;
-				}
-				case CKM_AES_GCM: {
+				case CK_PARAMS_AES_GCM: {
 					CREATE_PARAM(ParamAesGCM);
 					break;
 				}
-				case CKM_AES_CCM: {
+				case CK_PARAMS_AES_CCM: {
 					CREATE_PARAM(ParamAesCCM);
 					break;
 				}
-				case CKM_RSA_PKCS_OAEP: {
+				case CK_PARAMS_RSA_OAEP: {
 					CREATE_PARAM(ParamRsaOAEP);
 					break;
 				}
-				case CKM_RSA_PKCS_PSS: {
+				case CK_PARAMS_RSA_PSS: {
 					CREATE_PARAM(ParamRsaPSS);
 					break;
 				}

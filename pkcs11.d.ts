@@ -166,14 +166,14 @@ declare module "pkcs11js" {
         // C_DigestKey();
         C_SignInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         C_Sign(session: Handle, inData: Buffer, outData: Buffer): Buffer;
-        C_Sign(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void ): void;
+        C_Sign(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         C_SignUpdate(session: Handle, inData: Buffer): void;
         C_SignFinal(session: Handle, outData: Buffer): Buffer;
         // C_SignRecoverInit();
         // C_SignRecover();
         C_VerifyInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         C_Verify(session: Handle, inData: Buffer, signature: Buffer): boolean;
-        C_Verify(session: Handle, inData: Buffer, signature: Buffer, cb: (error: Error, verify: boolean) => void ): void;
+        C_Verify(session: Handle, inData: Buffer, signature: Buffer, cb: (error: Error, verify: boolean) => void): void;
         C_VerifyUpdate(session: Handle, inData: Buffer): void;
         C_VerifyFinal(session: Handle, signature: Buffer): boolean;
         // C_VerifyRecoverInit();
@@ -692,5 +692,13 @@ declare module "pkcs11js" {
     const CKD_SHA256_KDF: number;
     const CKD_SHA384_KDF: number;
     const CKD_SHA512_KDF: number;
-    const CKD_CPDIVERSIFY_KDF: number; 
+    const CKD_CPDIVERSIFY_KDF: number;
+
+    // Mech params
+    const CK_PARAMS_AES_CBC: number;
+    const CK_PARAMS_AES_CCM: number;
+    const CK_PARAMS_AES_GCM: number;
+    const CK_PARAMS_RSA_OAEP: number;
+    const CK_PARAMS_RSA_PSS: number;
+    const CK_PARAMS_EC_DH: number;
 }
