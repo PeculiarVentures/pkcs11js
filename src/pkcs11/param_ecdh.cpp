@@ -13,10 +13,9 @@ void ParamEcdh1::FromV8(Local<Value> v8Value) {
 		// Check data
 		if (!v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())->IsNumber())
 			THROW_ERROR("Attribute 'kdf' MUST be NUMBER", NULL);
-		if (!(v8Params->Get(Nan::New(STR_SHARED_DATA).ToLocalChecked())->IsUndefined()
-			|| node::Buffer::HasInstance(v8Params->Get(Nan::New(STR_SHARED_DATA).ToLocalChecked())->ToObject())))
+		if (!(check_param_empty(v8Params, STR_SHARED_DATA) || check_param_buffer(v8Params, STR_SHARED_DATA)))
 			THROW_ERROR("Attribute 'sharedData' MUST be NULL | Buffer", NULL);
-		if (!node::Buffer::HasInstance(v8Params->Get(Nan::New(STR_PUBLIC_DATA).ToLocalChecked())->ToObject()))
+		if (!check_param_buffer(v8Params, STR_PUBLIC_DATA))
 			THROW_ERROR("Attribute 'publicData' MUST be Buffer", NULL);
 
 		Free();
@@ -24,7 +23,7 @@ void ParamEcdh1::FromV8(Local<Value> v8Value) {
 
 		data.kdf = (CK_ULONG)v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())->ToNumber()->Uint32Value();
 
-		if (!v8Params->Get(Nan::New(STR_SHARED_DATA).ToLocalChecked())->IsUndefined()) {
+		if (check_param_buffer(v8Params, STR_SHARED_DATA)) {
 			GET_BUFFER_SMPL(sharedData, v8Params->Get(Nan::New(STR_SHARED_DATA).ToLocalChecked())->ToObject());
 			data.pSharedData = (CK_BYTE_PTR)malloc(sharedDataLen * sizeof(CK_BYTE));
 			memcpy(data.pSharedData, sharedData, sharedDataLen);
