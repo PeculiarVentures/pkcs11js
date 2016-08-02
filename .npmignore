@@ -1,3 +1,6 @@
 .vscode
 typings
 node_modules
+tslint.json
+tsd.json
+pkcs11.d.ts
