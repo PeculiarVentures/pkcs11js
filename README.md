@@ -63,35 +63,42 @@ pkcs11.load("/usr/local/lib/softhsm/libsofthsm2.so");
 
 pkcs11.C_Initialize();
 
-// Getting info about PKCS11 Module
-var module_info = pkcs11.C_GetInfo();
+try {
+    // Getting info about PKCS11 Module
+    var module_info = pkcs11.C_GetInfo();
 
-// Getting list of slots
-var slots = pkcs11.C_GetSlotList(true);
-var slot = slots[0];
+    // Getting list of slots
+    var slots = pkcs11.C_GetSlotList(true);
+    var slot = slots[0];
 
-// Getting info about slot
-var slot_info = pkcs11.C_GetSlotInfo(slot);
-// Getting info about token
-var token_info = pkcs11.C_GetTokenInfo(slot);
+    // Getting info about slot
+    var slot_info = pkcs11.C_GetSlotInfo(slot);
+    // Getting info about token
+    var token_info = pkcs11.C_GetTokenInfo(slot);
 
-// Getting info about Mechanism
-var mechs = pkcs11.C_GetMechanismList(slot);
-var mech_info = pkcs11.C_GetMechanismInfo(slot, mechs[0]);
+    // Getting info about Mechanism
+    var mechs = pkcs11.C_GetMechanismList(slot);
+    var mech_info = pkcs11.C_GetMechanismInfo(slot, mechs[0]);
 
-var session = pkcs11.C_OpenSession(slot, pkcs11.CKF_RW_SESSION | pkcs11.CKF_SERIAL_SESSION);
+    var session = pkcs11.C_OpenSession(slot, pkcs11js.CKF_RW_SESSION | pkcs11js.CKF_SERIAL_SESSION);
 
-// Getting info about Session
-var info = pkcs11.C_GetSessionInfo(session);
-pkcs11.C_Login(session, 1, "password");
+    // Getting info about Session
+    var info = pkcs11.C_GetSessionInfo(session);
+    pkcs11.C_Login(session, 1, "password");
 
-/**
- * Your app code here
- */
-
-pkcs11.C_Logout(session);
-pkcs11.C_CloseSession(session);
-pkcs11.C_Finalize();
+    /**
+    * Your app code here
+    */
+    
+    pkcs11.C_Logout(session);
+    pkcs11.C_CloseSession(session);
+}
+catch(e){
+    console.error(e);
+}
+finally {
+    pkcs11.C_Finalize();
+}
 ```
 
 ### Example #2
@@ -100,14 +107,14 @@ Generating secret key using AES mechanism
 
 ```javascript
 var template = [
-    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
-    { type: pkcs11.CKA_TOKEN, value: false },
-    { type: pkcs11.CKA_LABEL, value: "My AES Key" },
-    { type: pkcs11.CKA_VALUE_LEN, value: 256 / 8 },
-    { type: pkcs11.CKA_ENCRYPT, value: true },
-    { type: pkcs11.CKA_DECRYPT, value: true },
+    { type: pkcs11js.CKA_CLASS, value: pkcs11js.CKO_SECRET_KEY },
+    { type: pkcs11js.CKA_TOKEN, value: false },
+    { type: pkcs11js.CKA_LABEL, value: "My AES Key" },
+    { type: pkcs11js.CKA_VALUE_LEN, value: 256 / 8 },
+    { type: pkcs11js.CKA_ENCRYPT, value: true },
+    { type: pkcs11js.CKA_DECRYPT, value: true },
 ];
-var key = pkcs11.C_GenerateKey(session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, template);
+var key = pkcs11.C_GenerateKey(session, { mechanism: pkcs11js.CKM_AES_KEY_GEN }, template);
 ```
 
 ### Example #3
@@ -116,20 +123,20 @@ Generating key pair using RSA-PKCS1 mechanism
 
 ```javascript
 var publicKeyTemplate = [
-    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
-    { type: pkcs11.CKA_TOKEN, value: false },
-    { type: pkcs11.CKA_LABEL, value: "My RSA Public Key" },
-    { type: pkcs11.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
-    { type: pkcs11.CKApkcs11ULUS_BITS, value: 2048 },
-    { type: pkcs11.CKA_VERIFY, value: true }
+    { type: pkcs11js.CKA_CLASS, value: pkcs11js.CKO_PUBLIC_KEY },
+    { type: pkcs11js.CKA_TOKEN, value: false },
+    { type: pkcs11js.CKA_LABEL, value: "My RSA Public Key" },
+    { type: pkcs11js.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
+    { type: pkcs11js.CKA_MODULUS_BITS, value: 2048 },
+    { type: pkcs11js.CKA_VERIFY, value: true }
 ];
 var privateKeyTemplate = [
-    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
-    { type: pkcs11.CKA_TOKEN, value: false },
-    { type: pkcs11.CKA_LABEL, value: "My RSA Private Key" },
-    { type: pkcs11.CKA_SIGN, value: true },
+    { type: pkcs11js.CKA_CLASS, value: pkcs11js.CKO_PRIVATE_KEY },
+    { type: pkcs11js.CKA_TOKEN, value: false },
+    { type: pkcs11js.CKA_LABEL, value: "My RSA Private Key" },
+    { type: pkcs11js.CKA_SIGN, value: true },
 ];
-var keys = pkcs11.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
+var keys = pkcs11.C_GenerateKeyPair(session, { mechanism: pkcs11js.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
 ```
 
 ### Example #4
@@ -138,18 +145,18 @@ Generating key pair using ECDSA mechanism
 
 ```javascript
 var publicKeyTemplate = [
-    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
-    { type: pkcs11.CKA_TOKEN, value: false },
-    { type: pkcs11.CKA_LABEL, value: "My EC Public Key" },
-    { type: pkcs11.CKA_EC_PARAMS, value: new Buffer("06082A8648CE3D030107", "hex") }, // secp256r1
+    { type: pkcs11js.CKA_CLASS, value: pkcs11js.CKO_PUBLIC_KEY },
+    { type: pkcs11js.CKA_TOKEN, value: false },
+    { type: pkcs11js.CKA_LABEL, value: "My EC Public Key" },
+    { type: pkcs11js.CKA_EC_PARAMS, value: new Buffer("06082A8648CE3D030107", "hex") }, // secp256r1
 ];
 var privateKeyTemplate = [
-    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
-    { type: pkcs11.CKA_TOKEN, value: false },
-    { type: pkcs11.CKA_LABEL, value: "My EC Private Key" },
-    { type: pkcs11.CKA_DERIVE, value: true },
+    { type: pkcs11js.CKA_CLASS, value: pkcs11js.CKO_PRIVATE_KEY },
+    { type: pkcs11js.CKA_TOKEN, value: false },
+    { type: pkcs11js.CKA_LABEL, value: "My EC Private Key" },
+    { type: pkcs11js.CKA_DERIVE, value: true },
 ];
-var keys = pkcs11.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_EC_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
+var keys = pkcs11.C_GenerateKeyPair(session, { mechanism: pkcs11js.CKM_EC_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
 ```
 
 ### Example #4
@@ -158,29 +165,29 @@ Working with Object
 
 ```javascript
 var nObject = pkcs11.C_CreateObject(session, [
-    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_DATA },
-    { type: pkcs11.CKA_TOKEN, value: false },
-    { type: pkcs11.CKA_PRIVATE, value: false },
-    { type: pkcs11.CKA_LABEL, value: "My custom data" },
+    { type: pkcs11js.CKA_CLASS, value: pkcs11js.CKO_DATA },
+    { type: pkcs11js.CKA_TOKEN, value: false },
+    { type: pkcs11js.CKA_PRIVATE, value: false },
+    { type: pkcs11js.CKA_LABEL, value: "My custom data" },
 ]);
 
 // Updating lable of Object
-pkcs11.C_SetAttributeValue(session, nObject, [{ type: pkcs11.CKA_LABEL, value: nObjetcLabel + "!!!" }]);
+pkcs11.C_SetAttributeValue(session, nObject, [{ type: pkcs11js.CKA_LABEL, value: nObjetcLabel + "!!!" }]);
 
 // Getting attribute value
 var label = pkcs11.C_GetAttributeValue(session, nObject, [
-    { type: pkcs11.CKA_LABEL },
-    { type: pkcs11.CKA_TOKEN }
+    { type: pkcs11js.CKA_LABEL },
+    { type: pkcs11js.CKA_TOKEN }
 ]);
 console.log(label[0].value.toString()); // My custom data!!!
 console.log(!!label[1].value[0]; // false
 
 // Copying Object
 var cObject = pkcs11.C_CopyObject(session, nObject, [
-    { type: pkcs11.CKA_CLASS},
-    { type: pkcs11.CKA_TOKEN},
-    { type: pkcs11.CKA_PRIVATE},
-    { type: pkcs11.CKA_LABEL},
+    { type: pkcs11js.CKA_CLASS},
+    { type: pkcs11js.CKA_TOKEN},
+    { type: pkcs11js.CKA_PRIVATE},
+    { type: pkcs11js.CKA_LABEL},
 ])
 
 // Removing Object
@@ -194,13 +201,13 @@ Searching objects
 **NOTE:** If template is not setted for C_FindObjectsInit, then C_FindObjects returns all objects from slot  
 
 ```javascript
-pkcs11.C_FindObjectsInit(session, [{ type: pkcs11.CKA_CLASS, value: pkcs11.CKO_DATA }]);
+pkcs11.C_FindObjectsInit(session, [{ type: pkcs11js.CKA_CLASS, value: pkcs11js.CKO_DATA }]);
 var hObject = pkcs11.C_FindObjects(session);
 while (hObject) {
     var attrs = pkcs11.C_GetAttributeValue(session, hObject, [
-        { type: pkcs11.CKA_CLASS },
-        { type: pkcs11.CKA_TOKEN },
-        { type: pkcs11.CKA_LABEL }
+        { type: pkcs11js.CKA_CLASS },
+        { type: pkcs11js.CKA_TOKEN },
+        { type: pkcs11js.CKA_LABEL }
     ]);
     // Output info for objects from token only
     if (attrs[1].value[0]){
@@ -233,7 +240,7 @@ console.log(random.toString("hex"));
 Digest
 
 ```javascript
-pkcs11.C_DigestInit(_session, { mechanism: pkcs11.CKM_SHA256 });
+pkcs11.C_DigestInit(_session, { mechanism: pkcs11js.CKM_SHA256 });
 
 pkcs11.C_DigestUpdate(session, new Buffer("Incomming message 1"));
 pkcs11.C_DigestUpdate(session, new Buffer("Incomming message N"));
@@ -248,7 +255,7 @@ console.log(digest.toString("hex"));
 Signing data
 
 ```javascript
-pkcs11.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
+pkcs11.C_SignInit(session, { mechanism: pkcs11js.CKM_SHA256_RSA_PKCS }, keys.privateKey);
 
 pkcs11.C_SignUpdate(session, new Buffer("Incomming message 1"));
 pkcs11.C_SignUpdate(session, new Buffer("Incomming message N"));
@@ -259,7 +266,7 @@ var signature = pkcs11.C_SignFinal(session, Buffer(256));
 Verifying data
 
 ```javascript
-pkcs11.C_VerifyInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.publicKey);
+pkcs11.C_VerifyInit(session, { mechanism: pkcs11js.CKM_SHA256_RSA_PKCS }, keys.publicKey);
 
 pkcs11.C_VerifyUpdate(session, new Buffer("Incomming message 1"));
 pkcs11.C_VerifyUpdate(session, new Buffer("Incomming message N"));
@@ -277,7 +284,7 @@ var cbc_param = pkcs11.C_GenerateRandom(new Buffer(16));
 pkcs11.C_EncryptInit(
     session,
     {
-        mechanism: pkcs11.CKM_AES_CBC,
+        mechanism: pkcs11js.CKM_AES_CBC,
         parameter: cbc_param
     },
     secretKey
@@ -297,7 +304,7 @@ Decrypting data with AES-CBC mechanism
 pkcs11.C_DecryptInit(
     session,
     {
-        mechanism: pkcs11.CKM_AES_CBC,
+        mechanism: pkcs11js.CKM_AES_CBC,
         parameter: cbc_param
     },
     secretKey
@@ -316,26 +323,27 @@ Deriving key with ECDH mechanism
 
 ```javascript
 // Recieve public data from EC public key
-var attrs = pkcs11.C_GetAttributeValue(session, publicKeyEC, [{ type: pkcs11.CKA_EC_POINT }])
+var attrs = pkcs11.C_GetAttributeValue(session, publicKeyEC, [{ type: pkcs11js.CKA_EC_POINT }])
 var ec = attrs[0].value;
 
 var derivedKey = pkcs11.C_DeriveKey(
     session,
     {
-        mechanism: pkcs11.CKM_ECDH1_DERIVE,
+        mechanism: pkcs11js.CKM_ECDH1_DERIVE,
         parameter: {
+            type: pkcs11js.CK_PARAMS_EC_DH,
             kdf: 2,
             publicData: ec
         }
     },
     privateKeyEC,
     [
-        { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
-        { type: pkcs11.CKA_TOKEN, value: false },
-        { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_AES },
-        { type: pkcs11.CKA_LABEL, value: "Derived AES key" },
-        { type: pkcs11.CKA_ENCRYPT, value: true },
-        { type: pkcs11.CKA_VALUE_LEN, value: 256 / 8 }
+        { type: pkcs11js.CKA_CLASS, value: pkcs11js.CKO_SECRET_KEY },
+        { type: pkcs11js.CKA_TOKEN, value: false },
+        { type: pkcs11js.CKA_KEY_TYPE, value: pkcs11js.CKK_AES },
+        { type: pkcs11js.CKA_LABEL, value: "Derived AES key" },
+        { type: pkcs11js.CKA_ENCRYPT, value: true },
+        { type: pkcs11js.CKA_VALUE_LEN, value: 256 / 8 }
     ]
 );
 ```
