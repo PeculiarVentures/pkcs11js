@@ -463,6 +463,7 @@ describe("PKCS11", () => {
                 {
                     mechanism: _mod.CKM_ECDH1_DERIVE,
                     parameter: {
+                        type: CK_PARAMS_EC_DH,
                         kdf: 2,
                         publicData: ec
                     }
@@ -478,7 +479,6 @@ describe("PKCS11", () => {
                 ]
             );
 
-            // assert.notEqual(dec.toString(), "12345678123456781234567812345678");
         });
 
     })
