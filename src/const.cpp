@@ -114,6 +114,19 @@ void declare_flags(Local<Object> target) {
 
 	SET_CONST(target, CKF_RW_SESSION);
 	SET_CONST(target, CKF_SERIAL_SESSION);
+	SET_CONST(target, CKF_HW);
+	SET_CONST(target, CKF_ENCRYPT);
+	SET_CONST(target, CKF_DECRYPT);
+	SET_CONST(target, CKF_DIGEST);
+	SET_CONST(target, CKF_SIGN);
+	SET_CONST(target, CKF_SIGN_RECOVER);
+	SET_CONST(target, CKF_VERIFY);
+	SET_CONST(target, CKF_VERIFY_RECOVER);
+	SET_CONST(target, CKF_GENERATE);
+	SET_CONST(target, CKF_GENERATE_KEY_PAIR);
+	SET_CONST(target, CKF_WRAP);
+	SET_CONST(target, CKF_UNWRAP);
+	SET_CONST(target, CKF_DERIVE);
 }
 
 void declare_objects(Local<Object> target) {
