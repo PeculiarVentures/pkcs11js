@@ -74,7 +74,7 @@ void AsyncCrypto::HandleOKCallback() {
 
 	Local<Value> v8Result;
 
-	if (ASYNC_CRYPTO_VERIFY) {
+	if (type == ASYNC_CRYPTO_VERIFY) {
 		v8Result = Nan::New<Boolean>(true);
 	}
 	else {
