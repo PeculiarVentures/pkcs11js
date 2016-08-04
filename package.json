@@ -1,6 +1,6 @@
 {
   "name": "pkcs11js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Node.js implementation of the PKCS#11 2.3 interface",
   "repository": {
     "type": "git",
@@ -20,6 +20,5 @@
   },
   "bugs": {
     "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
-  },
-  "readme": "https://github.com/PeculiarVentures/pkcs11js#readme"
+  }
 }

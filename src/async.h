@@ -14,7 +14,7 @@ public:
 		CK_SESSION_HANDLE hSession,
 		Scoped<Mechanism> mech,
 		Scoped<Attributes> tmpl
-		) : AsyncWorker(callback), pkcs11(pkcs11), hSession(hSession), mech(mech), tmpl(tmpl) {}
+	) : AsyncWorker(callback), pkcs11(pkcs11), hSession(hSession), mech(mech), tmpl(tmpl) {}
 	~AsyncGenerateKey() {}
 
 	void Execute();
@@ -83,6 +83,88 @@ protected:
 	Scoped<string> output;
 	// Result
 	Scoped<string> result;
+};
+
+class AsyncWrapKey : public Nan::AsyncWorker {
+public:
+	AsyncWrapKey(
+		Nan::Callback *callback,
+		Scoped<PKCS11> pkcs11,
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		CK_OBJECT_HANDLE hWrappingKey,
+		CK_OBJECT_HANDLE hKey,
+		Scoped<string> wrappedKey
+	) : AsyncWorker(callback), pkcs11(pkcs11), hSession(hSession), mech(mech),
+		hWrappingKey(hWrappingKey), hKey(hKey), wrappedKey(wrappedKey) {}
+	~AsyncWrapKey() {}
+
+	void Execute();
+	void HandleOKCallback();
+
+protected:
+	Scoped<PKCS11> pkcs11;
+	CK_SESSION_HANDLE hSession;
+	Scoped<Mechanism> mech;
+	CK_OBJECT_HANDLE hWrappingKey;
+	CK_OBJECT_HANDLE hKey;
+	Scoped<string> wrappedKey;
+	// Result
+	Scoped<string> result;
+};
+
+class AsyncUnwrapKey : public Nan::AsyncWorker {
+public:
+	AsyncUnwrapKey(
+		Nan::Callback *callback,
+		Scoped<PKCS11> pkcs11,
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		CK_OBJECT_HANDLE hUnwrappingKey,
+		Scoped<string> wrappedKey,
+		Scoped<Attributes> tmpl
+	) : AsyncWorker(callback), pkcs11(pkcs11), hSession(hSession), mech(mech),
+		hUnwrappingKey(hUnwrappingKey), wrappedKey(wrappedKey), tmpl(tmpl) {}
+	~AsyncUnwrapKey() {}
+
+	void Execute();
+	void HandleOKCallback();
+
+protected:
+	Scoped<PKCS11> pkcs11;
+	CK_SESSION_HANDLE hSession;
+	Scoped<Mechanism> mech;
+	CK_OBJECT_HANDLE hUnwrappingKey;
+	Scoped<string> wrappedKey;
+	Scoped<Attributes> tmpl;
+	// Result
+	CK_OBJECT_HANDLE result;
+};
+
+class AsyncDeriveKey : public Nan::AsyncWorker {
+public:
+	AsyncDeriveKey(
+		Nan::Callback *callback,
+		Scoped<PKCS11> pkcs11,
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		CK_OBJECT_HANDLE hBaseKey,
+		Scoped<Attributes> tmpl
+	) : AsyncWorker(callback), pkcs11(pkcs11), hSession(hSession), mech(mech),
+		hBaseKey(hBaseKey), tmpl(tmpl) {}
+	~AsyncDeriveKey() {}
+
+	void Execute();
+	void HandleOKCallback();
+
+protected:
+	Scoped<PKCS11> pkcs11;
+	CK_SESSION_HANDLE hSession;
+	Scoped<Mechanism> mech;
+	CK_OBJECT_HANDLE hBaseKey;
+	Scoped<Attributes> tmpl;
+	// Result
+	CK_OBJECT_HANDLE result;
 };
 
 #endif // INCLUDE_H_ASYNC

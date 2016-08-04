@@ -2,7 +2,7 @@
 
 void AsyncGenerateKey::Execute() {
 	try {
-		hKey =  pkcs11->C_GenerateKey(hSession, mech, tmpl);
+		hKey = pkcs11->C_GenerateKey(hSession, mech, tmpl);
 	}
 	catch (Scoped<Error> e) {
 		this->SetErrorMessage(e->ToString()->c_str());
@@ -80,6 +80,78 @@ void AsyncCrypto::HandleOKCallback() {
 	else {
 		v8Result = Nan::CopyBuffer(result->c_str(), (uint32_t)result->length()).ToLocalChecked();
 	}
+
+	v8::Local<v8::Value> argv[] = {
+		Nan::Null(),
+		v8Result
+	};
+
+	callback->Call(2, argv);
+}
+
+void AsyncWrapKey::Execute() {
+	try {
+		result = pkcs11->C_WrapKey(hSession, mech, hWrappingKey, hKey, wrappedKey);
+	}
+	catch (Scoped<Error> e) {
+		this->SetErrorMessage(e->ToString()->c_str());
+	}
+}
+
+void AsyncWrapKey::HandleOKCallback() {
+	Nan::HandleScope scope;
+
+	Local<Value> v8Result;
+
+	v8Result = Nan::CopyBuffer(result->c_str(), (uint32_t)result->length()).ToLocalChecked();
+
+	v8::Local<v8::Value> argv[] = {
+		Nan::Null(),
+		v8Result
+	};
+
+	callback->Call(2, argv);
+}
+
+void AsyncUnwrapKey::Execute() {
+	try {
+		result = pkcs11->C_UnwrapKey(hSession, mech, hUnwrappingKey, wrappedKey, tmpl);
+	}
+	catch (Scoped<Error> e) {
+		this->SetErrorMessage(e->ToString()->c_str());
+	}
+}
+
+void AsyncUnwrapKey::HandleOKCallback() {
+	Nan::HandleScope scope;
+
+	Local<Value> v8Result;
+
+	v8Result = Nan::New<Number>((uint32_t)result);
+
+	v8::Local<v8::Value> argv[] = {
+		Nan::Null(),
+		v8Result
+	};
+
+	callback->Call(2, argv);
+}
+
+void AsyncDeriveKey::Execute() {
+	try {
+		result = pkcs11->C_DeriveKey(hSession, mech, hBaseKey, tmpl);
+	}
+	catch (Scoped<Error> e) {
+		this->SetErrorMessage(e->ToString()->c_str());
+	}
+}
+
+void AsyncDeriveKey::HandleOKCallback() {
+	Nan::HandleScope scope;
+
+	Local<Value> v8Result;
+
+	v8Result = Nan::New<Number>((uint32_t)result);
 
 	v8::Local<v8::Value> argv[] = {
 		Nan::Null(),

@@ -1,6 +1,7 @@
 # PKCS11js
 
 [![license](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/graphene/master/LICENSE)
+[![Build Status](https://travis-ci.org/PeculiarVentures/pkcs11js.svg?branch=master)](https://travis-ci.org/PeculiarVentures/pkcs11js)
 
 We make a package called [Graphene](https://github.com/PeculiarVentures/graphene), it provides a simplistic Object Oriented interface for interacting with PKCS#11 devices, for most people this is the right level to build on. In some cases you may want to interact directly with the PKCS#11 API, if so PKCS11js is the package for you.
 

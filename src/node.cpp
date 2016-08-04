@@ -1107,11 +1107,20 @@ NAN_METHOD(WPKCS11::C_WrapKey) {
 		GET_OBJECT_HANDLE(hKey, 3);
 		GET_BUFFER(wrappedKey, 4);
 
+		int CALLBACK_INDEX = 5;
+
 		UNWRAP_PKCS11;
 
-		Scoped<string> res = __pkcs11->C_WrapKey(hSession, mech, hWrappingKey, hKey, wrappedKey);
+		if (!info[CALLBACK_INDEX]->IsFunction()) {
+			Scoped<string> res = __pkcs11->C_WrapKey(hSession, mech, hWrappingKey, hKey, wrappedKey);
 
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[CALLBACK_INDEX].As<Function>());
+
+			AsyncQueueWorker(new AsyncWrapKey(callback, __pkcs11, hSession, mech, hWrappingKey, hKey, wrappedKey));
+		}
 	}
 	CATCH_V8_ERROR;
 }
@@ -1124,11 +1133,20 @@ NAN_METHOD(WPKCS11::C_UnwrapKey) {
 		GET_BUFFER(wrappedKey, 3);
 		GET_TEMPLATE_R(tmpl, 4);
 
+		int CALLBACK_INDEX = 5;
+
 		UNWRAP_PKCS11;
 
-		CK_OBJECT_HANDLE hKey = __pkcs11->C_UnwrapKey(hSession, mech, hUnwrappingKey, wrappedKey, tmpl);
+		if (!info[CALLBACK_INDEX]->IsFunction()) {
+			CK_OBJECT_HANDLE hKey = __pkcs11->C_UnwrapKey(hSession, mech, hUnwrappingKey, wrappedKey, tmpl);
 
-		info.GetReturnValue().Set(Nan::New<Number>(hKey));
+			info.GetReturnValue().Set(Nan::New<Number>(hKey));
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[CALLBACK_INDEX].As<Function>());
+
+			AsyncQueueWorker(new AsyncUnwrapKey(callback, __pkcs11, hSession, mech, hUnwrappingKey, wrappedKey, tmpl));
+		}
 	}
 	CATCH_V8_ERROR;
 }
@@ -1140,11 +1158,20 @@ NAN_METHOD(WPKCS11::C_DeriveKey) {
 		GET_OBJECT_HANDLE(hBaseKey, 2);
 		GET_TEMPLATE_R(tmpl, 3);
 
+		int CALLBACK_INDEX = 4;
+
 		UNWRAP_PKCS11;
 
-		CK_OBJECT_HANDLE hDerivedKey = __pkcs11->C_DeriveKey(hSession, mech, hBaseKey, tmpl);
+		if (!info[CALLBACK_INDEX]->IsFunction()) {
+			CK_OBJECT_HANDLE hDerivedKey = __pkcs11->C_DeriveKey(hSession, mech, hBaseKey, tmpl);
 
-		info.GetReturnValue().Set(Nan::New<Number>(hDerivedKey));
+			info.GetReturnValue().Set(Nan::New<Number>(hDerivedKey));
+		}
+		else {
+			Nan::Callback *callback = new Nan::Callback(info[CALLBACK_INDEX].As<Function>());
+
+			AsyncQueueWorker(new AsyncDeriveKey(callback, __pkcs11, hSession, mech, hBaseKey, tmpl));
+		}
 	}
 	CATCH_V8_ERROR;
 }
