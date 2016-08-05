@@ -23,9 +23,6 @@ os:
   - osx
 
 before_install:
-  - rm -R node_modules
-  - rm -R ~/.node-gyp
-  - rm -R ~/.npmrc
   - node --version
   - npm --version
   - gcc --version
