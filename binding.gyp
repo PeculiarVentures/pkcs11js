@@ -29,10 +29,10 @@
             'conditions': [
                 ['OS=="mac"', {
                 'xcode_settings': {
-                    'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
-                    'MACOSX_DEPLOYMENT_TARGET': '10.5',
-                    'OTHER_CFLAGS': [
-                        '-ObjC++'
+                    'OTHER_CPLUSPLUSFLAGS' : ['-std=c++11','-stdlib=libc++', '-v'],
+                    'OTHER_LDFLAGS': ['-stdlib=libc++'],
+                    'MACOSX_DEPLOYMENT_TARGET': '10.7',
+                    'GCC_ENABLE_CPP_EXCEPTIONS': 'YES'
                     ]
                 },
                 'libraries': [
