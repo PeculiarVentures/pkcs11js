@@ -19,8 +19,8 @@ sudo: false
 
 os:
   - linux
-  - osx
-    osx_image: xcode7.3
+  - os: osx
+    osx_image: xcode8
 
 before_install:
   - node --version
