@@ -73,10 +73,36 @@ static Scoped<string> buffer_to_string(Local<Value> v8Value) {
 	return Scoped<string>(new string(buf, bufLen));
 }
 
+static Local<Object> handle_to_v8(CK_ULONG handle) {
+	Nan::HandleScope();
+
+	Local<Object> v8Buffer = Nan::NewBuffer(sizeof(CK_ULONG)).ToLocalChecked();
+	char* buf = node::Buffer::Data(v8Buffer);
+
+	memcpy(buf, &handle, sizeof(CK_ULONG));
+
+	return v8Buffer;
+}
+
+static CK_ULONG v8_to_handle(Local<Value> v8Value) {
+	Nan::HandleScope();
+
+	// Check buffer size
+	if (node::Buffer::Length(v8Value) < sizeof(CK_ULONG)) {
+		THROW_ERROR("Buffer size is less than CK_ULONG size", NULL);
+	}
+
+	CK_ULONG handle;
+
+	char* buf = node::Buffer::Data(v8Value);
+	handle = *reinterpret_cast<CK_ULONG *>(buf);
+
+	return handle;
+}
+
 #define GET_HANDLE(type, name, argsIndex)									\
-	CHECK_REQUIRED(argsIndex);												\
-	CHECK_TYPE(argsIndex, Number);											\
-	type name = info[argsIndex]->ToNumber()->Uint32Value()
+	CHECK_BUFFER(argsIndex);												\
+	type name = static_cast<type>(v8_to_handle(info[argsIndex]))
 
 #define GET_SESSION_HANDLE(name, argsIndex)										\
 	GET_HANDLE(CK_SESSION_HANDLE, name, argsIndex)
@@ -267,7 +293,7 @@ NAN_METHOD(WPKCS11::C_GetSlotList) {
 
 		Local<Array> v8SlotList = Nan::New<Array>();
 		for (uint32_t i = 0; i < arSlotList.size(); i++) {
-			v8SlotList->Set(i, Nan::New<Number>(arSlotList[i]));
+			v8SlotList->Set(i, handle_to_v8(arSlotList[i]));
 		}
 
 		info.GetReturnValue().Set(v8SlotList);
@@ -426,7 +452,7 @@ NAN_METHOD(WPKCS11::C_OpenSession) {
 
 		CK_SESSION_HANDLE hSession = __pkcs11->C_OpenSession(slotID, flags);
 
-		info.GetReturnValue().Set(Nan::New<Number>(hSession));
+		info.GetReturnValue().Set(handle_to_v8(hSession));
 	}
 	CATCH_V8_ERROR;
 }
@@ -467,7 +493,7 @@ NAN_METHOD(WPKCS11::C_GetSessionInfo) {
 
 		Local<Object> v8Res = Nan::New<Object>();
 
-		v8Res->Set(Nan::New(STR_SLOT_ID).ToLocalChecked(), Nan::New<Number>(_info->slotID));
+		v8Res->Set(Nan::New(STR_SLOT_ID).ToLocalChecked(), handle_to_v8(_info->slotID));
 		v8Res->Set(Nan::New(STR_STATE).ToLocalChecked(), Nan::New<Number>(_info->state));
 		v8Res->Set(Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New<Number>(_info->flags));
 		v8Res->Set(Nan::New(STR_DEVICE_ERROR).ToLocalChecked(), Nan::New<Number>(_info->ulDeviceError));
@@ -538,7 +564,7 @@ NAN_METHOD(WPKCS11::C_FindObjects) {
 
 		CK_OBJECT_HANDLE hObject = __pkcs11->C_FindObjects(hSession);
 
-		Local<Value> v8Res = (hObject != 0) ? Nan::New<Number>(hObject).As<Value>() : Nan::Null().As<Value>();
+		Local<Value> v8Res = (hObject != 0) ? handle_to_v8(hObject).As<Value>() : Nan::Null().As<Value>();
 
 		info.GetReturnValue().Set(v8Res);
 	}
@@ -600,7 +626,7 @@ NAN_METHOD(WPKCS11::C_CreateObject) {
 
 		CK_OBJECT_HANDLE hObject = __pkcs11->C_CreateObject(hSession, tmpl);
 
-		info.GetReturnValue().Set(Nan::New<Number>(hObject));
+		info.GetReturnValue().Set(handle_to_v8(hObject));
 	}
 	CATCH_V8_ERROR;
 }
@@ -615,7 +641,7 @@ NAN_METHOD(WPKCS11::C_CopyObject) {
 
 		CK_OBJECT_HANDLE hNewObject = __pkcs11->C_CopyObject(hSession, hObject, tmpl);
 
-		info.GetReturnValue().Set(Nan::New<Number>(hNewObject));
+		info.GetReturnValue().Set(handle_to_v8(hNewObject));
 	}
 	CATCH_V8_ERROR;
 }
@@ -1059,7 +1085,7 @@ NAN_METHOD(WPKCS11::C_GenerateKey) {
 		if (!info[3]->IsFunction()) {
 
 			CK_OBJECT_HANDLE hObject = __pkcs11->C_GenerateKey(hSession, mech, tmpl);
-			info.GetReturnValue().Set(Nan::New<Number>(hObject));
+			info.GetReturnValue().Set(handle_to_v8(hObject));
 		}
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
@@ -1085,8 +1111,8 @@ NAN_METHOD(WPKCS11::C_GenerateKeyPair) {
 
 			// Result
 			Local<Object> v8Result = Nan::New<Object>();
-			v8Result->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->privateKey));
-			v8Result->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->publicKey));
+			v8Result->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), handle_to_v8(keyPair->privateKey));
+			v8Result->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), handle_to_v8(keyPair->publicKey));
 
 			info.GetReturnValue().Set(v8Result);
 		}
@@ -1140,7 +1166,7 @@ NAN_METHOD(WPKCS11::C_UnwrapKey) {
 		if (!info[CALLBACK_INDEX]->IsFunction()) {
 			CK_OBJECT_HANDLE hKey = __pkcs11->C_UnwrapKey(hSession, mech, hUnwrappingKey, wrappedKey, tmpl);
 
-			info.GetReturnValue().Set(Nan::New<Number>(hKey));
+			info.GetReturnValue().Set(handle_to_v8(hKey));
 		}
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[CALLBACK_INDEX].As<Function>());
@@ -1165,7 +1191,7 @@ NAN_METHOD(WPKCS11::C_DeriveKey) {
 		if (!info[CALLBACK_INDEX]->IsFunction()) {
 			CK_OBJECT_HANDLE hDerivedKey = __pkcs11->C_DeriveKey(hSession, mech, hBaseKey, tmpl);
 
-			info.GetReturnValue().Set(Nan::New<Number>(hDerivedKey));
+			info.GetReturnValue().Set(handle_to_v8(hDerivedKey));
 		}
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[CALLBACK_INDEX].As<Function>());

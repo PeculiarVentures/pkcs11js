@@ -5,11 +5,13 @@ const pkcs11 = require("../index");
 const assert = require("assert");
 
 // const libPath = "C:\\Windows\\System32\\jcPKCS11.dll";
-// const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
-const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
+const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
+// const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
 // const libPath = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so";
 
-const tokenPin = "12345";
+const timeout = 10000; // 10s
+
+const tokenPin = "12345678";
 const slot_index = 0;
 
 const mod_assert = "Module is not initialized";
@@ -181,7 +183,7 @@ describe("PKCS11", () => {
             var key = _mod.C_GenerateKey(_session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, template);
             assert.equal(!!key, true);
             _secretKey = key;
-        });
+        }).timeout(timeout);
 
         it("generate key async", (done) => {
             var template = [
@@ -197,7 +199,7 @@ describe("PKCS11", () => {
                 _secretKey = key;
                 done();
             });
-        });
+        }).timeout(timeout);
 
         it("generate key pair RSA", () => {
             var publicKeyTemplate = [
@@ -222,7 +224,7 @@ describe("PKCS11", () => {
             assert.equal(!!keys.publicKey, true);
             _privateKey = keys.privateKey;
             _publicKey = keys.publicKey;
-        }).timeout(20000);
+        }).timeout(timeout);
 
         it("generate key pair RSA async", (done) => {
             var publicKeyTemplate = [
@@ -249,7 +251,7 @@ describe("PKCS11", () => {
                 _publicKey = keys.publicKey;
                 done();
             });
-        }).timeout(20000);
+        }).timeout(timeout);
 
         it("generate key pair EC", () => {
             var publicKeyTemplate = [
@@ -272,7 +274,7 @@ describe("PKCS11", () => {
             assert.equal(!!keys.publicKey, true);
             _privateKeyEC = keys.privateKey;
             _publicKeyEC = keys.publicKey;
-        });
+        }).timeout(timeout);
 
         context("Object", () => {
 

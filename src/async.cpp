@@ -1,5 +1,16 @@
 #include "./async.h"
 
+static Local<Object> handle_to_v8(CK_ULONG handle) {
+	Nan::HandleScope();
+
+	Local<Object> v8Buffer = Nan::NewBuffer(sizeof(CK_ULONG)).ToLocalChecked();
+	char* buf = node::Buffer::Data(v8Buffer);
+
+	memcpy(buf, &handle, sizeof(CK_ULONG));
+
+	return v8Buffer;
+}
+
 void AsyncGenerateKey::Execute() {
 	try {
 		hKey = pkcs11->C_GenerateKey(hSession, mech, tmpl);
@@ -14,7 +25,7 @@ void AsyncGenerateKey::HandleOKCallback() {
 
 	v8::Local<v8::Value> argv[] = {
 		Nan::Null(),
-		Nan::New<Number>(hKey)
+		handle_to_v8(hKey)
 	};
 
 	callback->Call(2, argv);
@@ -33,8 +44,8 @@ void AsyncGenerateKeyPair::HandleOKCallback() {
 	Nan::HandleScope scope;
 
 	Local<Object> v8KeyPair = Nan::New<Object>();
-	v8KeyPair->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->privateKey));
-	v8KeyPair->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), Nan::New<Number>(keyPair->publicKey));
+	v8KeyPair->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), handle_to_v8(keyPair->privateKey));
+	v8KeyPair->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), handle_to_v8(keyPair->publicKey));
 
 	v8::Local<v8::Value> argv[] = {
 		Nan::Null(),
@@ -127,7 +138,7 @@ void AsyncUnwrapKey::HandleOKCallback() {
 
 	Local<Value> v8Result;
 
-	v8Result = Nan::New<Number>((uint32_t)result);
+	v8Result = handle_to_v8(result);
 
 	v8::Local<v8::Value> argv[] = {
 		Nan::Null(),
@@ -151,7 +162,7 @@ void AsyncDeriveKey::HandleOKCallback() {
 
 	Local<Value> v8Result;
 
-	v8Result = Nan::New<Number>((uint32_t)result);
+	v8Result = handle_to_v8(result);
 
 	v8::Local<v8::Value> argv[] = {
 		Nan::Null(),
