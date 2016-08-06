@@ -5,11 +5,11 @@ const pkcs11 = require("../index");
 const assert = require("assert");
 
 // const libPath = "C:\\Windows\\System32\\jcPKCS11.dll";
-const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
-// const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
+// const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
+const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
 // const libPath = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so";
 
-const tokenPin = "12345678";
+const tokenPin = "12345";
 const slot_index = 0;
 
 const mod_assert = "Module is not initialized";
@@ -171,28 +171,28 @@ describe("PKCS11", () => {
 
         it("generate key", () => {
             var template = [
-                { type: _mod.CKA_CLASS, value: _mod.CKO_SECRET_KEY },
-                { type: _mod.CKA_TOKEN, value: false },
-                { type: _mod.CKA_LABEL, value: "My AES Key" },
-                { type: _mod.CKA_VALUE_LEN, value: 256 / 8 },
-                { type: _mod.CKA_ENCRYPT, value: true },
-                { type: _mod.CKA_DECRYPT, value: true },
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_LABEL, value: "My AES Key" },
+                { type: pkcs11.CKA_VALUE_LEN, value: 256 / 8 },
+                { type: pkcs11.CKA_ENCRYPT, value: true },
+                { type: pkcs11.CKA_DECRYPT, value: true },
             ];
-            var key = _mod.C_GenerateKey(_session, { mechanism: _mod.CKM_AES_KEY_GEN }, template);
+            var key = _mod.C_GenerateKey(_session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, template);
             assert.equal(!!key, true);
             _secretKey = key;
         });
 
         it("generate key async", (done) => {
             var template = [
-                { type: _mod.CKA_CLASS, value: _mod.CKO_SECRET_KEY },
-                { type: _mod.CKA_TOKEN, value: false },
-                { type: _mod.CKA_LABEL, value: "My AES Key" },
-                { type: _mod.CKA_VALUE_LEN, value: 256 / 8 },
-                { type: _mod.CKA_ENCRYPT, value: true },
-                { type: _mod.CKA_DECRYPT, value: true },
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_LABEL, value: "My AES Key" },
+                { type: pkcs11.CKA_VALUE_LEN, value: 256 / 8 },
+                { type: pkcs11.CKA_ENCRYPT, value: true },
+                { type: pkcs11.CKA_DECRYPT, value: true },
             ];
-            _mod.C_GenerateKey(_session, { mechanism: _mod.CKM_AES_KEY_GEN }, template, (err, key) => {
+            _mod.C_GenerateKey(_session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, template, (err, key) => {
                 assert.equal(!!key, true);
                 _secretKey = key;
                 done();
@@ -201,20 +201,20 @@ describe("PKCS11", () => {
 
         it("generate key pair RSA", () => {
             var publicKeyTemplate = [
-                { type: _mod.CKA_CLASS, value: _mod.CKO_PUBLIC_KEY },
-                { type: _mod.CKA_TOKEN, value: false },
-                { type: _mod.CKA_LABEL, value: "My RSA Public Key" },
-                { type: _mod.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
-                { type: _mod.CKA_MODULUS_BITS, value: 1024 },
-                { type: _mod.CKA_VERIFY, value: true }
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_LABEL, value: "My RSA Public Key" },
+                { type: pkcs11.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
+                { type: pkcs11.CKA_MODULUS_BITS, value: 1024 },
+                { type: pkcs11.CKA_VERIFY, value: true }
             ];
             var privateKeyTemplate = [
-                { type: _mod.CKA_CLASS, value: _mod.CKO_PRIVATE_KEY },
-                { type: _mod.CKA_TOKEN, value: false },
-                { type: _mod.CKA_LABEL, value: "My RSA Private Key" },
-                { type: _mod.CKA_SIGN, value: true },
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_LABEL, value: "My RSA Private Key" },
+                { type: pkcs11.CKA_SIGN, value: true },
             ];
-            var keys = _mod.C_GenerateKeyPair(_session, { mechanism: _mod.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
+            var keys = _mod.C_GenerateKeyPair(_session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
             assert.equal(!!keys, true);
             assert.equal("privateKey" in keys, true);
             assert.equal(!!keys.privateKey, true);
@@ -226,20 +226,20 @@ describe("PKCS11", () => {
 
         it("generate key pair RSA async", (done) => {
             var publicKeyTemplate = [
-                { type: _mod.CKA_CLASS, value: _mod.CKO_PUBLIC_KEY },
-                { type: _mod.CKA_TOKEN, value: false },
-                { type: _mod.CKA_LABEL, value: "My RSA Public Key" },
-                { type: _mod.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
-                { type: _mod.CKA_MODULUS_BITS, value: 1024 },
-                { type: _mod.CKA_VERIFY, value: true }
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_LABEL, value: "My RSA Public Key" },
+                { type: pkcs11.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
+                { type: pkcs11.CKA_MODULUS_BITS, value: 1024 },
+                { type: pkcs11.CKA_VERIFY, value: true }
             ];
             var privateKeyTemplate = [
-                { type: _mod.CKA_CLASS, value: _mod.CKO_PRIVATE_KEY },
-                { type: _mod.CKA_TOKEN, value: false },
-                { type: _mod.CKA_LABEL, value: "My RSA Private Key" },
-                { type: _mod.CKA_SIGN, value: true },
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_LABEL, value: "My RSA Private Key" },
+                { type: pkcs11.CKA_SIGN, value: true },
             ];
-            _mod.C_GenerateKeyPair(_session, { mechanism: _mod.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate, (err, keys) => {
+            _mod.C_GenerateKeyPair(_session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate, (err, keys) => {
                 assert.equal(!!keys, true);
                 assert.equal("privateKey" in keys, true);
                 assert.equal(!!keys.privateKey, true);
@@ -253,18 +253,18 @@ describe("PKCS11", () => {
 
         it("generate key pair EC", () => {
             var publicKeyTemplate = [
-                { type: _mod.CKA_CLASS, value: _mod.CKO_PUBLIC_KEY },
-                { type: _mod.CKA_TOKEN, value: false },
-                { type: _mod.CKA_LABEL, value: "My EC Public Key" },
-                { type: _mod.CKA_EC_PARAMS, value: new Buffer("06082A8648CE3D030107", "hex") },
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_LABEL, value: "My EC Public Key" },
+                { type: pkcs11.CKA_EC_PARAMS, value: new Buffer("06082A8648CE3D030107", "hex") },
             ];
             var privateKeyTemplate = [
-                { type: _mod.CKA_CLASS, value: _mod.CKO_PRIVATE_KEY },
-                { type: _mod.CKA_TOKEN, value: false },
-                { type: _mod.CKA_LABEL, value: "My EC Private Key" },
-                { type: _mod.CKA_DERIVE, value: true },
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_LABEL, value: "My EC Private Key" },
+                { type: pkcs11.CKA_DERIVE, value: true },
             ];
-            var keys = _mod.C_GenerateKeyPair(_session, { mechanism: _mod.CKM_EC_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
+            var keys = _mod.C_GenerateKeyPair(_session, { mechanism: pkcs11.CKM_EC_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
             assert.equal(!!keys, true);
             assert.equal("privateKey" in keys, true);
             assert.equal(!!keys.privateKey, true);
@@ -285,10 +285,10 @@ describe("PKCS11", () => {
                 assert.equal(!!_mod, true, mod_assert);
                 assert.notEqual(_session, undefined, session_assert);
                 _nObject = _mod.C_CreateObject(_session, [
-                    { type: _mod.CKA_CLASS, value: _mod.CKO_DATA },
-                    { type: _mod.CKA_TOKEN, value: false },
-                    { type: _mod.CKA_PRIVATE, value: false },
-                    { type: _mod.CKA_LABEL, value: _nObjetcLabel },
+                    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_DATA },
+                    { type: pkcs11.CKA_TOKEN, value: false },
+                    { type: pkcs11.CKA_PRIVATE, value: false },
+                    { type: pkcs11.CKA_LABEL, value: _nObjetcLabel },
                 ]);
 
                 assert.equal(!!_nObject, true);
@@ -299,7 +299,7 @@ describe("PKCS11", () => {
                 assert.notEqual(_session, undefined, session_assert);
                 assert.notEqual(_nObject, undefined, object_assert);
 
-                var label = _mod.C_GetAttributeValue(_session, _nObject, [{ type: _mod.CKA_LABEL }]);
+                var label = _mod.C_GetAttributeValue(_session, _nObject, [{ type: pkcs11.CKA_LABEL }]);
 
                 assert.equal(label[0].value.toString(), _nObjetcLabel);
             });
@@ -310,9 +310,9 @@ describe("PKCS11", () => {
                 assert.notEqual(_nObject, undefined, object_assert);
 
                 var label = _mod.C_GetAttributeValue(_session, _nObject, [
-                    { type: _mod.CKA_LABEL },
-                    { type: _mod.CKA_CLASS },
-                    { type: _mod.CKA_TOKEN }
+                    { type: pkcs11.CKA_LABEL },
+                    { type: pkcs11.CKA_CLASS },
+                    { type: pkcs11.CKA_TOKEN }
                 ]);
 
                 assert.equal(label.length, 3);
@@ -323,8 +323,8 @@ describe("PKCS11", () => {
                 assert.notEqual(_session, undefined, session_assert);
                 assert.notEqual(_nObject, undefined, object_assert);
 
-                _mod.C_SetAttributeValue(_session, _nObject, [{ type: _mod.CKA_LABEL, value: _nObjetcLabel + "!!!" }]);
-                var label = _mod.C_GetAttributeValue(_session, _nObject, [{ type: _mod.CKA_LABEL }]);
+                _mod.C_SetAttributeValue(_session, _nObject, [{ type: pkcs11.CKA_LABEL, value: _nObjetcLabel + "!!!" }]);
+                var label = _mod.C_GetAttributeValue(_session, _nObject, [{ type: pkcs11.CKA_LABEL }]);
 
                 assert.equal(label[0].value.toString(), _nObjetcLabel + "!!!");
             });
@@ -343,12 +343,12 @@ describe("PKCS11", () => {
                 assert.equal(!!_mod, true, mod_assert);
                 assert.notEqual(_session, undefined, session_assert);
 
-                _mod.C_FindObjectsInit(_session, [{ type: _mod.CKA_CLASS, value: _mod.CKO_DATA }]);
+                _mod.C_FindObjectsInit(_session, [{ type: pkcs11.CKA_CLASS, value: pkcs11.CKO_DATA }]);
                 var hObject = _mod.C_FindObjects(_session);
                 _mod.C_FindObjectsFinal(_session);
                 assert.equal(!!hObject, true);
-                var obj_class = _mod.C_GetAttributeValue(_session, _nObject, [{ type: _mod.CKA_CLASS }]);
-                assert.equal(obj_class[0].value.readUInt32LE(), _mod.CKO_DATA);
+                var obj_class = _mod.C_GetAttributeValue(_session, _nObject, [{ type: pkcs11.CKA_CLASS }]);
+                assert.equal(obj_class[0].value.readUInt32LE(), pkcs11.CKO_DATA);
             })
         });
     });
@@ -359,7 +359,7 @@ describe("PKCS11", () => {
             assert.equal(!!_mod, true, mod_assert);
             assert.notEqual(_session, undefined, session_assert);
 
-            _mod.C_DigestInit(_session, { mechanism: _mod.CKM_SHA256 });
+            _mod.C_DigestInit(_session, { mechanism: pkcs11.CKM_SHA256 });
             _mod.C_DigestUpdate(_session, new Buffer("Hello my test"));
             _mod.C_DigestUpdate(_session, new Buffer("!!!"));
             const digest_size = 32;
@@ -380,7 +380,7 @@ describe("PKCS11", () => {
             _mod.C_EncryptInit(
                 _session,
                 {
-                    mechanism: _mod.CKM_AES_CBC,
+                    mechanism: pkcs11.CKM_AES_CBC,
                     parameter: crypto_param
                 },
                 _secretKey
@@ -396,7 +396,7 @@ describe("PKCS11", () => {
             _mod.C_DecryptInit(
                 _session,
                 {
-                    mechanism: _mod.CKM_AES_CBC,
+                    mechanism: pkcs11.CKM_AES_CBC,
                     parameter: crypto_param
                 },
                 _secretKey
@@ -412,7 +412,7 @@ describe("PKCS11", () => {
             _mod.C_DecryptInit(
                 _session,
                 {
-                    mechanism: _mod.CKM_AES_CBC,
+                    mechanism: pkcs11.CKM_AES_CBC,
                     parameter: crypto_param
                 },
                 _secretKey
@@ -429,21 +429,21 @@ describe("PKCS11", () => {
             assert.notEqual(_privateKey, undefined, private_assert);
             assert.notEqual(_publicKey, undefined, public_assert);
 
-            _mod.C_SignInit(_session, { mechanism: _mod.CKM_SHA256_RSA_PKCS }, _privateKey);
+            _mod.C_SignInit(_session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, _privateKey);
             _mod.C_SignUpdate(_session, new Buffer("Hello my test"));
             _mod.C_SignUpdate(_session, new Buffer("!!!"));
             const signature_size = 256;
             var signature = _mod.C_SignFinal(_session, Buffer(signature_size + 10));
 
             // Correct signature
-            _mod.C_VerifyInit(_session, { mechanism: _mod.CKM_SHA256_RSA_PKCS }, _publicKey);
+            _mod.C_VerifyInit(_session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, _publicKey);
             _mod.C_VerifyUpdate(_session, new Buffer("Hello my test"));
             _mod.C_VerifyUpdate(_session, new Buffer("!!!"));
             var verify = _mod.C_VerifyFinal(_session, signature);
             assert.equal(verify, true);
 
             // Not correct signature
-            _mod.C_VerifyInit(_session, { mechanism: _mod.CKM_SHA256_RSA_PKCS }, _publicKey);
+            _mod.C_VerifyInit(_session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, _publicKey);
             _mod.C_VerifyUpdate(_session, new Buffer("Hello my test"));
             _mod.C_VerifyUpdate(_session, new Buffer("!!!<Error here"));
             assert.throws(() => { _mod.C_VerifyFinal(_session, signature); }, "Signed content is not right, MUST be CKR_SIGNATURE_INVALID error here");
@@ -455,27 +455,29 @@ describe("PKCS11", () => {
             assert.notEqual(_privateKeyEC, undefined, private_assert);
             assert.notEqual(_publicKeyEC, undefined, public_assert);
 
-            var attrs = _mod.C_GetAttributeValue(_session, _publicKeyEC, [{ type: _mod.CKA_EC_POINT }])
+            var attrs = _mod.C_GetAttributeValue(_session, _publicKeyEC, [{ type: pkcs11.CKA_EC_POINT }])
             var ec = attrs[0].value;
+
+            var mech = {
+                mechanism: pkcs11.CKM_ECDH1_DERIVE,
+                parameter: {
+                    type: pkcs11.CK_PARAMS_EC_DH,
+                    kdf: pkcs11.CKD_NULL,
+                    publicData: ec
+                }
+            };
 
             var derivedKey = _mod.C_DeriveKey(
                 _session,
-                {
-                    mechanism: _mod.CKM_ECDH1_DERIVE,
-                    parameter: {
-                        type: CK_PARAMS_EC_DH,
-                        kdf: 2,
-                        publicData: ec
-                    }
-                },
+                mech,
                 _privateKeyEC,
                 [
-                    { type: _mod.CKA_CLASS, value: _mod.CKO_SECRET_KEY },
-                    { type: _mod.CKA_TOKEN, value: false },
-                    { type: _mod.CKA_KEY_TYPE, value: _mod.CKK_AES },
-                    { type: _mod.CKA_LABEL, value: "Derived key" },
-                    { type: _mod.CKA_ENCRYPT, value: true },
-                    { type: _mod.CKA_VALUE_LEN, value: 256 / 8 }
+                    { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
+                    { type: pkcs11.CKA_TOKEN, value: false },
+                    { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_AES },
+                    { type: pkcs11.CKA_LABEL, value: "Derived key" },
+                    { type: pkcs11.CKA_ENCRYPT, value: true },
+                    { type: pkcs11.CKA_VALUE_LEN, value: 256 / 8 }
                 ]
             );
 
