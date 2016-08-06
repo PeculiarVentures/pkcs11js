@@ -46,11 +46,11 @@ CK_ECDH1_DERIVE_PARAMS_PTR ParamEcdh1::New() {
 	data.pPublicData = NULL;
 	data.ulPublicDataLen = 0;
 
-	return &data;
+	return Get();
 }
 
 void ParamEcdh1::Free() {
-	if (&data) {
+	if (Get()) {
 		if (data.pSharedData)
 			free(data.pSharedData);
 		if (data.pPublicData)

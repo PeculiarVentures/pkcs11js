@@ -45,11 +45,11 @@ CK_RSA_PKCS_OAEP_PARAMS_PTR ParamRsaOAEP::New() {
 	data.pSourceData = NULL;
 	data.ulSourceDataLen = 0;
 
-	return &data;
+	return Get();
 }
 
 void ParamRsaOAEP::Free() {
-	if (&data) {
+	if (Get()) {
 		if (data.pSourceData)
 			free(data.pSourceData);
 	}
@@ -92,7 +92,7 @@ CK_RSA_PKCS_PSS_PARAMS_PTR ParamRsaPSS::New() {
 	data.mgf = 0;
 	data.sLen = 0;
 
-	return &data;
+	return Get();
 }
 
 void ParamRsaPSS::Free() {

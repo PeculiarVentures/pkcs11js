@@ -114,7 +114,7 @@ CK_MECHANISM_PTR Mechanism::New() {
 }
 
 void Mechanism::Free() {
-	if (&data && data.pParameter && !param) {
+	if (Get() && data.pParameter && !param) {
 		free(data.pParameter);
 	}
 	if (param) {

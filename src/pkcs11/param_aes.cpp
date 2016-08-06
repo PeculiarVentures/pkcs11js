@@ -40,11 +40,11 @@ CK_AES_CBC_ENCRYPT_DATA_PARAMS_PTR ParamAesCBC::New() {
 	data.pData = NULL;
 	data.length = 0;
 
-	return &data;
+	return Get();
 }
 
 void ParamAesCBC::Free() {
-	if (&data) {
+	if (Get()) {
 		if (data.pData)
 			free(data.pData);
 	}
@@ -104,11 +104,11 @@ CK_AES_CCM_PARAMS_PTR ParamAesCCM::New() {
 	data.ulAADLen = 0;
 	data.ulMACLen = 0;
 
-	return &data;
+	return Get();
 }
 
 void ParamAesCCM::Free() {
-	if (&data) {
+	if (Get()) {
 		if (data.pNonce)
 			free(data.pNonce);
 		if (data.pAAD)
@@ -170,11 +170,11 @@ CK_AES_GCM_PARAMS_PTR ParamAesGCM::New() {
 	data.ulIvBits = 0;
 	data.ulTagBits = 0;
 
-	return &data;
+	return Get();
 }
 
 void ParamAesGCM::Free() {
-	if (&data) {
+	if (Get()) {
 		if (data.pIv)
 			free(data.pIv);
 		if (data.pAAD)

@@ -112,22 +112,22 @@ Attributes::Attributes() {
 }
 
 Attributes::~Attributes() {
-	TEMPLATE_free(&data);
+	TEMPLATE_free(Get());
 }
 
 TEMPLATE* Attributes::New() {
-	TEMPLATE_free(&data);
+	TEMPLATE_free(Get());
 	data = TEMPLATE();
 	data.size = 0;
 	data.items = NULL;
-	return &data;
+	return Get();
 }
 
 void Attributes::Push(CK_ATTRIBUTE_PTR attr) {
 	try {
 		if (!attr)
 			THROW_ERROR("Parameter 1 is EMPTY", NULL);
-		if (&data) {
+		if (Get()) {
 			data.items = (CK_ATTRIBUTE_PTR)realloc(data.items, ++data.size * sizeof(CK_ATTRIBUTE));
 			data.items[data.size - 1] = *(attr);
 		}
