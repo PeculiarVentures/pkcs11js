@@ -17,6 +17,11 @@
   "license": "MIT",
   "dependencies": {
     "nan": "^2.4.0"
+    "typescript": "latest",
+    "tsd": "latest"
+  },
+  "devDependencies": {
+    "mocha": "latest"
   },
   "bugs": {
     "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
