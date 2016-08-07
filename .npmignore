@@ -3,6 +3,6 @@ build
 node_modules
 typings
 .travis.yml
-pkcs11.d.ts
+pkcs11js.d.ts
 tsd.json
 tslint.json
