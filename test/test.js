@@ -5,9 +5,9 @@ const assert = require("assert");
 
 // const libPath = "C:\\Windows\\System32\\jcPKCS11.dll";
 // const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
-const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
+// const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
 // const libPath = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so";
-// const libPath = "/usr/lib/libsofthsm.so";
+const libPath = "/usr/lib/libsofthsm.so";
 
 const timeout = 10000; // 10s
 
