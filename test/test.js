@@ -7,11 +7,11 @@ const assert = require("assert");
 // const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
 // const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
 // const libPath = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so";
-const libPath = "/usr/lib/libsofthsm.so";
+const libPath = "/usr/lib/libsofthsm.so"; // travis-ci test
 
 const timeout = 10000; // 10s
 
-const tokenPin = "12345";
+const tokenPin = "6789"; // travis-ci test
 const slot_index = 0;
 
 const mod_assert = "Module is not initialized";
