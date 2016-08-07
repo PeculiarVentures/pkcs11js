@@ -4,13 +4,13 @@ const pkcs11 = require("../index");
 const assert = require("assert");
 
 // const libPath = "C:\\Windows\\System32\\jcPKCS11.dll";
-const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
-// const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
+// const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
+const libPath = "/usr/local/lib/softhsm/libsofthsm2.so";
 // const libPath = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so";
 
 const timeout = 10000; // 10s
 
-const tokenPin = "12345678";
+const tokenPin = "12345";
 const slot_index = 0;
 
 const mod_assert = "Module is not initialized";
@@ -393,10 +393,7 @@ describe("PKCS11", () => {
                 var cObject;
                 if (runPkcs11Function(() => {
                     cObject = _mod.C_CopyObject(_session, _nObject, [
-                        { type: pkcs11.CKA_CLASS },
-                        { type: pkcs11.CKA_TOKEN },
-                        { type: pkcs11.CKA_PRIVATE },
-                        { type: pkcs11.CKA_LABEL }
+                        { type: pkcs11.CKA_TOKEN, value: false },
                     ]);
                 }, ignoreErrors)) {
                     assert.equal(!!cObject, true);
@@ -491,12 +488,13 @@ describe("PKCS11", () => {
             assert.equal(!!_mod, true, mod_assert);
             assert.notEqual(_session, undefined, session_assert);
 
+            const digest_size = 32;
+            var digest;
             if (runPkcs11Function(() => {
                 _mod.C_DigestInit(_session, { mechanism: pkcs11.CKM_SHA256 });
                 _mod.C_DigestUpdate(_session, new Buffer("Hello my test"));
                 _mod.C_DigestUpdate(_session, new Buffer("!!!"));
-                const digest_size = 32;
-                var digest = _mod.C_DigestFinal(_session, Buffer(digest_size + 10));
+                digest = _mod.C_DigestFinal(_session, Buffer(digest_size + 10));
             }, ignoreErrors)) {
                 assert.equal(digest.length, digest_size);
                 assert.equal(digest.toString("hex"), "557685952545061c49b04f4c0658496f56da5d8858f6dad5540eb10885dc7736");
