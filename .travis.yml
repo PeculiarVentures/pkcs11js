@@ -42,7 +42,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo softhsm --init-token --slot 0 --label token_label --pin 6789 --so-pin 12345 ; fi
   
   # OSX
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo brew install softhsm; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install softhsm; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo /usr/local/Cellar/softhsm/2.0.0/bin/softhsm2-util --init-token --slot 0 --label "My token 1" --pin 6789 --so-pin 12345 ; fi
 
 
