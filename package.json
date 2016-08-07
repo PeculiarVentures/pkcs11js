@@ -18,7 +18,8 @@
 	"dependencies": {
 		"nan": "^2.4.0",
 		"typescript": "latest",
-		"tsd": "latest"
+		"tsd": "latest",
+		"node-gyp": "latest"
 	},
 	"devDependencies": {
 		"mocha": "latest"
