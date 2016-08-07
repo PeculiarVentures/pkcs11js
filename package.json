@@ -1,29 +1,29 @@
 {
-  "name": "pkcs11js",
-  "version": "1.0.1",
-  "description": "A Node.js implementation of the PKCS#11 2.3 interface",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/PeculiarVentures/pkcs11js.git"
-  },
-  "keywords": [
-    "pkcs11", "token", "rsa", "ecdsa", "aes", "crypto", "smartcard", "token"
-  ],
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha"
-  },
-  "author": "PeculiarVentures",
-  "license": "MIT",
-  "dependencies": {
-    "nan": "^2.4.0"
-    "typescript": "latest",
-    "tsd": "latest"
-  },
-  "devDependencies": {
-    "mocha": "latest"
-  },
-  "bugs": {
-    "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
-  }
+	"name": "pkcs11js",
+	"version": "1.0.1",
+	"description": "A Node.js implementation of the PKCS#11 2.3 interface",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/PeculiarVentures/pkcs11js.git"
+	},
+	"keywords": [
+		"pkcs11", "token", "rsa", "ecdsa", "aes", "crypto", "smartcard", "token"
+	],
+	"main": "index.js",
+	"scripts": {
+		"test": "mocha"
+	},
+	"author": "PeculiarVentures",
+	"license": "MIT",
+	"dependencies": {
+		"nan": "^2.4.0",
+		"typescript": "latest",
+		"tsd": "latest"
+	},
+	"devDependencies": {
+		"mocha": "latest"
+	},
+	"bugs": {
+		"url": "https://github.com/PeculiarVentures/pkcs11js/issues"
+	}
 }
