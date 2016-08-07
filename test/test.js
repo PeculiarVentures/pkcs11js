@@ -1,5 +1,4 @@
 /// <reference path="../typings/tsd.d.ts" />
-/// <reference path="../pkcs11.d.ts" />
 
 const pkcs11 = require("../index");
 const assert = require("assert");
@@ -20,6 +19,54 @@ const session_assert = "Session is not opened";
 const private_assert = "Private key is not created";
 const public_assert = "Private key is not created";
 const secret_aes_assert = "Secret key is not created";
+
+const ignoreErrors = [
+    "CKR_FUNCTION_NOT_SUPPORTED",
+    "CKR_RANDOM_SEED_NOT_SUPPORTED",
+    "CKR_MECHANISM_INVALID",
+    "CKR_TEMPLATE_INCONSISTENT",
+    "CKR_MECHANISM_INVALID"
+]
+
+function getPkcs11Error(error) {
+    var regEx = /^(CKR_\w+):(\d)+/i;
+    var res = regEx.exec(error ? error.message : "")
+    if (res) {
+        return {
+            name: res[1],
+            value: res[2]
+        };
+    }
+    return null;
+}
+
+function warn(msg) {
+    console.warn(`    \x1b[33mWARN:\x1b[0m ${msg}`);
+}
+
+function runPkcs11Function(cb, ignoreErrors) {
+    ignoreErrors = ignoreErrors || [];
+    try {
+        cb();
+    }
+    catch (e) {
+        var p11e = getPkcs11Error(e);
+
+        if (!p11e || ignoreErrors.indexOf(p11e.name) === -1)
+            throw e;
+        warn(`Ignore error ${p11e.name}`);
+        return false
+    }
+    return true
+}
+
+function checkParam(param, value, warnMsg) {
+    if (param !== value) {
+        warn(warnMsg);
+        return false;
+    }
+    return true;
+}
 
 describe("PKCS11", () => {
 
@@ -73,8 +120,9 @@ describe("PKCS11", () => {
             assert.equal(!!_mod, true, mod_assert);
 
             var slots = _mod.C_GetSlotList(true);
-            assert.equal(!!slots.length, true);
+            assert.equal(!!slots.length, true, "Slots are not found");
             _slot = slots[slot_index];
+            assert.equal(Buffer.isBuffer(_slot), true, "Handle is not Buffer");
         });
 
         it("get info", () => {
@@ -137,6 +185,7 @@ describe("PKCS11", () => {
             _session = _mod.C_OpenSession(_slot, 2 | 4);
 
             assert.notEqual(_session, undefined, session_assert);
+            assert.equal(Buffer.isBuffer(_session), true, "Handle is not Buffer");
         });
 
         it("get Info", () => {
@@ -146,6 +195,7 @@ describe("PKCS11", () => {
             var info = _mod.C_GetSessionInfo(_session);
 
             assert.equal("slotID" in info, true);
+            assert.equal(Buffer.isBuffer(info.slotID), true, "Handle is not Buffer");
             assert.equal("state" in info, true);
             assert.equal("flags" in info, true);
             assert.equal("deviceError" in info, true);
@@ -159,16 +209,24 @@ describe("PKCS11", () => {
 
         it("seed random", () => {
             var inBuf = new Buffer(20);
-            var outBuf = _mod.C_SeedRandom(_session, inBuf);
-            assert.equal(inBuf, outBuf, "Out buffer is a point to incoming");
-            assert.equal(inBuf.length, 20);
+            var outBuf;
+            if (runPkcs11Function(() => {
+                outBuf = _mod.C_SeedRandom(_session, inBuf);
+            }, ignoreErrors)) {
+                assert.equal(inBuf, outBuf, "Out buffer is a point to incoming");
+                assert.equal(inBuf.length, 20);
+            }
         });
 
         it("generate random", () => {
             var inBuf = new Buffer(20);
-            var outBuf = _mod.C_GenerateRandom(_session, inBuf);
-            assert.equal(inBuf, outBuf, "Out buffer is a point to incoming");
-            assert.equal(inBuf.length, 20);
+            var outBuf;
+            if (runPkcs11Function(() => {
+                outBuf = _mod.C_GenerateRandom(_session, inBuf);
+            }, ignoreErrors)) {
+                assert.equal(inBuf, outBuf, "Out buffer is a point to incoming");
+                assert.equal(inBuf.length, 20);
+            }
         });
 
         it("generate key", () => {
@@ -180,9 +238,14 @@ describe("PKCS11", () => {
                 { type: pkcs11.CKA_ENCRYPT, value: true },
                 { type: pkcs11.CKA_DECRYPT, value: true },
             ];
-            var key = _mod.C_GenerateKey(_session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, template);
-            assert.equal(!!key, true);
-            _secretKey = key;
+            var key;
+            if (runPkcs11Function(() => {
+                key = _mod.C_GenerateKey(_session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, template);
+            }, ignoreErrors)) {
+                assert.equal(!!key, true);
+                _secretKey = key;
+                assert.equal(Buffer.isBuffer(_secretKey), true, "Handle is not Buffer");
+            }
         }).timeout(timeout);
 
         it("generate key async", (done) => {
@@ -195,8 +258,16 @@ describe("PKCS11", () => {
                 { type: pkcs11.CKA_DECRYPT, value: true },
             ];
             _mod.C_GenerateKey(_session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, template, (err, key) => {
-                assert.equal(!!key, true);
-                _secretKey = key;
+                if (err) {
+                    var p11e = getPkcs11Error(err);
+                    if (!p11e || ignoreErrors.indexOf(p11e.name) === -1)
+                        throw err;
+                    warn(`Ignore error ${p11e.name}`);
+                }
+                else {
+                    assert(!!key, true);
+                    assert.equal(Buffer.isBuffer(key), true, "Handle is not Buffer");
+                }
                 done();
             });
         }).timeout(timeout);
@@ -216,14 +287,20 @@ describe("PKCS11", () => {
                 { type: pkcs11.CKA_LABEL, value: "My RSA Private Key" },
                 { type: pkcs11.CKA_SIGN, value: true },
             ];
-            var keys = _mod.C_GenerateKeyPair(_session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
-            assert.equal(!!keys, true);
-            assert.equal("privateKey" in keys, true);
-            assert.equal(!!keys.privateKey, true);
-            assert.equal("publicKey" in keys, true);
-            assert.equal(!!keys.publicKey, true);
-            _privateKey = keys.privateKey;
-            _publicKey = keys.publicKey;
+            var keys;
+            if (runPkcs11Function(() => {
+                keys = _mod.C_GenerateKeyPair(_session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
+            }, ignoreErrors)) {
+                assert.equal(!!keys, true);
+                assert.equal("privateKey" in keys, true);
+                assert.equal(!!keys.privateKey, true);
+                assert.equal("publicKey" in keys, true);
+                assert.equal(!!keys.publicKey, true);
+                _privateKey = keys.privateKey;
+                _publicKey = keys.publicKey;
+                assert.equal(Buffer.isBuffer(keys.privateKey), true, "Handle is not Buffer");
+                assert.equal(Buffer.isBuffer(keys.publicKey), true, "Handle is not Buffer");
+            }
         }).timeout(timeout);
 
         it("generate key pair RSA async", (done) => {
@@ -242,13 +319,21 @@ describe("PKCS11", () => {
                 { type: pkcs11.CKA_SIGN, value: true },
             ];
             _mod.C_GenerateKeyPair(_session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate, (err, keys) => {
-                assert.equal(!!keys, true);
-                assert.equal("privateKey" in keys, true);
-                assert.equal(!!keys.privateKey, true);
-                assert.equal("publicKey" in keys, true);
-                assert.equal(!!keys.publicKey, true);
-                _privateKey = keys.privateKey;
-                _publicKey = keys.publicKey;
+                if (err) {
+                    var p11e = getPkcs11Error(err);
+                    if (!p11e || ignoreErrors.indexOf(p11e.name) === -1)
+                        throw err;
+                    warn(`Ignore error ${p11e.name}`);
+                }
+                else {
+                    assert.equal(!!keys, true);
+                    assert.equal("privateKey" in keys, true);
+                    assert.equal(!!keys.privateKey, true);
+                    assert.equal("publicKey" in keys, true);
+                    assert.equal(!!keys.publicKey, true);
+                    assert.equal(Buffer.isBuffer(keys.privateKey), true, "Handle is not Buffer");
+                    assert.equal(Buffer.isBuffer(keys.publicKey), true, "Handle is not Buffer");
+                }
                 done();
             });
         }).timeout(timeout);
@@ -266,14 +351,18 @@ describe("PKCS11", () => {
                 { type: pkcs11.CKA_LABEL, value: "My EC Private Key" },
                 { type: pkcs11.CKA_DERIVE, value: true },
             ];
-            var keys = _mod.C_GenerateKeyPair(_session, { mechanism: pkcs11.CKM_EC_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
-            assert.equal(!!keys, true);
-            assert.equal("privateKey" in keys, true);
-            assert.equal(!!keys.privateKey, true);
-            assert.equal("publicKey" in keys, true);
-            assert.equal(!!keys.publicKey, true);
-            _privateKeyEC = keys.privateKey;
-            _publicKeyEC = keys.publicKey;
+            var keys;
+            if (runPkcs11Function(() => {
+                keys = _mod.C_GenerateKeyPair(_session, { mechanism: pkcs11.CKM_EC_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);
+            }, ignoreErrors)) {
+                assert.equal(!!keys, true);
+                assert.equal("privateKey" in keys, true);
+                assert.equal(!!keys.privateKey, true);
+                assert.equal("publicKey" in keys, true);
+                assert.equal(!!keys.publicKey, true);
+                _privateKeyEC = keys.privateKey;
+                _publicKeyEC = keys.publicKey;
+            }
         }).timeout(timeout);
 
         context("Object", () => {
@@ -294,6 +383,25 @@ describe("PKCS11", () => {
                 ]);
 
                 assert.equal(!!_nObject, true);
+                assert.equal(Buffer.isBuffer(_nObject), true, "Handle is not Buffer");
+            });
+
+            it("copy", () => {
+                assert.equal(!!_mod, true, mod_assert);
+                assert.notEqual(_session, undefined, session_assert);
+
+                var cObject;
+                if (runPkcs11Function(() => {
+                    cObject = _mod.C_CopyObject(_session, _nObject, [
+                        { type: pkcs11.CKA_CLASS },
+                        { type: pkcs11.CKA_TOKEN },
+                        { type: pkcs11.CKA_PRIVATE },
+                        { type: pkcs11.CKA_LABEL }
+                    ]);
+                }, ignoreErrors)) {
+                    assert.equal(!!cObject, true);
+                    assert.equal(Buffer.isBuffer(cObject), true, "Handle is not Buffer");
+                }
             });
 
             it("get Attribute", () => {
@@ -339,6 +447,7 @@ describe("PKCS11", () => {
                 var hObject = _mod.C_FindObjects(_session);
                 _mod.C_FindObjectsFinal(_session);
                 assert.equal(!!hObject, true);
+                assert.equal(Buffer.isBuffer(hObject), true, "Handle is not Buffer");
             })
 
             it("find with search params", () => {
@@ -351,7 +460,28 @@ describe("PKCS11", () => {
                 assert.equal(!!hObject, true);
                 var obj_class = _mod.C_GetAttributeValue(_session, _nObject, [{ type: pkcs11.CKA_CLASS }]);
                 assert.equal(obj_class[0].value.readUInt32LE(), pkcs11.CKO_DATA);
-            })
+            });
+
+            it("get size", () => {
+                assert.equal(!!_mod, true, mod_assert);
+                assert.notEqual(_session, undefined, session_assert);
+                if (!checkParam(!!_nObject, true, object_assert)) return;
+
+                var oSize;
+                if (runPkcs11Function(() => {
+                    oSize = _mod.C_GetObjectSize(_session, _nObject);
+                }, ignoreErrors)) {
+                    assert.equal(!!oSize, true);
+                }
+            });
+
+            it("destroy", () => {
+                assert.equal(!!_mod, true, mod_assert);
+                assert.notEqual(_session, undefined, session_assert);
+                if (!checkParam(!!_nObject, true, object_assert)) return;
+
+                _mod.C_DestroyObject(_session, _nObject);
+            });
         });
     });
 
@@ -361,21 +491,25 @@ describe("PKCS11", () => {
             assert.equal(!!_mod, true, mod_assert);
             assert.notEqual(_session, undefined, session_assert);
 
-            _mod.C_DigestInit(_session, { mechanism: pkcs11.CKM_SHA256 });
-            _mod.C_DigestUpdate(_session, new Buffer("Hello my test"));
-            _mod.C_DigestUpdate(_session, new Buffer("!!!"));
-            const digest_size = 32;
-            var digest = _mod.C_DigestFinal(_session, Buffer(digest_size + 10));
+            if (runPkcs11Function(() => {
+                _mod.C_DigestInit(_session, { mechanism: pkcs11.CKM_SHA256 });
+                _mod.C_DigestUpdate(_session, new Buffer("Hello my test"));
+                _mod.C_DigestUpdate(_session, new Buffer("!!!"));
+                const digest_size = 32;
+                var digest = _mod.C_DigestFinal(_session, Buffer(digest_size + 10));
+            }, ignoreErrors)) {
+                assert.equal(digest.length, digest_size);
+                assert.equal(digest.toString("hex"), "557685952545061c49b04f4c0658496f56da5d8858f6dad5540eb10885dc7736");
+            }
 
-            assert.equal(digest.length, digest_size);
-            assert.equal(digest.toString("hex"), "557685952545061c49b04f4c0658496f56da5d8858f6dad5540eb10885dc7736");
         });
 
         it("encrypt/decrypt", () => {
             assert.equal(!!_mod, true, mod_assert);
             assert.notEqual(_session, undefined, session_assert);
-            assert.notEqual(_privateKey, undefined, private_assert);
-            assert.notEqual(_publicKey, undefined, public_assert);
+            if (!checkParam(!!_secretKey, true, secret_aes_assert)) return;
+            if (!checkParam(!!_privateKey, true, private_assert)) return;
+            if (!checkParam(!!_publicKey, true, public_assert)) return;
 
             var crypto_param = new Buffer([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
 
@@ -428,8 +562,8 @@ describe("PKCS11", () => {
         it("sign/verify", () => {
             assert.equal(!!_mod, true, mod_assert);
             assert.notEqual(_session, undefined, session_assert);
-            assert.notEqual(_privateKey, undefined, private_assert);
-            assert.notEqual(_publicKey, undefined, public_assert);
+            if (!checkParam(!!_privateKey, true, private_assert)) return;
+            if (!checkParam(!!_privateKey, true, private_assert)) return;
 
             _mod.C_SignInit(_session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, _privateKey);
             _mod.C_SignUpdate(_session, new Buffer("Hello my test"));
@@ -454,8 +588,8 @@ describe("PKCS11", () => {
         it("derive key", () => {
             assert.equal(!!_mod, true, mod_assert);
             assert.notEqual(_session, undefined, session_assert);
-            assert.notEqual(_privateKeyEC, undefined, private_assert);
-            assert.notEqual(_publicKeyEC, undefined, public_assert);
+            if (!checkParam(!!_privateKeyEC, true, private_assert)) return;
+            if (!checkParam(!!_publicKeyEC, true, private_assert)) return;
 
             var attrs = _mod.C_GetAttributeValue(_session, _publicKeyEC, [{ type: pkcs11.CKA_EC_POINT }])
             var ec = attrs[0].value;
@@ -482,7 +616,8 @@ describe("PKCS11", () => {
                     { type: pkcs11.CKA_VALUE_LEN, value: 256 / 8 }
                 ]
             );
-
+            assert.equal(!!derivedKey, true, "Key was not derived");
+            assert.equal(Buffer.isBuffer(derivedKey), true, "Handle is not Buffer");
         });
 
     })

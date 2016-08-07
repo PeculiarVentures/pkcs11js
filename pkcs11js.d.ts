@@ -2,7 +2,7 @@
 
 declare module "pkcs11js" {
 
-    type Handle = number;
+    type Handle = Buffer;
 
 
     interface Version {
