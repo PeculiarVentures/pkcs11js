@@ -39,11 +39,11 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SOFTHSM_CONF=$PWD/softhsm.conf; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then echo 0:${PWD}/softhsm.db > ${SOFTHSM_CONF}; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install softhsm; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then softhsm --init-token --slot 0 --label token_label --pin 6789 --so-pin 12345 ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo softhsm --init-token --slot 0 --label token_label --pin 6789 --so-pin 12345 ; fi
   
   # OSX
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install softhsm; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then /usr/local/Cellar/softhsm/2.0.0/bin/softhsm2-util --init-token --slot 0 --label "My token 1" --pin 6789 --so-pin 12345 ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo brew install softhsm; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo /usr/local/Cellar/softhsm/2.0.0/bin/softhsm2-util --init-token --slot 0 --label "My token 1" --pin 6789 --so-pin 12345 ; fi
 
 
 script:
