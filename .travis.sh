@@ -13,6 +13,8 @@ install_from_github() {
     echo "$2 installed"
     sudo ldconfig
 }
+# softhsm requires openssl
+sudo apt-get install -y libssl-dev
 
 # softhsm is required for tests
 install_from_github opendnssec SoftHSMv2 develop
