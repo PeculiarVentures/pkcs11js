@@ -34,7 +34,7 @@ before_install:
   - node --version
   - npm --version
   - gcc --version
-  - .travis.sh
+  - ./.travis.sh
   
   # Linux
   #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export SOFTHSM_CONF=$PWD/softhsm.conf; fi
