@@ -29,6 +29,9 @@ elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     brew install sqlite
     brew install cppunit
     
+    # seems to be needed
+    brew link openssl --force
+    
     #export PATH=$PATH:/usr/local/bin/
 fi
 
