@@ -20,6 +20,9 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     cd ..
     sudo ldconfig
     
+    export CC=clang
+    export CXX=clang++
+    
 elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
 
     # Installing SoftHSM dependencies
