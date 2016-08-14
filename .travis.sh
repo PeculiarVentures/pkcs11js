@@ -24,6 +24,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     export PATH=$PATH:/usr/local/bin/
     
 elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    brew update
     brew install automake
     brew install openssl
     brew install sqlite
