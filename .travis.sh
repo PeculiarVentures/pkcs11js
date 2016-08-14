@@ -22,8 +22,6 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     sudo apt-get install automake -y
     sudo apt-get install libtool -y
     
-    export PATH=$PATH:/usr/local/bin/
-    
 elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     export CC="xcrun gcc"
     export CPP="xcrun cpp"
@@ -32,13 +30,15 @@ elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     brew update
     brew install automake
     brew install openssl
+    
+    # seems to be needed
+    export OPENSSL_INCLUDE_DIR=`brew --prefix openssl`/include
+    export OPENSSL_LIB_DIR=`brew --prefix openssl`/lib
+    brew link openssl --force
+    
     brew install sqlite
     brew install cppunit
     
-    # seems to be needed
-    brew link openssl --force
-    
-    #export PATH=$PATH:/usr/local/bin/
 fi
 
 # softhsm is required for tests
