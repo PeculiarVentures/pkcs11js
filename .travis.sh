@@ -23,10 +23,6 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     sudo apt-get install libtool -y
     
 elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    export CC="xcrun gcc"
-    export CPP="xcrun cpp"
-    export CXX="xcrun g++"
-
     brew update
     brew install automake
     brew install openssl
