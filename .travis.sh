@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+
     echo "Installing SoftHSM dependencies"
     sudo apt-get update -qq
     sudo apt-get install libssl-dev
@@ -19,7 +20,8 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     cd ..
     sudo ldconfig
     
-elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
+
     echo "Installing SoftHSM dependencies"
     brew update
     brew install automake
@@ -43,6 +45,7 @@ elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     make
     sudo -E make install
     cd ..
+    
 fi
 
 # initializing SoftHSM
