@@ -11,7 +11,7 @@ const libPath = "/usr/local/lib/softhsm/libsofthsm2.so"; // travis-ci test
 
 const timeout = 10000; // 10s
 
-const tokenPin = "6789"; // travis-ci test
+const tokenPin = "12345"; // travis-ci test
 const slot_index = 0;
 
 const mod_assert = "Module is not initialized";
