@@ -13,8 +13,19 @@ install_from_github() {
     echo "$2 installed"
     sudo ldconfig
 }
-# softhsm requires openssl
-sudo apt-get install -y libssl-dev
+
+# prepare the softhsm configuration scripts
+if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    sudo apt-get update -qq
+    sudo apt-get install autoconf -y
+    sudo apt-get install automake -y
+    sudo apt-get install libtool -y
+    
+    export PATH=$PATH:/usr/local/bin/
+fi
 
 # softhsm is required for tests
 install_from_github opendnssec SoftHSMv2 develop
+
+# initializing token
+softhsm2-util --init-token --so-pin "12345" --pin "12345" --slot 0 --label "My slot 0"
