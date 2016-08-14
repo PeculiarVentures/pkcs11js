@@ -3,6 +3,9 @@ set -e
 
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 
+    export CC=gcc
+    export CXX=g++
+    
     # Installing SoftHSM dependencies
     sudo apt-get update -qq
     sudo apt-get install libssl-dev
