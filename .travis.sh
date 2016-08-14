@@ -1,16 +1,16 @@
 #!/bin/sh
 set -e
 
-if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
-    echo "Installing SoftHSM dependencies"
+    # Installing SoftHSM dependencies
     sudo apt-get update -qq
     sudo apt-get install libssl-dev
     sudo apt-get install autoconf -y
     sudo apt-get install automake -y
     sudo apt-get install libtool -y
     
-    echo "Installing SoftHSM"
+    # Installing SoftHSM
     git clone https://github.com/opendnssec/SoftHSMv2.git -b develop
     cd SoftHSMv2
     sh ./autogen.sh
@@ -20,9 +20,9 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     cd ..
     sudo ldconfig
     
-elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
+elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
-    echo "Installing SoftHSM dependencies"
+    # Installing SoftHSM dependencies
     brew update
     brew install automake
     brew install openssl
@@ -35,7 +35,7 @@ elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     brew install sqlite
     brew install cppunit
     
-    echo "Installing SoftHSM"
+    # Installing SoftHSM
     git clone https://github.com/opendnssec/SoftHSMv2.git -b develop
     cd SoftHSMv2
     sh ./autogen.sh
