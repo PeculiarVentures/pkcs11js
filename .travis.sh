@@ -45,8 +45,5 @@ elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     cd ..
 fi
 
-# softhsm is required for tests
-install_from_github opendnssec SoftHSMv2 develop
-
-# initializing token
+# initializing SoftHSM
 softhsm2-util --init-token --so-pin "12345" --pin "12345" --slot 0 --label "My slot 0"
