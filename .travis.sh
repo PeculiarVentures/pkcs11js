@@ -17,6 +17,7 @@ install_from_github() {
 # prepare the softhsm configuration scripts
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     sudo apt-get update -qq
+    sudo apt-get install libssl-dev
     sudo apt-get install autoconf -y
     sudo apt-get install automake -y
     sudo apt-get install libtool -y
