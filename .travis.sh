@@ -2,10 +2,6 @@
 set -e
 
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-
-    #export CC=gcc
-    #export CXX=g++-4.8
-    #export PKG_CXXFLAGS='-std=c++0x'
     
     # Installing SoftHSM dependencies
     sudo apt-get update -qq
@@ -23,9 +19,6 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo -E make install
     cd ..
     sudo ldconfig
-    
-    #export CC=clang
-    #export CXX=clang++
     
 elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
 
