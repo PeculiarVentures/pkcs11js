@@ -1,28 +1,27 @@
 #!/bin/sh
 set -e
 
-install_from_github() {
-    echo "Installing $2"
-    git clone https://github.com/$1/$2.git -b $3
-    cd $2
-    autoreconf -fvi
-    ./configure
-    make
-    sudo -E make install
-    cd ..
-    echo "$2 installed"
-    sudo ldconfig
-}
 
-# prepare the softhsm configuration scripts
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    echo "Installing SoftHSM dependencies"
     sudo apt-get update -qq
     sudo apt-get install libssl-dev
     sudo apt-get install autoconf -y
     sudo apt-get install automake -y
     sudo apt-get install libtool -y
     
+    echo "Installing SoftHSM"
+    git clone https://github.com/opendnssec/SoftHSMv2.git -b develop
+    cd SoftHSMv2
+    autoreconf -fvi
+    ./configure
+    make
+    sudo -E make install
+    cd ..
+    sudo ldconfig
+    
 elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    echo "Installing SoftHSM dependencies"
     brew update
     brew install automake
     brew install openssl
@@ -35,6 +34,16 @@ elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     brew install sqlite
     brew install cppunit
     
+    echo "Installing SoftHSM"
+    git clone https://github.com/opendnssec/SoftHSMv2.git -b develop
+    cd SoftHSMv2
+    sh ./autogen.sh
+    ./configure \
+    --with-openssl=/usr/local/opt/openssl \
+    --with-sqlite3=/usr/local/opt/sqlite
+    make
+    sudo -E make install
+    cd ..
 fi
 
 # softhsm is required for tests
