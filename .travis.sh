@@ -22,6 +22,14 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     sudo apt-get install libtool -y
     
     export PATH=$PATH:/usr/local/bin/
+    
+elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    brew install automake
+    brew install openssl
+    brew install sqlite
+    brew install cppunit
+    
+    #export PATH=$PATH:/usr/local/bin/
 fi
 
 # softhsm is required for tests
