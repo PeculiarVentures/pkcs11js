@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     echo "Installing SoftHSM dependencies"
     sudo apt-get update -qq
@@ -13,7 +12,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     echo "Installing SoftHSM"
     git clone https://github.com/opendnssec/SoftHSMv2.git -b develop
     cd SoftHSMv2
-    autoreconf -fvi
+    sh ./autogen.sh
     ./configure
     make
     sudo -E make install
