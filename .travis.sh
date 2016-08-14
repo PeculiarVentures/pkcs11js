@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 
     # Installing SoftHSM dependencies
     sudo apt-get update -qq
@@ -20,7 +20,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     cd ..
     sudo ldconfig
     
-elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
 
     # Installing SoftHSM dependencies
     brew update
