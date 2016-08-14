@@ -5,7 +5,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 
     export CC=gcc
     export CXX=g++
-    export PKG_CXXFLAGS='-std=c++11'
+    export PKG_CXXFLAGS='-std=c++0x'
     
     # Installing SoftHSM dependencies
     sudo apt-get update -qq
