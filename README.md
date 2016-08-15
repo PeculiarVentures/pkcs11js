@@ -27,8 +27,8 @@ $ npm install pkcs11js
 
 ### Install SoftHSM2
 
-For OSX see the [instructions here](https://github.com/opendnssec/SoftHSMv2/blob/develop/OSX-NOTES.md)
-For linux [instructions here](https://github.com/opendnssec/SoftHSMv2/blob/develop/README.md)
+- For OSX see the [instructions here](https://github.com/opendnssec/SoftHSMv2/blob/develop/OSX-NOTES.md)
+- For linux [instructions here](https://github.com/opendnssec/SoftHSMv2/blob/develop/README.md)
 
 
 ## Examples
