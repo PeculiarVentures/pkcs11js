@@ -27,33 +27,12 @@ $ npm install pkcs11js
 
 ### Install SoftHSM2
 
-SoftHSM2 is optional but as a software implementation of PKCS#11 it makes it easy to test the package. The bellow steps assume Ubuntu.
+**NOTE**: SoftHSM2 is optional, the bellow steps assume Ubuntu
 
-**Install SoftHSM2**
+For OSX see the [instructions here](https://github.com/opendnssec/SoftHSMv2/blob/develop/OSX-NOTES.md)
+For linux [instructions here](https://github.com/opendnssec/SoftHSMv2/blob/develop/README.md)
 
-```
-apt-get install softhsm
-```
-The PKCS1 #11 module you can now use can be found here:
 
-`/usr/local/lib/softhsm/libsofthsm.so`
-
-**Initialize the first slot**
-
-```
-softhsm2-util --init-token --slot 0 --label "My token 1"
-```
-  
-**Adjust permissions so the user your code runs as will be able to access the PKCS #11 module**
-
-  ```
-  sudo chmod –R 755 /var/lib/softhsm
-  sudo chmod –R 755 /usr/local/lib/softhsm
-  chown root:softhsmusers /var/lib/softhsm
-  chown root:softhsmusers /usr/local/lib/softhsm
-  ```
- 
-**NOTE**: This may be more generous than needed. It works out to : 0755 = User:rwx Group:r-x World:r-x. 
 ## Examples
 
 ### Example #1
