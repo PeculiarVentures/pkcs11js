@@ -1,5 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
-
 const pkcs11 = require("../index");
 const assert = require("assert");
 
@@ -187,6 +185,46 @@ describe("PKCS11", () => {
 
             assert.notEqual(_session, undefined, session_assert);
             assert.equal(Buffer.isBuffer(_session), true, "Handle is not Buffer");
+        });
+
+        function changePIN(session, userType, oldPIN, newPIN) {
+            _mod.C_Login(session, userType, oldPIN);
+            _mod.C_SetPIN(session, oldPIN, newPIN);
+            _mod.C_Logout(session);
+        }
+
+        it("change user PIN", () => {
+            var session = _mod.C_OpenSession(_slot, 2 | 4);
+
+            try {
+                var newPIN = "54321";
+
+                changePIN(session, 1, tokenPin, newPIN);
+                changePIN(session, 1, newPIN, tokenPin);
+            }
+            catch (e) {
+                _mod.C_CloseSession(session);
+                throw e;
+            }
+
+            _mod.C_CloseSession(session);
+        });
+
+        it("change SO PIN", () => {
+            var session = _mod.C_OpenSession(_slot, 2 | 4);
+
+            try {
+                var newPIN = "54321";
+
+                changePIN(session, 0, tokenPin, newPIN);
+                changePIN(session, 0, newPIN, tokenPin);
+            }
+            catch (e) {
+                _mod.C_CloseSession(session);
+                throw e;
+            }
+
+            _mod.C_CloseSession(session);
         });
 
         it("get Info", () => {
