@@ -1178,6 +1178,7 @@ declare module "pkcs11js" {
     const CKF_WRAP: number;
     const CKF_UNWRAP: number;
     const CKF_DERIVE: number;
+    const CKF_CLOCK_ON_TOKEN: number;
 
     // Certificates
     const CKC_X_509: number;

@@ -127,6 +127,7 @@ void declare_flags(Local<Object> target) {
 	SET_CONST(target, CKF_WRAP);
 	SET_CONST(target, CKF_UNWRAP);
 	SET_CONST(target, CKF_DERIVE);
+	SET_CONST(target, CKF_CLOCK_ON_TOKEN);
 }
 
 void declare_objects(Local<Object> target) {
