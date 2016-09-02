@@ -11,19 +11,38 @@
 	],
 	"main": "index.js",
 	"scripts": {
-		"test": "mocha",
-		"pub": "npm version patch && npm publish && git push",
-		"sync": "git ac && git pull --rebase && git push"
+                "clean": "rm -rf build/ buildjs/ coverage/ .nyc_output/ npm-debug.log npm-debug.log.*",
+                "prepublish": "npm run build",
+                "postinstall": "npm run build",
+                "pretest": "npm run build",
+                "test": "mocha",
+                "build": "typings install && tsc --sourceMap",
+                "pub": "npm version patch && npm publish && git push",
+                "sync": "git ac && git pull --rebase && git push",
+                "coverage": "nyc npm test",
+                "precoveragehtml": "npm run coverage",
+                "coveragehtml": "nyc report -r html",
+                "watch": "watch 'npm run coveragehtml' lib/ src/ test/",
+                "live": "live-server -q --port=4005 --ignorePattern='(js|css|png)$' coverage",
+                "predev": "if [ ! -f coverage/index.html ]; then mkdir coverage; cp .waiting.html coverage/index.html; fi",
+                "dev": "npm-run-all -p --silent watch live",
+                "coveralls": "nyc report --reporter=text-lcov | coveralls"
 	},
 	"author": "PeculiarVentures",
 	"license": "MIT",
 	"dependencies": {
 		"nan": "^2.4.0"
 	},
-	"devDependencies": {
+        "devDependencies": {
 		"node-gyp": "^3.4.0",
-		"mocha": "^3.0.1"
-	},
+                "live-server": "^1",
+                "mocha": "^3",
+                "npm-run-all": "^3",
+                "nyc": "^8",
+                "typescript": "^1.8.10",
+                "typings": "^1.3.3",
+                "watch": "^0"
+        },
 	"bugs": {
 		"url": "https://github.com/PeculiarVentures/pkcs11js/issues"
 	}
