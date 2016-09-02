@@ -1,4 +1,6 @@
-.vscode
-typings
-node_modules
-build
+/.vscode
+/build
+/node_modules
+/typings
+/.nyc_output/
+/coverage/

@@ -2,6 +2,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/graphene/master/LICENSE)
 [![Build Status](https://travis-ci.org/PeculiarVentures/pkcs11js.svg?branch=master)](https://travis-ci.org/PeculiarVentures/pkcs11js)
+[![Coverage Status](https://coveralls.io/repos/github/PeculiarVentures/pkcs11js/badge.svg?branch=coveralls)](https://coveralls.io/github/PeculiarVentures/pkcs11js?branch=coveralls)
 [![NPM version](https://badge.fury.io/js/pkcs11js.png)](http://badge.fury.io/pkcs11js)
 
 
