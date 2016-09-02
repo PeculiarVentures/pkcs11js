@@ -16,7 +16,7 @@
                 "postinstall": "npm run build",
                 "pretest": "npm run build",
                 "test": "mocha",
-                "build": "typings install && tsc --sourceMap",
+                "build": "exit",
                 "pub": "npm version patch && npm publish && git push",
                 "sync": "git ac && git pull --rebase && git push",
                 "coverage": "nyc npm test",
