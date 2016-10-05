@@ -208,7 +208,7 @@ declare module "pkcs11js" {
          * @param {Handle} mech Type of mechanism
          * @returns {MechanismInfo} Receives mechanism info
          */
-        C_GetMechanismInfo(slot: Handle, mech: Handle): MechanismInfo;
+        C_GetMechanismInfo(slot: Handle, mech: number): MechanismInfo;
 
         /* Session management */
 
