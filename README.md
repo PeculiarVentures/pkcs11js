@@ -14,6 +14,7 @@ This was developed to the PKCS#11 2.3 specification, the 2.4 headers were not av
 
 It has been tested with :
 - [SoftHSM2](https://www.opendnssec.org/softhsm/)
+- [Thales NShield](https://www.thales-esecurity.com/products-and-services/products-and-services/hardware-security-modules/general-purpose-hsms/nshield-solo)
 - [Safenet Luna HSMs](http://www.safenet-inc.com/)
 - [RuToken](http://www.rutoken.ru/)
 
