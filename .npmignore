@@ -1,8 +1,5 @@
 .vscode
 build
 node_modules
-typings
 .travis.yml
-pkcs11js.d.ts
-tsd.json
 tslint.json

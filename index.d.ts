@@ -1,9 +1,21 @@
-/// <reference path="../node/node.d.ts" />
+// Type definitions for pkcs11js v1.0.3
+// Project: https://github.com/PeculiarVentures/pkcs11js
+// Definitions by: Stepan Miroshin <https://github.com/microshine>
+
+/// <reference types="node" />
+
+/**
+ * A Node.js implementation of the PKCS#11 2.3 interface
+ * v1.0.3
+ */
 
 declare module "pkcs11js" {
+    export = Pkcs11Js;
+}
+
+declare namespace Pkcs11Js {
 
     type Handle = Buffer;
-
 
     interface Version {
         major: number;
@@ -200,7 +212,7 @@ declare module "pkcs11js" {
          * @param {Handle} slot ID of token's slot
          * @returns {Handle[]} Gets mech. array
          */
-        C_GetMechanismList(slot: Handle): number[];
+        C_GetMechanismList(slot: Handle): Handle[];
         /**
          * Obtains information about a particular mechanism possibly supported by a token 
          * 
@@ -208,7 +220,7 @@ declare module "pkcs11js" {
          * @param {Handle} mech Type of mechanism
          * @returns {MechanismInfo} Receives mechanism info
          */
-        C_GetMechanismInfo(slot: Handle, mech: number): MechanismInfo;
+        C_GetMechanismInfo(slot: Handle, mech: Handle): MechanismInfo;
 
         /* Session management */
 
@@ -443,7 +455,7 @@ declare module "pkcs11js" {
          * @param {Buffer} inData Incoming data
          * @param {Buffer} outData Coming data
          * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
-        
+         
          */
         C_Digest(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -1164,6 +1176,10 @@ declare module "pkcs11js" {
     const CKM_RSA_PKCS_OAEP_TPM_1_1: number;
     const CKM_VENDOR_DEFINED: number;
 
+    // Session flags
+    const CKF_RW_SESSION: number;
+    const CKF_SERIAL_SESSION: number;
+
     // Follows
     const CKF_HW: number;
     const CKF_ENCRYPT: number;
@@ -1178,7 +1194,6 @@ declare module "pkcs11js" {
     const CKF_WRAP: number;
     const CKF_UNWRAP: number;
     const CKF_DERIVE: number;
-    const CKF_CLOCK_ON_TOKEN: number;
 
     // Certificates
     const CKC_X_509: number;
@@ -1210,4 +1225,5 @@ declare module "pkcs11js" {
     const CK_PARAMS_RSA_OAEP: number;
     const CK_PARAMS_RSA_PSS: number;
     const CK_PARAMS_EC_DH: number;
+
 }
