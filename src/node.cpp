@@ -705,7 +705,7 @@ NAN_METHOD(WPKCS11::C_Encrypt) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
 
-			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_ENCRYPT, hSession, input, output));
+			Nan::AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_ENCRYPT, hSession, input, output));
 		}
 	}
 	CATCH_V8_ERROR
@@ -771,7 +771,7 @@ NAN_METHOD(WPKCS11::C_Decrypt) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
 
-			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_DECRYPT, hSession, input, output));
+			Nan::AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_DECRYPT, hSession, input, output));
 		}
 	}
 	CATCH_V8_ERROR
@@ -836,7 +836,7 @@ NAN_METHOD(WPKCS11::C_Digest) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
 
-			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_DIGEST, hSession, input, output));
+			Nan::AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_DIGEST, hSession, input, output));
 		}
 	}
 	CATCH_V8_ERROR;
@@ -915,7 +915,7 @@ NAN_METHOD(WPKCS11::C_Sign) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
 
-			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_SIGN, hSession, input, output));
+			Nan::AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_SIGN, hSession, input, output));
 		}
 	}
 	CATCH_V8_ERROR
@@ -1010,7 +1010,7 @@ NAN_METHOD(WPKCS11::C_Verify) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
 
-			AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_VERIFY, hSession, input, signature));
+			Nan::AsyncQueueWorker(new AsyncCrypto(callback, __pkcs11, ASYNC_CRYPTO_VERIFY, hSession, input, signature));
 		}
 	}
 	CATCH_V8_ERROR;
@@ -1090,7 +1090,7 @@ NAN_METHOD(WPKCS11::C_GenerateKey) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
 
-			AsyncQueueWorker(new AsyncGenerateKey(callback, __pkcs11, hSession, mech, tmpl));
+			Nan::AsyncQueueWorker(new AsyncGenerateKey(callback, __pkcs11, hSession, mech, tmpl));
 		}
 
 	}
@@ -1119,7 +1119,7 @@ NAN_METHOD(WPKCS11::C_GenerateKeyPair) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[4].As<Function>());
 
-			AsyncQueueWorker(new AsyncGenerateKeyPair(callback, __pkcs11, hSession, mech, publicKey, privateKey));
+			Nan::AsyncQueueWorker(new AsyncGenerateKeyPair(callback, __pkcs11, hSession, mech, publicKey, privateKey));
 		}
 	}
 	CATCH_V8_ERROR;
@@ -1145,7 +1145,7 @@ NAN_METHOD(WPKCS11::C_WrapKey) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[CALLBACK_INDEX].As<Function>());
 
-			AsyncQueueWorker(new AsyncWrapKey(callback, __pkcs11, hSession, mech, hWrappingKey, hKey, wrappedKey));
+			Nan::AsyncQueueWorker(new AsyncWrapKey(callback, __pkcs11, hSession, mech, hWrappingKey, hKey, wrappedKey));
 		}
 	}
 	CATCH_V8_ERROR;
@@ -1171,7 +1171,7 @@ NAN_METHOD(WPKCS11::C_UnwrapKey) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[CALLBACK_INDEX].As<Function>());
 
-			AsyncQueueWorker(new AsyncUnwrapKey(callback, __pkcs11, hSession, mech, hUnwrappingKey, wrappedKey, tmpl));
+			Nan::AsyncQueueWorker(new AsyncUnwrapKey(callback, __pkcs11, hSession, mech, hUnwrappingKey, wrappedKey, tmpl));
 		}
 	}
 	CATCH_V8_ERROR;
@@ -1196,7 +1196,7 @@ NAN_METHOD(WPKCS11::C_DeriveKey) {
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[CALLBACK_INDEX].As<Function>());
 
-			AsyncQueueWorker(new AsyncDeriveKey(callback, __pkcs11, hSession, mech, hBaseKey, tmpl));
+			Nan::AsyncQueueWorker(new AsyncDeriveKey(callback, __pkcs11, hSession, mech, hBaseKey, tmpl));
 		}
 	}
 	CATCH_V8_ERROR;
