@@ -210,17 +210,17 @@ declare namespace Pkcs11Js {
          * Obtains a list of mechanism types supported by a token 
          * 
          * @param {Handle} slot ID of token's slot
-         * @returns {Handle[]} Gets mech. array
+         * @returns {number[]} Gets mech. array
          */
-        C_GetMechanismList(slot: Handle): Handle[];
+        C_GetMechanismList(slot: Handle): number[];
         /**
          * Obtains information about a particular mechanism possibly supported by a token 
          * 
          * @param {Handle} slot ID of the token's slot
-         * @param {Handle} mech Type of mechanism
+         * @param {number} mech Type of mechanism
          * @returns {MechanismInfo} Receives mechanism info
          */
-        C_GetMechanismInfo(slot: Handle, mech: Handle): MechanismInfo;
+        C_GetMechanismInfo(slot: Handle, mech: number): MechanismInfo;
 
         /* Session management */
 
