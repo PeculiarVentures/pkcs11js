@@ -5,6 +5,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/PeculiarVentures/pkcs11js/badge.svg?branch=master)](https://coveralls.io/github/PeculiarVentures/pkcs11js?branch=master)
 [![NPM version](https://badge.fury.io/js/pkcs11js.png)](http://badge.fury.io/pkcs11js)
 
+[![NPM](https://nodei.co/npm-dl/pkcs11js.png?months=2&height=2)](https://nodei.co/npm/pkcs11js/)
+
 
 We make a package called [Graphene](https://github.com/PeculiarVentures/graphene), it provides a simplistic Object Oriented interface for interacting with PKCS#11 devices, for most people this is the right level to build on. In some cases you may want to interact directly with the PKCS#11 API, if so PKCS11js is the package for you.
 
