@@ -378,7 +378,7 @@ NAN_METHOD(WPKCS11::C_GetMechanismInfo) {
 
 		CHECK_REQUIRED(1);
 		CHECK_TYPE(1, Number);
-		CK_MECHANISM_TYPE type = info[1]->ToNumber()->Uint32Value();
+		CK_MECHANISM_TYPE type = Nan::To<v8::Number>(info[1]).ToLocalChecked()->Uint32Value();
 
 		UNWRAP_PKCS11;
 
@@ -446,7 +446,7 @@ NAN_METHOD(WPKCS11::C_OpenSession) {
 
 		CHECK_REQUIRED(1);
 		CHECK_TYPE(1, Number);
-		CK_FLAGS flags = info[1]->ToNumber()->Uint32Value();
+		CK_FLAGS flags = Nan::To<v8::Number>(info[1]).ToLocalChecked()->Uint32Value();
 
 		UNWRAP_PKCS11;
 
@@ -509,7 +509,7 @@ NAN_METHOD(WPKCS11::C_Login) {
 
 		CHECK_REQUIRED(1);
 		CHECK_TYPE(1, Number);
-		CK_USER_TYPE userType = info[1]->ToNumber()->Uint32Value();
+		CK_USER_TYPE userType = Nan::To<v8::Number>(info[1]).ToLocalChecked()->Uint32Value();
 
 		UNWRAP_PKCS11;
 

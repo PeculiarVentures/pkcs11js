@@ -23,9 +23,9 @@ void ParamRsaOAEP::FromV8(Local<Value> v8Value) {
 		Free();
 		New();
 
-		data.source = v8Params->Get(Nan::New(STR_SOURCE).ToLocalChecked())->ToNumber()->Uint32Value();
-		data.mgf= v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())->ToNumber()->Uint32Value();
-		data.hashAlg = v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())->ToNumber()->Uint32Value();
+		data.source = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_SOURCE).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		data.mgf= Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		data.hashAlg = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).ToLocalChecked()->Uint32Value();
 
 		if (!check_param_empty(v8Params, STR_SOURCE_DATA)) {
 			GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_SOURCE_DATA).ToLocalChecked())->ToObject());
@@ -78,9 +78,9 @@ void ParamRsaPSS::FromV8(Local<Value> v8Value) {
 		Free();
 		New();
 
-		data.sLen = v8Params->Get(Nan::New(STR_SALT_LEN).ToLocalChecked())->ToNumber()->Uint32Value();
-		data.mgf = v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())->ToNumber()->Uint32Value();
-		data.hashAlg = v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())->ToNumber()->Uint32Value();
+		data.sLen = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_SALT_LEN).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		data.mgf = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		data.hashAlg = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).ToLocalChecked()->Uint32Value();
 
 	}
 	CATCH_ERROR;

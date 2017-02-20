@@ -35,7 +35,7 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 		attr->pValue = NULL;
 		attr->ulValueLen = 0;
 
-		attr->type = v8Type->ToNumber()->Uint32Value();
+		attr->type = Nan::To<v8::Number>(v8Type).ToLocalChecked()->Uint32Value();
 		if (node::Buffer::HasInstance(v8Value)) {
 			// Buffer
 			GET_BUFFER_SMPL(data, v8Value);
@@ -49,7 +49,7 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 		}
 		else if (v8Value->IsNumber()) {
 			// Number
-			CK_ULONG num = v8Value->ToNumber()->Uint32Value();
+			CK_ULONG num = Nan::To<v8::Number>(v8Value).ToLocalChecked()->Uint32Value();
 
 			uint32_t long_size = sizeof(CK_ULONG);
 
@@ -144,7 +144,7 @@ void Attributes::FromV8(Local<Value> v8Value) {
 		}
 
 		Local<Object> v8Template = v8Value->ToObject();
-		uint32_t templateLen = v8Template->Get(Nan::New("length").ToLocalChecked())->ToNumber()->Uint32Value();
+		uint32_t templateLen = Nan::To<v8::Number>(v8Template->Get(Nan::New("length").ToLocalChecked())).ToLocalChecked()->Uint32Value();
 
 		uint32_t i = 0;
 		New();

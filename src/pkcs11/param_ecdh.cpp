@@ -21,7 +21,7 @@ void ParamEcdh1::FromV8(Local<Value> v8Value) {
 		Free();
 		New();
 
-		data.kdf = (CK_ULONG)v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())->ToNumber()->Uint32Value();
+		data.kdf = (CK_ULONG)Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
 
 		if (check_param_buffer(v8Params, STR_SHARED_DATA)) {
 			GET_BUFFER_SMPL(sharedData, v8Params->Get(Nan::New(STR_SHARED_DATA).ToLocalChecked())->ToObject());

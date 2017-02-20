@@ -1,5 +1,7 @@
-.vscode
-build
-node_modules
-.travis.yml
+/.nyc_output
+/coverage
+/.vscode
+/build
+/node_modules
+.travis.*
 tslint.json

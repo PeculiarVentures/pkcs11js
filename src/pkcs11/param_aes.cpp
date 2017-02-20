@@ -75,8 +75,8 @@ void ParamAesCCM::FromV8(Local<Value> v8Value) {
 		Free();
 		New();
 
-		data.ulDataLen = v8Params->Get(Nan::New(STR_DATA_LEN).ToLocalChecked())->ToNumber()->Uint32Value();
-		data.ulMACLen = v8Params->Get(Nan::New(STR_MAC_LEN).ToLocalChecked())->ToNumber()->Uint32Value();
+		data.ulDataLen = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_DATA_LEN).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		data.ulMACLen = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_MAC_LEN).ToLocalChecked())).ToLocalChecked()->Uint32Value();
 
 		if (!check_param_empty(v8Params,STR_NONCE)) {
 			GET_BUFFER_SMPL(nonce, v8Params->Get(Nan::New(STR_NONCE).ToLocalChecked())->ToObject());
@@ -141,8 +141,8 @@ void ParamAesGCM::FromV8(Local<Value> v8Value) {
 		Free();
 		New();
 
-		data.ulIvBits = v8Params->Get(Nan::New(STR_IV_BITS).ToLocalChecked())->ToNumber()->Uint32Value();
-		data.ulTagBits = v8Params->Get(Nan::New(STR_TAG_BITS).ToLocalChecked())->ToNumber()->Uint32Value();
+		data.ulIvBits = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_IV_BITS).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		data.ulTagBits = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_TAG_BITS).ToLocalChecked())).ToLocalChecked()->Uint32Value();
 
 		if (!check_param_empty(v8Params, STR_IV)) {
 			GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_IV).ToLocalChecked())->ToObject());

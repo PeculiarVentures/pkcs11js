@@ -81,53 +81,53 @@ declare namespace Pkcs11Js {
 
     interface Mechanism {
         mechanism: number;
-        parameter: Buffer | IParapms;
+        parameter: Buffer | IParams;
     }
 
-    // Crpto parameters
+    // Crypto parameters
 
-    interface IParapms {
+    interface IParams {
         /**
-         * Type of crypto param. Uses consts CK_PARAMS_* 
+         * Type of crypto param. Uses constants CK_PARAMS_* 
          * 
          * @type {number}
          */
         type: number;
     }
 
-    interface ECDH1 extends IParapms {
+    interface ECDH1 extends IParams {
         kdf: number;
         sharedData?: Buffer;
         publicData: Buffer;
     }
 
-    interface AesCBC extends IParapms {
+    interface AesCBC extends IParams {
         iv: Buffer;
         data?: Buffer;
     }
 
-    interface AesCCM extends IParapms {
+    interface AesCCM extends IParams {
         dataLen: number;
         nonce?: Buffer;
         aad?: Buffer;
         macLen: number;
     }
 
-    interface AesGCM extends IParapms {
+    interface AesGCM extends IParams {
         iv?: Buffer;
         aad?: Buffer;
         ivBits: number;
         tagBits: number;
     }
 
-    interface RsaOAEP extends IParapms {
+    interface RsaOAEP extends IParams {
         hashAlg: number;
         mgf: number;
         source: number;
         sourceData?: Buffer;
     }
 
-    interface RsaPSS extends IParapms {
+    interface RsaPSS extends IParams {
         hashAlg: number;
         mgf: number;
         saltLen: number;
@@ -239,7 +239,7 @@ declare namespace Pkcs11Js {
          */
         C_CloseSession(session: Handle): void;
         /**
-         * Сloses all sessions with a token 
+         * Closes all sessions with a token 
          * 
          * @param {Handle} slot The token's slot
          */
@@ -328,7 +328,7 @@ declare namespace Pkcs11Js {
          * 
          * @param {Handle} session The session's handle
          * @param {Handle} object The object's handle
-         * @param {Template} template Specifies attrs; gets vals
+         * @param {Template} template Specifies attrs; gets values
          * @returns {Template} Receives attributes with values 
          */
         C_GetAttributeValue(session: Handle, object: Handle, template: Template): Template;
@@ -356,7 +356,7 @@ declare namespace Pkcs11Js {
          * 
          * @param {Handle} session Session's handle
          * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Comming data
+         * @param {Buffer} outData Output data
          * @returns {Buffer}
          */
         C_Encrypt(session: Handle, inData: Buffer, outData: Buffer): Buffer;
@@ -365,8 +365,8 @@ declare namespace Pkcs11Js {
          * 
          * @param {Handle} session Session's handle
          * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Comming data
-         * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced comming data
+         * @param {Buffer} outData Output data
+         * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced output data
          */
         C_Encrypt(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -691,7 +691,7 @@ declare namespace Pkcs11Js {
          * @param {Mechanism} mechanism Key derivation mechanism
          * @param {Handle} key Base key
          * @param {Template} template new key template
-         * @param {(error: Error, hKey: Handle) => void} cb Async callback woth new key handle
+         * @param {(error: Error, hKey: Handle) => void} cb Async callback with new key handle
          */
         C_DeriveKey(session: Handle, mechanism: Mechanism, key: Handle, template: Template, cb: (error: Error, hKey: Handle) => void): void;
         /**

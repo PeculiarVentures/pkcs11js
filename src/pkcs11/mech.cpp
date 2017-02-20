@@ -39,13 +39,13 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 		Free();
 		New();
 
-		data.mechanism = v8MechType->ToNumber()->Uint32Value();
+		data.mechanism = Nan::To<v8::Number>(v8MechType).ToLocalChecked()->Uint32Value();
 		if (!(v8Parameter->IsUndefined() || v8Parameter->IsNull())) {
 			Local<Object> v8Param = v8Parameter->ToObject();
 			if (!node::Buffer::HasInstance(v8Param)) {
 				Local<Object> v8Param = v8Parameter->ToObject();
 				Local<Value> v8Type = v8Param->Get(Nan::New(STR_TYPE).ToLocalChecked());
-				CK_ULONG type = v8Type->IsNumber() ? v8Type->ToNumber()->Uint32Value() : 0;
+				CK_ULONG type = v8Type->IsNumber() ? Nan::To<v8::Number>(v8Type).ToLocalChecked()->Uint32Value() : 0;
 					switch (type) {
 					case CK_PARAMS_EC_DH: {
 						CREATE_PARAM(ParamEcdh1);

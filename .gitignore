@@ -2,5 +2,5 @@
 /build
 /node_modules
 /typings
-/.nyc_output/
-/coverage/
+/.nyc_output
+/coverage
