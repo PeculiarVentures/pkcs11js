@@ -341,6 +341,7 @@ Please report bugs either as pull requests or as issues in the issue tracker. Gr
 ## Related
 - [PKCS #11 2.40 Specification](http://docs.oasis-open.org/pkcs11/pkcs11-curr/v2.40/pkcs11-curr-v2.40.html)
 - [Many PKCS #11 Specifications](http://www.cryptsoft.com/pkcs11doc/)
+- [Attacking and Fixing PKCS#11 Security Tokens](http://www.lsv.ens-cachan.fr/Publis/PAPERS/PDF/BCFS-ccs10.pdf)
 - [PERL PKCS #11 binding](https://github.com/dotse/p5-crypt-pkcs11)
 - [.NET PKCS #11 binding](https://github.com/jariq/Pkcs11Interop)
 - [Ruby PKCS #11 binding](https://github.com/larskanis/pkcs11)
@@ -359,3 +360,5 @@ Please report bugs either as pull requests or as issues in the issue tracker. Gr
 - [node-pcsc](https://github.com/santigimeno/node-pcsclite)
 - [PKCS#11 URIs](https://tools.ietf.org/html/rfc7512)
 - [Key Length Recommendations](http://www.keylength.com/en/compare/)
+
+
