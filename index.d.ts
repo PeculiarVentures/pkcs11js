@@ -66,7 +66,7 @@ declare namespace Pkcs11Js {
     }
 
     interface SessionInfo {
-        slotID: number;
+        slotID: Buffer;
         state: number;
         flags: number;
         deviceError: number;
