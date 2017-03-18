@@ -3,7 +3,7 @@
 [![license](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/graphene/master/LICENSE)
 [![Build Status](https://travis-ci.org/PeculiarVentures/pkcs11js.svg?branch=master)](https://travis-ci.org/PeculiarVentures/pkcs11js)
 [![Coverage Status](https://coveralls.io/repos/github/PeculiarVentures/pkcs11js/badge.svg?branch=master)](https://coveralls.io/github/PeculiarVentures/pkcs11js?branch=master)
-[![NPM version](https://badge.fury.io/js/pkcs11js.png)](http://badge.fury.io/pkcs11js)
+[![npm version](https://badge.fury.io/js/pkcs11js.svg)](https://badge.fury.io/js/pkcs11js)
 
 [![NPM](https://nodei.co/npm-dl/pkcs11js.png?months=2&height=2)](https://nodei.co/npm/pkcs11js/)
 
