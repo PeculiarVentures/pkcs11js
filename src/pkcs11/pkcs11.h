@@ -28,7 +28,7 @@ public:
 	Scoped<CK_TOKEN_INFO> C_GetTokenInfo(CK_SLOT_ID slotID);
 	vector<CK_MECHANISM_TYPE> C_GetMechanismList(CK_SLOT_ID slotID);
 	Scoped<CK_MECHANISM_INFO> C_GetMechanismInfo(CK_SLOT_ID slotID, CK_MECHANISM_TYPE type);
-	Scoped<string> C_InitToken(CK_SLOT_ID slotID, Scoped<string> pin);
+	Scoped<string> C_InitToken(CK_SLOT_ID slotID, Scoped<string> pin, Scoped<string> label);
 	void C_InitPIN(CK_SESSION_HANDLE session, Scoped<string> pin);
 	void C_SetPIN(CK_SESSION_HANDLE session, Scoped<string> oldPin, Scoped<string> newPin);
 	CK_SESSION_HANDLE C_OpenSession(CK_SLOT_ID slotID, CK_FLAGS flags);

@@ -190,7 +190,7 @@ declare namespace Pkcs11Js {
          * @param {string} [pin] The SO's initial PIN
          * @returns {string} 32-byte token label (blank padded)
          */
-        C_InitToken(slot: Handle, pin?: string): string;
+        C_InitToken(slot: Handle, pin?: string, label?: string): string;
         /**
          * Initializes the normal user's PIN
          * 

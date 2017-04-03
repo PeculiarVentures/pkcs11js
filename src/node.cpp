@@ -401,12 +401,12 @@ NAN_METHOD(WPKCS11::C_InitToken) {
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 		GET_STRING(pin, 1, "");
-
+		GET_STRING(label, 2, "");
 		UNWRAP_PKCS11;
 
-		Scoped<string> label = __pkcs11->C_InitToken(slotID, pin);
+		Scoped<string> rlabel = __pkcs11->C_InitToken(slotID, pin, label);
 
-		info.GetReturnValue().Set(Nan::New(label->c_str()).ToLocalChecked());
+		info.GetReturnValue().Set(Nan::New(rlabel->c_str()).ToLocalChecked());
 	}
 	CATCH_V8_ERROR;
 }
