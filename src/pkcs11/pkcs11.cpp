@@ -266,17 +266,15 @@ Scoped<CK_MECHANISM_INFO> PKCS11::C_GetMechanismInfo(CK_SLOT_ID slotID, CK_MECHA
 }
 
 
-Scoped<string> PKCS11::C_InitToken(CK_SLOT_ID slotID, Scoped<string> pin) {
+Scoped<string> PKCS11::C_InitToken(CK_SLOT_ID slotID, Scoped<string> pin,  Scoped<string> label) {
 	try {
-		CK_UTF8CHAR label[32];
-
 		CHECK_PKCS11_RV(functionList->C_InitToken(
 			slotID,
 			pin->length() ? (CK_UTF8CHAR_PTR)pin->c_str() : NULL_PTR, (CK_ULONG)pin->length(),
-			label
+			label->length() ? (CK_UTF8CHAR_PTR)label->c_str() : NULL_PTR
 		));
 
-		return Scoped<string>(new string((char *)label));
+		return Scoped<string>(label);
 	}
 	CATCH_ERROR;
 }
