@@ -35,5 +35,6 @@ void declare_certificates(Local<Object> target);
 void declare_mgf(Local<Object> target);
 void declare_kdf(Local<Object> target);
 void declare_params(Local<Object> target);
+void declare_initialize_flags(Local<Object> target);
 
 #endif // INCLUDE_H_CONST

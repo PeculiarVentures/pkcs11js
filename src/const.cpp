@@ -554,3 +554,9 @@ void declare_params(Local<Object> target) {
 	SET_CONST(target, CK_PARAMS_RSA_PSS);
 	SET_CONST(target, CK_PARAMS_EC_DH);
 }
+
+void declare_initialize_flags(Local<Object> target) {
+    Nan::HandleScope();
+    SET_CONST(target, CKF_LIBRARY_CANT_CREATE_OS_THREADS);
+    SET_CONST(target, CKF_OS_LOCKING_OK);
+}

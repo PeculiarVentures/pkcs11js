@@ -20,7 +20,7 @@ public:
 	void Load(Scoped<string> path);
 
 	// PKCS11
-	void C_Initialize();
+	void C_Initialize(CK_VOID_PTR args);
 	void C_Finalize();
 	Scoped<CK_INFO> C_GetInfo();
 	vector<CK_SLOT_ID> C_GetSlotList(CK_BBOOL tokenPresent);
