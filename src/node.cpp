@@ -279,7 +279,6 @@ NAN_METHOD(WPKCS11::C_Initialize) {
             Local<Value> v8LibraryParametersProperty = Nan::New("libraryParameters").ToLocalChecked();
             
             if (obj->Has(v8LibraryParametersProperty)) {
-                puts("CK_NSS_C_INITIALIZE_ARGS");
                 Scoped<string> libraryParameters = Scoped<string>(new string(*String::Utf8Value(obj->Get(v8LibraryParametersProperty)->ToString())));
                 CK_NSS_C_INITIALIZE_ARGS_PTR args = (CK_NSS_C_INITIALIZE_ARGS_PTR)malloc(sizeof(CK_NSS_C_INITIALIZE_ARGS));
                 initArgs = (CK_VOID_PTR)args;
@@ -296,7 +295,6 @@ NAN_METHOD(WPKCS11::C_Initialize) {
                     args->flags = 0;
                 }
             } else {
-                puts("CK_C_INITIALIZE_ARGS");
                 CK_C_INITIALIZE_ARGS_PTR args = (CK_C_INITIALIZE_ARGS_PTR)malloc(sizeof(CK_C_INITIALIZE_ARGS));
                 initArgs = (CK_VOID_PTR)args;
                 args->CreateMutex = NULL;
