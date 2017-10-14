@@ -34,6 +34,7 @@ before_install:
   - node --version
   - npm --version
   - gcc --version
+  - npm install nyc
   - npm install coveralls
   - bash ./.travis.sh
 
