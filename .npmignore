@@ -3,5 +3,6 @@
 /.vscode
 /build
 /node_modules
+test
 .travis.*
 tslint.json

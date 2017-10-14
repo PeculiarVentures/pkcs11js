@@ -20,11 +20,10 @@
   "types": "index.d.ts",
   "scripts": {
     "clean": "rm -rf build/ buildjs/ coverage/ .nyc_output/ npm-debug.log npm-debug.log.*",
-    "prepublish": "npm run build",
-    "install": "npm run build",
+    "prepare": "npm run build",
     "test": "mocha",
     "build": "node-gyp configure build",
-    "pub": "npm version patch && npm publish && git push",
+    "pub": "npm run build && npm version patch && npm publish && git push",
     "sync": "git ac && git pull --rebase && git push",
     "coverage": "nyc npm test",
     "precoveragehtml": "npm run coverage",
