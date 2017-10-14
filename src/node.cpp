@@ -92,7 +92,7 @@ static CK_ULONG v8_to_handle(Local<Value> v8Value) {
 		THROW_ERROR("Buffer size is less than CK_ULONG size", NULL);
 	}
 
-	CK_ULONG handle;
+	CK_ULONG handle = 0;
 
 	char* buf = node::Buffer::Data(v8Value);
 	handle = *reinterpret_cast<CK_ULONG *>(buf);
