@@ -12,6 +12,7 @@ mod.load(config.lib);
 mod.C_Initialize();
 function OpenSession() {
     var slotList = mod.C_GetSlotList();
+    // tslint:disable-next-line:no-bitwise
     var session = mod.C_OpenSession(slotList[config.slot], pkcs11.CKF_SERIAL_SESSION | pkcs11.CKF_RW_SESSION);
     mod.C_Login(session, 1, config.pin); // CKU_USER
     return session;
@@ -100,6 +101,7 @@ function TestSign(cb) {
     });
     var data = new Buffer(config.buffer);
     var sesRefCount = 0;
+    var sTime = Date.now();
     var _loop_1 = function (i) {
         (function () {
             sesRefCount++;
@@ -138,6 +140,9 @@ function TestSign(cb) {
                     sessions.forEach(function (item) {
                         mod.C_CloseSession(item.session);
                     });
+                    var eTime = Date.now();
+                    var time = (eTime - sTime) / 1000;
+                    console.log("Total: " + time.toFixed(3) + ", per sec: " + (config.iterations / time).toFixed(3));
                     cb();
                 }
             });
@@ -147,6 +152,7 @@ function TestSign(cb) {
         _loop_1(i);
     }
 }
+console.log(config);
 GenerateTestKeyPair();
 console.time("Sign test");
 TestSign(function () {
