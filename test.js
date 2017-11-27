@@ -57,7 +57,7 @@ function GenerateTestKeyPair() {
                 { type: pkcs11.CKA_SIGN, value: true },
                 { type: pkcs11.CKA_DECRYPT, value: false },
                 { type: pkcs11.CKA_UNWRAP, value: false },
-            ],
+            ]
         )
 
     } catch (err) {
@@ -73,7 +73,7 @@ function RemoveTestKeyPair() {
     mod.C_FindObjectsInit(session,
         [
             { type: pkcs11.CKA_LABEL, value: new Buffer("test") },
-        ],
+        ]
     );
 
     let obj;
@@ -101,7 +101,7 @@ function TestSign(cb) {
                 session,
                 [
                     { type: pkcs11.CKA_LABEL, value: new Buffer("test") },
-                ],
+                ]
             );
             let obj;
             let privateKey, publicKey;
@@ -148,7 +148,7 @@ function TestSign(cb) {
                         mechanism: pkcs11.CKM_SHA1_RSA_PKCS,
                         parameter: null,
                     },
-                    item.privateKey,
+                    item.privateKey
                 );
 
                 mod.C_Sign(item.session, data, signature, (err, sig) => {
