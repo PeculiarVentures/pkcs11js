@@ -1,0 +1,8 @@
+{
+    "lib": "/usr/local/lib/softhsm/libsofthsm2.so",
+    "slot": 0,
+    "pin": "12345",
+    "threads": 1,
+    "iterations": 10,
+    "buffer": 1024
+}

@@ -334,7 +334,7 @@ declare namespace Pkcs11Js {
          * @returns {Handle} gets Object's handle. If Object is not found
          * the result is 0
          */
-        public C_FindObjects(session: Handle): Handle;
+        public C_FindObjects(session: Handle): Handle | null;
         /**
          * Finishes a search for token and session objects
          *
