@@ -554,3 +554,10 @@ void declare_params(Local<Object> target) {
 	SET_CONST(target, CK_PARAMS_RSA_PSS);
 	SET_CONST(target, CK_PARAMS_EC_DH);
 }
+
+void declare_user_types(Local<Object> target) {
+    Nan::HandleScope();
+    SET_CONST(target, CKU_SO);
+    SET_CONST(target, CKU_USER);
+    SET_CONST(target, CKU_CONTEXT_SPECIFIC);
+}
