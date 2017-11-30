@@ -109,7 +109,9 @@ static Scoped<string> get_pkcs11_error(CK_ULONG value) {
 		CASE_PKCS11_ERROR(CKR_FUNCTION_REJECTED);
 		CASE_PKCS11_ERROR(CKR_VENDOR_DEFINED);
 	default:
-		return Scoped<string>(new string("Unknown error"));
+		Scoped<string> res(new string("Unknown error"));
+		*res += ":" + to_string(value);
+		return res;
 	}
 }
 
