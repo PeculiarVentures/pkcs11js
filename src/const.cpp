@@ -22,6 +22,7 @@ void declare_attributes(Local<Object> target) {
 	SET_CONST(target, CKA_URL);
 	SET_CONST(target, CKA_HASH_OF_SUBJECT_PUBLIC_KEY);
 	SET_CONST(target, CKA_HASH_OF_ISSUER_PUBLIC_KEY);
+    SET_CONST(target, CKA_NAME_HASH_ALGORITHM);
 	SET_CONST(target, CKA_CHECK_VALUE);
 	SET_CONST(target, CKA_KEY_TYPE);
 	SET_CONST(target, CKA_SUBJECT);
@@ -61,6 +62,8 @@ void declare_attributes(Local<Object> target) {
 	SET_CONST(target, CKA_ALWAYS_SENSITIVE);
 	SET_CONST(target, CKA_KEY_GEN_MECHANISM);
 	SET_CONST(target, CKA_MODIFIABLE);
+    SET_CONST(target, CKA_COPYABLE);
+    SET_CONST(target, CKA_DESTROYABLE);
 	SET_CONST(target, CKA_ECDSA_PARAMS);
 	SET_CONST(target, CKA_EC_PARAMS);
 	SET_CONST(target, CKA_EC_POINT);
