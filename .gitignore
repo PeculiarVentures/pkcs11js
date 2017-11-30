@@ -4,3 +4,6 @@
 /typings
 /.nyc_output
 /coverage
+
+# OS X
+.DS_Store
