@@ -20,7 +20,7 @@ using namespace v8;
 using namespace node;
 
 #define SET_CONST(target, value)									\
-	Nan::ForceSet(													\
+	Nan::DefineOwnProperty(										    \
 		target,														\
 		Nan::New(#value).ToLocalChecked(),							\
 		Nan::New<Number>(value),									\

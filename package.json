@@ -33,7 +33,7 @@
   "author": "PeculiarVentures",
   "license": "MIT",
   "dependencies": {
-    "nan": "^2.7.0"
+    "nan": "^2.8.0"
   },
   "devDependencies": {
     "@types/node": "^8.0.34",
