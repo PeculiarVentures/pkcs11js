@@ -22,6 +22,7 @@ void declare_attributes(Local<Object> target) {
 	SET_CONST(target, CKA_URL);
 	SET_CONST(target, CKA_HASH_OF_SUBJECT_PUBLIC_KEY);
 	SET_CONST(target, CKA_HASH_OF_ISSUER_PUBLIC_KEY);
+    SET_CONST(target, CKA_NAME_HASH_ALGORITHM);
 	SET_CONST(target, CKA_CHECK_VALUE);
 	SET_CONST(target, CKA_KEY_TYPE);
 	SET_CONST(target, CKA_SUBJECT);
@@ -61,6 +62,8 @@ void declare_attributes(Local<Object> target) {
 	SET_CONST(target, CKA_ALWAYS_SENSITIVE);
 	SET_CONST(target, CKA_KEY_GEN_MECHANISM);
 	SET_CONST(target, CKA_MODIFIABLE);
+    SET_CONST(target, CKA_COPYABLE);
+    SET_CONST(target, CKA_DESTROYABLE);
 	SET_CONST(target, CKA_ECDSA_PARAMS);
 	SET_CONST(target, CKA_EC_PARAMS);
 	SET_CONST(target, CKA_EC_POINT);
@@ -553,4 +556,11 @@ void declare_params(Local<Object> target) {
 	SET_CONST(target, CK_PARAMS_RSA_OAEP);
 	SET_CONST(target, CK_PARAMS_RSA_PSS);
 	SET_CONST(target, CK_PARAMS_EC_DH);
+}
+
+void declare_user_types(Local<Object> target) {
+    Nan::HandleScope();
+    SET_CONST(target, CKU_SO);
+    SET_CONST(target, CKU_USER);
+    SET_CONST(target, CKU_CONTEXT_SPECIFIC);
 }

@@ -439,6 +439,7 @@ typedef CK_ULONG          CK_ATTRIBUTE_TYPE;
 #define CKA_URL                         0x00000089
 #define CKA_HASH_OF_SUBJECT_PUBLIC_KEY  0x0000008A
 #define CKA_HASH_OF_ISSUER_PUBLIC_KEY   0x0000008B
+#define CKA_NAME_HASH_ALGORITHM         0x0000008C
 #define CKA_CHECK_VALUE                 0x00000090
 
 #define CKA_KEY_TYPE           0x00000100
@@ -483,6 +484,9 @@ typedef CK_ULONG          CK_ATTRIBUTE_TYPE;
 #define CKA_KEY_GEN_MECHANISM  0x00000166
 
 #define CKA_MODIFIABLE         0x00000170
+#define CKA_COPYABLE           0x00000171
+
+#define CKA_DESTROYABLE        0x00000172
 
 /* CKA_ECDSA_PARAMS is deprecated in v2.11,
  * CKA_EC_PARAMS is preferred. */
