@@ -747,6 +747,7 @@ declare namespace Pkcs11Js {
     const CKA_URL: number;
     const CKA_HASH_OF_SUBJECT_PUBLIC_KEY: number;
     const CKA_HASH_OF_ISSUER_PUBLIC_KEY: number;
+    const CKA_NAME_HASH_ALGORITHM: number;
     const CKA_CHECK_VALUE: number;
     const CKA_KEY_TYPE: number;
     const CKA_SUBJECT: number;
@@ -786,6 +787,8 @@ declare namespace Pkcs11Js {
     const CKA_ALWAYS_SENSITIVE: number;
     const CKA_KEY_GEN_MECHANISM: number;
     const CKA_MODIFIABLE: number;
+    const CKA_COPYABLE: number;
+    const CKA_DESTROYABLE: number;
     const CKA_ECDSA_PARAMS: number;
     const CKA_EC_PARAMS: number;
     const CKA_EC_POINT: number;
