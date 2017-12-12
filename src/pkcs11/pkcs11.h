@@ -18,6 +18,7 @@ struct KEY_PAIR {
 class PKCS11 {
 public:
 	void Load(Scoped<string> path);
+    void Close();
 
 	// PKCS11
 	void C_Initialize();

@@ -146,6 +146,11 @@ declare namespace Pkcs11Js {
          */
         public load(path: string): void;
         /**
+         * Closes dynamic library
+         *
+         */
+        public close(): void;
+        /**
          * Initializes the Cryptoki library
          */
         public C_Initialize(): void;
