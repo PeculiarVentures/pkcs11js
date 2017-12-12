@@ -146,6 +146,14 @@ void PKCS11::Load(Scoped<string> path) {
 	CATCH_ERROR;
 }
 
+void PKCS11::Close()
+{
+    try {
+        dlclose(dlHandle);
+    }
+    CATCH_ERROR;
+}
+
 void PKCS11::C_Initialize() {
 	try {
 

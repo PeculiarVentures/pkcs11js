@@ -79,6 +79,7 @@ describe("PKCS11", () => {
         }
         if (_mod)
             _mod.C_Finalize();
+            _mod.close();
     });
 
     context("Module", () => {

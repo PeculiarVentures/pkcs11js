@@ -146,6 +146,7 @@ void WPKCS11::Init(Handle<Object> exports) {
 
 	// methods
 	SetPrototypeMethod(tpl, "load", Load);
+    SetPrototypeMethod(tpl, "close", Close);
 	SET_PKCS11_METHOD(C_Initialize);
 	SET_PKCS11_METHOD(C_Finalize);
 	SET_PKCS11_METHOD(C_GetInfo);
@@ -240,6 +241,15 @@ NAN_METHOD(WPKCS11::Load) {
 		__pkcs11->Load(path);
 	}
 	CATCH_V8_ERROR;
+}
+
+NAN_METHOD(WPKCS11::Close) {
+    UNWRAP_PKCS11;
+
+    try {
+        __pkcs11->Close();
+    }
+    CATCH_V8_ERROR;
 }
 
 NAN_METHOD(WPKCS11::C_Initialize) {

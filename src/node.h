@@ -23,6 +23,7 @@ public:
 
 	static NAN_METHOD(New);
 	static NAN_METHOD(Load);
+    static NAN_METHOD(Close);
 
 	// PKCS11
 	static NAN_METHOD(C_Initialize);
