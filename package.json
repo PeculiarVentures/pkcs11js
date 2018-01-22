@@ -36,8 +36,8 @@
     "nan": "^2.8.0"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.44",
-    "@types/node": "^8.0.53",
+    "@types/mocha": "^2.2.46",
+    "@types/node": "^8.5.9",
     "mocha": "^4.0.1"
   },
   "bugs": {
