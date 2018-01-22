@@ -122,6 +122,11 @@ static Scoped<string> get_pkcs11_error(CK_ULONG value) {
     }														\
 }
 
+PKCS11::PKCS11()
+{
+    libPath = Scoped<std::string>(new std::string(""));
+}
+
 void PKCS11::Load(Scoped<string> path) {
 	try {
 		int mode = RTLD_LAZY;
@@ -142,6 +147,8 @@ void PKCS11::Load(Scoped<string> path) {
 		}
 
 		CHECK_PKCS11_RV(f_C_GetFunctionList(&functionList));
+        
+        libPath = path;
 	}
 	CATCH_ERROR;
 }

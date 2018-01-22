@@ -143,6 +143,9 @@ void WPKCS11::Init(Handle<Object> exports) {
 	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
 	tpl->SetClassName(Nan::New(CN_PKCS11).ToLocalChecked());
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    v8::Local<v8::ObjectTemplate> itpl = tpl->InstanceTemplate();
+
+    Nan::SetAccessor(itpl, Nan::New("libPath").ToLocalChecked(), GetLibPath);
 
 	// methods
 	SetPrototypeMethod(tpl, "load", Load);
@@ -214,11 +217,21 @@ void WPKCS11::Init(Handle<Object> exports) {
 	exports->Set(Nan::New(CN_PKCS11).ToLocalChecked(), tpl->GetFunction());
 }
 
+NAN_PROPERTY_GETTER(WPKCS11::GetLibPath)
+{
+    UNWRAP_PKCS11;
+
+    try {
+        info.GetReturnValue().Set(Nan::New(__pkcs11->libPath->c_str()).ToLocalChecked());
+    }
+    CATCH_V8_ERROR;
+}
+
 NAN_METHOD(WPKCS11::New) {
 	if (info.IsConstructCall()) {
 
 		WPKCS11* obj = new WPKCS11();
-		obj->pkcs11 = Scoped<PKCS11>(new PKCS11());
+		obj->pkcs11 = Scoped<PKCS11>(new PKCS11);
 		obj->Wrap(info.This());
 
 		info.GetReturnValue().Set(info.This());

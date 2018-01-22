@@ -17,6 +17,10 @@ struct KEY_PAIR {
 
 class PKCS11 {
 public:
+    Scoped<std::string> libPath;
+
+    PKCS11();
+
 	void Load(Scoped<string> path);
     void Close();
 

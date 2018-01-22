@@ -140,6 +140,11 @@ declare namespace Pkcs11Js {
 
     export class PKCS11 {
         /**
+         * Library path
+         */
+        libPath: string;
+
+        /**
          * Loads dynamic library with PKCS#11 interface
          *
          * @param {string} path
