@@ -1,6 +1,6 @@
 {
   "name": "pkcs11js",
-  "version": "1.0.9",
+  "version": "1.0.13",
   "description": "A Node.js implementation of the PKCS#11 2.3 interface",
   "repository": {
     "type": "git",
@@ -25,24 +25,22 @@
     "configure:xcode": "node-gyp configure -- -f xcode",
     "configure": "node-gyp configure",
     "build": "node-gyp configure build",
-    "pub": "npm version patch && npm publish && git push",
+    "pub": "npm run build && npm version patch && npm publish && git push",
+    "sync": "git ac && git pull --rebase && git push",
     "coverage": "nyc npm test",
-    "coveragehtml": "npm run coverage && nyc report -r html",
+    "precoveragehtml": "npm run coverage",
+    "coveragehtml": "nyc report -r html",
     "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "author": "PeculiarVentures",
   "license": "MIT",
   "dependencies": {
-    "nan": "^2.5.1"
+    "nan": "^2.8.0"
   },
   "devDependencies": {
-    "@types/node": "^8.0.28",
-    "@types/mocha": "^2.2.32",
-    "coveralls": "2.13.1",
-    "mocha": "^3",
-    "node-gyp": "^3.4.0",
-    "nyc": "^8",
-    "typescript": "^2"
+    "@types/mocha": "^2.2.46",
+    "@types/node": "^8.5.9",
+    "mocha": "^4.0.1"
   },
   "bugs": {
     "url": "https://github.com/PeculiarVentures/pkcs11js/issues"

@@ -109,7 +109,9 @@ static Scoped<string> get_pkcs11_error(CK_ULONG value) {
 		CASE_PKCS11_ERROR(CKR_FUNCTION_REJECTED);
 		CASE_PKCS11_ERROR(CKR_VENDOR_DEFINED);
 	default:
-		return Scoped<string>(new string("Unknown error"));
+		Scoped<string> res(new string("Unknown error"));
+		*res += ":" + to_string(value);
+		return res;
 	}
 }
 
@@ -118,6 +120,11 @@ static Scoped<string> get_pkcs11_error(CK_ULONG value) {
     if (rv != CKR_OK) {										\
 		THROW_ERROR(get_pkcs11_error(rv)->c_str(), NULL);	\
     }														\
+}
+
+PKCS11::PKCS11()
+{
+    libPath = Scoped<std::string>(new std::string(""));
 }
 
 void PKCS11::Load(Scoped<string> path) {
@@ -140,11 +147,22 @@ void PKCS11::Load(Scoped<string> path) {
 		}
 
 		CHECK_PKCS11_RV(f_C_GetFunctionList(&functionList));
+        
+        libPath = path;
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Initialize(CK_VOID_PTR args) {
+void PKCS11::Close()
+{
+    try {
+        dlclose(dlHandle);
+    }
+    CATCH_ERROR;
+}
+
+void PKCS11::C_Initialize(CK_VOID_PTR args) 
+{
 	try {
 
 		CHECK_PKCS11_RV(functionList->C_Initialize(
@@ -181,7 +199,7 @@ Scoped<CK_INFO> PKCS11::C_GetInfo() {
 
 vector<CK_SLOT_ID> PKCS11::C_GetSlotList(CK_BBOOL tokenPresent) {
 	try {
-		CK_ULONG   ulCount;
+		CK_ULONG ulCount = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GetSlotList(
 			tokenPresent,
@@ -231,7 +249,7 @@ Scoped<CK_TOKEN_INFO> PKCS11::C_GetTokenInfo(CK_SLOT_ID slotId) {
 
 vector<CK_MECHANISM_TYPE> PKCS11::C_GetMechanismList(CK_SLOT_ID slotID) {
 	try {
-		CK_ULONG ulCount;
+		CK_ULONG ulCount = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GetMechanismList(
 			slotID,
@@ -306,7 +324,7 @@ void PKCS11::C_SetPIN(CK_SESSION_HANDLE session, Scoped<string> oldPin, Scoped<s
 
 CK_SESSION_HANDLE PKCS11::C_OpenSession(CK_SLOT_ID slotID, CK_FLAGS flags) {
 	try {
-		CK_SESSION_HANDLE hSession;
+		CK_SESSION_HANDLE hSession = 0;
 
 		CHECK_PKCS11_RV(functionList->C_OpenSession(slotID, flags, NULL_PTR, NULL_PTR, &hSession));
 
@@ -391,8 +409,8 @@ void PKCS11::C_FindObjectsInit(CK_SESSION_HANDLE hSession) {
 
 CK_OBJECT_HANDLE PKCS11::C_FindObjects(CK_SESSION_HANDLE session) {
 	try {
-		CK_ULONG ulObjectCount;
-		CK_OBJECT_HANDLE hObject;
+		CK_ULONG ulObjectCount = 0;
+		CK_OBJECT_HANDLE hObject = 0;
 
 		CHECK_PKCS11_RV(functionList->C_FindObjects(
 			session,
@@ -462,7 +480,7 @@ CK_OBJECT_HANDLE PKCS11::C_CreateObject(CK_SESSION_HANDLE hSession, Scoped<Attri
 
 		auto pTemplate = tmpl->Get();
 
-		CK_OBJECT_HANDLE hObject;
+		CK_OBJECT_HANDLE hObject = 0;
 
 		CHECK_PKCS11_RV(functionList->C_CreateObject(
 			hSession,
@@ -481,7 +499,8 @@ CK_OBJECT_HANDLE PKCS11::C_CopyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HAND
 
 		auto pTemplate = tmpl->Get();
 
-		CK_OBJECT_HANDLE hNewObject;
+		CK_OBJECT_HANDLE hNewObject = 0;
+
 		CHECK_PKCS11_RV(functionList->C_CopyObject(
 			hSession,
 			hObject,
@@ -510,8 +529,8 @@ void PKCS11::C_DestroyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObjec
 
 CK_ULONG PKCS11::C_GetObjectSize(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject) {
 	try {
+		CK_ULONG ulSize = 0;
 
-		CK_ULONG ulSize;
 		CHECK_PKCS11_RV(functionList->C_GetObjectSize(
 			hSession,
 			hObject,
@@ -861,7 +880,8 @@ CK_OBJECT_HANDLE PKCS11::C_GenerateKey(CK_SESSION_HANDLE hSession, Scoped<Mechan
 
 		auto pMechanism = mech->Get();
 		auto pTemplate = tmpl->Get();
-		CK_OBJECT_HANDLE hObject;
+
+		CK_OBJECT_HANDLE hObject = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GenerateKey(
 			hSession,
@@ -886,8 +906,9 @@ Scoped<KEY_PAIR> PKCS11::C_GenerateKeyPair(
 		auto pMechanism = mech->Get();
 		auto pPublicKeyTemplate = publicKeyTemplate->Get();
 		auto pPrivateKeyTemplate = privateKeyTemplate->Get();
-		CK_OBJECT_HANDLE hPublicKey;
-		CK_OBJECT_HANDLE hPrivateKey;
+
+		CK_OBJECT_HANDLE hPublicKey = 0;
+		CK_OBJECT_HANDLE hPrivateKey = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GenerateKeyPair(
 			hSession,
@@ -943,7 +964,8 @@ CK_OBJECT_HANDLE PKCS11::C_UnwrapKey(
 
 		auto pMechanism = mech->Get();
 		auto pTemplate = tmpl->Get();
-		CK_OBJECT_HANDLE hKey;
+
+		CK_OBJECT_HANDLE hKey = 0;
 
 		CHECK_PKCS11_RV(functionList->C_UnwrapKey(
 			hSession,
@@ -968,7 +990,8 @@ CK_OBJECT_HANDLE PKCS11::C_DeriveKey(
 	try {
 		auto pMechanism = mech->Get();
 		auto pTemplate = tmpl->Get();
-		CK_OBJECT_HANDLE hDerivedKey;
+
+		CK_OBJECT_HANDLE hDerivedKey = 0;
 
 		CHECK_PKCS11_RV(functionList->C_DeriveKey(
 			hSession,

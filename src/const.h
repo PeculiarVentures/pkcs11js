@@ -20,7 +20,7 @@ using namespace v8;
 using namespace node;
 
 #define SET_CONST(target, value)									\
-	Nan::ForceSet(													\
+	Nan::DefineOwnProperty(										    \
 		target,														\
 		Nan::New(#value).ToLocalChecked(),							\
 		Nan::New<Number>(value),									\
@@ -36,5 +36,6 @@ void declare_mgf(Local<Object> target);
 void declare_kdf(Local<Object> target);
 void declare_params(Local<Object> target);
 void declare_initialize_flags(Local<Object> target);
+void declare_user_types(Local<Object> target);
 
 #endif // INCLUDE_H_CONST

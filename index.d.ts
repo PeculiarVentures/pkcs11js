@@ -153,6 +153,11 @@ declare namespace Pkcs11Js {
 
     export class PKCS11 {
         /**
+         * Library path
+         */
+        public libPath: string;
+
+        /**
          * Loads dynamic library with PKCS#11 interface
          *
          * @param {string} path
@@ -168,6 +173,11 @@ declare namespace Pkcs11Js {
          */
         public C_Initialize(options?: InitializationOptions): void;
         /**
+         * Closes dynamic library
+         *
+         */
+        public close(): void;
+        /**
          * Indicates that an application is done with the Cryptoki library
          */
         public C_Finalize(): void;
@@ -178,7 +188,7 @@ declare namespace Pkcs11Js {
          */
         public C_GetInfo(): ModuleInfo;
 
-        /* Slot and token management */
+        //#region Slot and token management
 
         /**
          * obtains a list of slots in the system
@@ -239,8 +249,13 @@ declare namespace Pkcs11Js {
          * @returns {MechanismInfo} Receives mechanism info
          */
         public C_GetMechanismInfo(slot: Handle, mech: number): MechanismInfo;
+<<<<<<< HEAD
+=======
 
-        /* Session management */
+        //#endregion
+>>>>>>> master
+
+        //#region Session management
 
         /**
          * Opens a session between an application and a token
@@ -283,8 +298,13 @@ declare namespace Pkcs11Js {
          * @param {Handle} session The session's handle
          */
         public C_Logout(session: Handle): void;
+<<<<<<< HEAD
+=======
 
-        /* Object management */
+        //#endregion
+>>>>>>> master
+
+        //#region Object management
 
         /**
          * Creates a new object
@@ -358,8 +378,13 @@ declare namespace Pkcs11Js {
          * @param {Template} template Specifies attrs and values
          */
         public C_SetAttributeValue(session: Handle, object: Handle, template: Template): void;
+<<<<<<< HEAD
+=======
 
-        /* Encryption and decryption */
+        //#endregion
+>>>>>>> master
+
+        //#region Encryption and decryption
 
         /**
          * Initializes an encryption operation
@@ -473,6 +498,10 @@ declare namespace Pkcs11Js {
          * @param {Buffer} inData Incoming data
          * @param {Buffer} outData Coming data
          * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
          */
         public C_Digest(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -494,13 +523,19 @@ declare namespace Pkcs11Js {
         public C_DigestFinal(session: Handle, outData: Buffer): Buffer;
         // C_DigestKey();
 
-        /* Signing and MACing */
+        //#endregion
+
+        //#region Signing and MACing
 
         /**
          * initializes a signature (private key encryption)
          * operation, where the signature is (will be) an appendix to
          * the data, and plaintext cannot be recovered from the
+<<<<<<< HEAD
          * signature
+=======
+         *signature
+>>>>>>> master
          *
          * @param {Handle} session Session's handle
          * @param {Mechanism} mechanism Signature mechanism
@@ -550,7 +585,9 @@ declare namespace Pkcs11Js {
         // C_SignRecoverInit();
         // C_SignRecover();
 
-        /* Verifying signatures and MACs */
+        //#endregion
+
+        //#region Verifying signatures and MACs
 
         /**
          * initializes a verification operation, where the
@@ -605,7 +642,9 @@ declare namespace Pkcs11Js {
         // C_VerifyRecoverInit();
         // C_VerifyRecover();
 
-        /* Key management */
+        //#endregion
+
+        //#region Key management
 
         /**
          * Generates a secret key, creating a new key object
@@ -727,9 +766,15 @@ declare namespace Pkcs11Js {
          * @returns {Buffer} Receives the random data
          */
         public C_GenerateRandom(session: Handle, buf: Buffer): Buffer;
+<<<<<<< HEAD
+=======
+
+        //#endregion
+
+>>>>>>> master
     }
 
-    // Attributes
+    //#region Attributes
     const CKA_CLASS: number;
     const CKA_TOKEN: number;
     const CKA_PRIVATE: number;
@@ -749,6 +794,7 @@ declare namespace Pkcs11Js {
     const CKA_URL: number;
     const CKA_HASH_OF_SUBJECT_PUBLIC_KEY: number;
     const CKA_HASH_OF_ISSUER_PUBLIC_KEY: number;
+    const CKA_NAME_HASH_ALGORITHM: number;
     const CKA_CHECK_VALUE: number;
     const CKA_KEY_TYPE: number;
     const CKA_SUBJECT: number;
@@ -788,6 +834,8 @@ declare namespace Pkcs11Js {
     const CKA_ALWAYS_SENSITIVE: number;
     const CKA_KEY_GEN_MECHANISM: number;
     const CKA_MODIFIABLE: number;
+    const CKA_COPYABLE: number;
+    const CKA_DESTROYABLE: number;
     const CKA_ECDSA_PARAMS: number;
     const CKA_EC_PARAMS: number;
     const CKA_EC_POINT: number;
@@ -834,8 +882,9 @@ declare namespace Pkcs11Js {
     const CKA_SUPPORTED_CMS_ATTRIBUTES: number;
     const CKA_ALLOWED_MECHANISMS: number;
     const CKA_VENDOR_DEFINED: number;
+    //#endregion
 
-    // Objects
+    //#region Objects
     const CKO_DATA: number;
     const CKO_CERTIFICATE: number;
     const CKO_PUBLIC_KEY: number;
@@ -846,8 +895,9 @@ declare namespace Pkcs11Js {
     const CKO_MECHANISM: number;
     const CKO_OTP_KEY: number;
     const CKO_VENDOR_DEFINED: number;
+    //#endregion
 
-    // Key types
+    //#region Key types
     const CKK_RSA: number;
     const CKK_DSA: number;
     const CKK_DH: number;
@@ -892,8 +942,9 @@ declare namespace Pkcs11Js {
     const CKK_GOSTR3411: number;
     const CKK_GOST28147: number;
     const CKK_VENDOR_DEFINED: number;
+    //#endregion
 
-    // Mechanism
+    //#region Mechanisms
     const CKM_RSA_PKCS_KEY_PAIR_GEN: number;
     const CKM_RSA_PKCS: number;
     const CKM_RSA_9796: number;
@@ -1192,12 +1243,14 @@ declare namespace Pkcs11Js {
     const CKM_RSA_PKCS_TPM_1_1: number;
     const CKM_RSA_PKCS_OAEP_TPM_1_1: number;
     const CKM_VENDOR_DEFINED: number;
+    //#endregion
 
-    // Session flags
+    //#region Session flags
     const CKF_RW_SESSION: number;
     const CKF_SERIAL_SESSION: number;
+    //#endregion
 
-    // Follows
+    //#region Follows
     const CKF_HW: number;
     const CKF_ENCRYPT: number;
     const CKF_DECRYPT: number;
@@ -1211,20 +1264,23 @@ declare namespace Pkcs11Js {
     const CKF_WRAP: number;
     const CKF_UNWRAP: number;
     const CKF_DERIVE: number;
+    //#endregion
 
-    // Certificates
+    //#region Certificates
     const CKC_X_509: number;
     const CKC_X_509_ATTR_CERT: number;
     const CKC_WTLS: number;
+    //#endregion
 
-    // MGFs
+    //#region MGFs
     const CKG_MGF1_SHA1: number;
     const CKG_MGF1_SHA256: number;
     const CKG_MGF1_SHA384: number;
     const CKG_MGF1_SHA512: number;
     const CKG_MGF1_SHA224: number;
+    //#endregion
 
-    // KDFs
+    //#region KDFs
     const CKD_NULL: number;
     const CKD_SHA1_KDF: number;
     const CKD_SHA1_KDF_ASN1: number;
@@ -1234,14 +1290,22 @@ declare namespace Pkcs11Js {
     const CKD_SHA384_KDF: number;
     const CKD_SHA512_KDF: number;
     const CKD_CPDIVERSIFY_KDF: number;
+    //#endregion
 
-    // Mech params
+    //#region Mech params
     const CK_PARAMS_AES_CBC: number;
     const CK_PARAMS_AES_CCM: number;
     const CK_PARAMS_AES_GCM: number;
     const CK_PARAMS_RSA_OAEP: number;
     const CK_PARAMS_RSA_PSS: number;
     const CK_PARAMS_EC_DH: number;
+    //#endregion
+
+    //#region User types
+    const CKU_SO: number;
+    const CKU_USER: number;
+    const CKU_CONTEXT_SPECIFIC: number;
+    //#endregion
 
     // Initialize flags
     const CKF_LIBRARY_CANT_CREATE_OS_THREADS: number;

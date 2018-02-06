@@ -21,8 +21,11 @@ public:
 
 	static void Init(v8::Handle<v8::Object> exports);
 
+    static NAN_PROPERTY_GETTER(GetLibPath);
+
 	static NAN_METHOD(New);
 	static NAN_METHOD(Load);
+    static NAN_METHOD(Close);
 
 	// PKCS11
 	static NAN_METHOD(C_Initialize);

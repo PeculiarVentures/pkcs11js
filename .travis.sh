@@ -31,8 +31,8 @@ elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
     export OPENSSL_INCLUDE_DIR=`brew --prefix openssl`/include
     export OPENSSL_LIB_DIR=`brew --prefix openssl`/lib
     
-    brew install sqlite
-    brew install cppunit
+    command -v sqlite || brew install sqlite
+    command -v cppunit || brew install cppunit
     
     # Installing SoftHSM
     git clone https://github.com/opendnssec/SoftHSMv2.git -b develop

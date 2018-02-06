@@ -105,7 +105,7 @@ static CK_ULONG v8_to_handle(Local<Value> v8Value) {
 		THROW_ERROR("Buffer size is less than CK_ULONG size", NULL);
 	}
 
-	CK_ULONG handle;
+	CK_ULONG handle = 0;
 
 	char* buf = node::Buffer::Data(v8Value);
 	handle = *reinterpret_cast<CK_ULONG *>(buf);
@@ -156,9 +156,13 @@ void WPKCS11::Init(Handle<Object> exports) {
 	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
 	tpl->SetClassName(Nan::New(CN_PKCS11).ToLocalChecked());
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    v8::Local<v8::ObjectTemplate> itpl = tpl->InstanceTemplate();
+
+    Nan::SetAccessor(itpl, Nan::New("libPath").ToLocalChecked(), GetLibPath);
 
 	// methods
 	SetPrototypeMethod(tpl, "load", Load);
+    SetPrototypeMethod(tpl, "close", Close);
 	SET_PKCS11_METHOD(C_Initialize);
 	SET_PKCS11_METHOD(C_Finalize);
 	SET_PKCS11_METHOD(C_GetInfo);
@@ -226,11 +230,21 @@ void WPKCS11::Init(Handle<Object> exports) {
 	exports->Set(Nan::New(CN_PKCS11).ToLocalChecked(), tpl->GetFunction());
 }
 
+NAN_PROPERTY_GETTER(WPKCS11::GetLibPath)
+{
+    UNWRAP_PKCS11;
+
+    try {
+        info.GetReturnValue().Set(Nan::New(__pkcs11->libPath->c_str()).ToLocalChecked());
+    }
+    CATCH_V8_ERROR;
+}
+
 NAN_METHOD(WPKCS11::New) {
 	if (info.IsConstructCall()) {
 
 		WPKCS11* obj = new WPKCS11();
-		obj->pkcs11 = Scoped<PKCS11>(new PKCS11());
+		obj->pkcs11 = Scoped<PKCS11>(new PKCS11);
 		obj->Wrap(info.This());
 
 		info.GetReturnValue().Set(info.This());
@@ -264,6 +278,15 @@ static void free_args(CK_VOID_PTR args) {
         free(args);
         args = NULL;
     }
+}
+
+NAN_METHOD(WPKCS11::Close) {
+    UNWRAP_PKCS11;
+
+    try {
+        __pkcs11->Close();
+    }
+    CATCH_V8_ERROR;
 }
 
 NAN_METHOD(WPKCS11::C_Initialize) {
