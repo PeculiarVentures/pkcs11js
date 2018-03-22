@@ -334,7 +334,7 @@ NAN_METHOD(WPKCS11::C_Initialize) {
             __pkcs11->C_Initialize(initArgs);
             free_args(initArgs);
         } else {
-            THROW_ERROR("Parameter has wrong type. Should me emptry or Object", NULL);
+            THROW_ERROR("Parameter has wrong type. Should me empty or Object", NULL);
         }
 	}
 	catch (Scoped<Error> e) {
