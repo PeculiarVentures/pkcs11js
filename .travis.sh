@@ -19,6 +19,8 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo -E make install
     cd ..
     sudo ldconfig
+
+    sudo find / -name "libsoftokn3.so"
     
 elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
 
