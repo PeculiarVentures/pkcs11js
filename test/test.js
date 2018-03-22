@@ -663,7 +663,7 @@ describe("PKCS11", () => {
 
     context("NSS", () => {
 
-        const libPathNSS = os.platform() === "darwin" ?  "/usr/local/opt/nss/lib/libsoftokn3.dylib" : "/usr/lib/nss/libsoftokn3.so";
+        const libPathNSS = os.platform() === "darwin" ?  "/usr/local/opt/nss/lib/libsoftokn3.dylib" : "/usr/lib/x86_64-linux-gnu/nss/libsoftokn3.so";
 
         it("open", () => {
             const mod = new pkcs11.PKCS11();
