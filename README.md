@@ -331,6 +331,37 @@ var derivedKey = pkcs11.C_DeriveKey(
     ]
 );
 ```
+### Example #10
+
+Initializing NSS crypto library
+
+Use `options` parameter for `C_Initialize` function.
+
+__Type__
+```ts
+interface InitializationOptions {
+    libraryParameters?: string;
+    flags?: number;
+}
+
+C_Initialize(options?: InitializationOptions): void;
+```
+
+__Code__
+```js
+const mod = new pkcs11.PKCS11();
+mod.load("/usr/local/opt/nss/lib/libsoftokn3.dylib");
+
+mod.C_Initialize({
+    libraryParameters: "configdir='' certPrefix='' keyPrefix='' secmod='' flags=readOnly,noCertDB,noModDB,forceOpen,optimizeSpace",
+});
+
+// Your code here
+
+mod.C_Finalize();
+```
+
+[More](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Reference/FC_Initialize) info about NSS params for `C_Initialize`
 
 ## Suitability
 At this time this solution should be considered suitable for research and experimentation, further code and security review is needed before utilization in a production application.
