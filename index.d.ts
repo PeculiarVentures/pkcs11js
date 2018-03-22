@@ -249,11 +249,8 @@ declare namespace Pkcs11Js {
          * @returns {MechanismInfo} Receives mechanism info
          */
         public C_GetMechanismInfo(slot: Handle, mech: number): MechanismInfo;
-<<<<<<< HEAD
-=======
 
         //#endregion
->>>>>>> master
 
         //#region Session management
 
@@ -298,11 +295,8 @@ declare namespace Pkcs11Js {
          * @param {Handle} session The session's handle
          */
         public C_Logout(session: Handle): void;
-<<<<<<< HEAD
-=======
 
         //#endregion
->>>>>>> master
 
         //#region Object management
 
@@ -378,11 +372,8 @@ declare namespace Pkcs11Js {
          * @param {Template} template Specifies attrs and values
          */
         public C_SetAttributeValue(session: Handle, object: Handle, template: Template): void;
-<<<<<<< HEAD
-=======
 
         //#endregion
->>>>>>> master
 
         //#region Encryption and decryption
 
@@ -498,10 +489,6 @@ declare namespace Pkcs11Js {
          * @param {Buffer} inData Incoming data
          * @param {Buffer} outData Coming data
          * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
-<<<<<<< HEAD
-=======
-
->>>>>>> master
          */
         public C_Digest(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -531,11 +518,7 @@ declare namespace Pkcs11Js {
          * initializes a signature (private key encryption)
          * operation, where the signature is (will be) an appendix to
          * the data, and plaintext cannot be recovered from the
-<<<<<<< HEAD
          * signature
-=======
-         *signature
->>>>>>> master
          *
          * @param {Handle} session Session's handle
          * @param {Mechanism} mechanism Signature mechanism
@@ -766,12 +749,9 @@ declare namespace Pkcs11Js {
          * @returns {Buffer} Receives the random data
          */
         public C_GenerateRandom(session: Handle, buf: Buffer): Buffer;
-<<<<<<< HEAD
-=======
 
         //#endregion
 
->>>>>>> master
     }
 
     //#region Attributes
