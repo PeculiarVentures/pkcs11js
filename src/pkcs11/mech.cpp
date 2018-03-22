@@ -1,19 +1,10 @@
 #include "mech.h"
-#include "param.h"
-
-#define CREATE_PARAM(class_name)					\
-	class_name* p = new class_name();				\
-	this->param = p;								\
-	p->FromV8(v8Parameter);							\
-	data.pParameter = p->Get();						\
-	data.ulParameterLen = sizeof(*p->Get())
 
 Mechanism::Mechanism() {
 	New();
 }
 
 Mechanism::~Mechanism() {
-	Free();
 }
 
 void Mechanism::FromV8(Local<Value> v8Value) {
@@ -36,47 +27,52 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Attribute 'parameter' MUST be Null | Buffer | Object", NULL);
 		}
 
-		Free();
 		New();
 
 		data.mechanism = Nan::To<v8::Number>(v8MechType).ToLocalChecked()->Uint32Value();
 		if (!(v8Parameter->IsUndefined() || v8Parameter->IsNull())) {
 			Local<Object> v8Param = v8Parameter->ToObject();
 			if (!node::Buffer::HasInstance(v8Param)) {
+                // Parameter is Object
 				Local<Object> v8Param = v8Parameter->ToObject();
 				Local<Value> v8Type = v8Param->Get(Nan::New(STR_TYPE).ToLocalChecked());
 				CK_ULONG type = v8Type->IsNumber() ? Nan::To<v8::Number>(v8Type).ToLocalChecked()->Uint32Value() : 0;
-					switch (type) {
-					case CK_PARAMS_EC_DH: {
-						CREATE_PARAM(ParamEcdh1);
-						break;
-					}
-					case CK_PARAMS_AES_GCM: {
-						CREATE_PARAM(ParamAesGCM);
-						break;
-					}
-					case CK_PARAMS_AES_CCM: {
-						CREATE_PARAM(ParamAesCCM);
-						break;
-					}
-					case CK_PARAMS_RSA_OAEP: {
-						CREATE_PARAM(ParamRsaOAEP);
-						break;
-					}
-					case CK_PARAMS_RSA_PSS: {
-						CREATE_PARAM(ParamRsaPSS);
-						break;
-					}
-					default:
-						THROW_ERROR("Unknown type Mech param in use", NULL);
-					}
+                switch (type) {
+                    case CK_PARAMS_EC_DH: {
+                        param = Scoped<ParamBase>(new ParamEcdh1);
+                        break;
+                    }
+                    case CK_PARAMS_AES_CBC: {
+                        param = Scoped<ParamBase>(new ParamAesCBC);
+                        break;
+                    }
+                    case CK_PARAMS_AES_GCM: {
+                        param = Scoped<ParamBase>(new ParamAesGCM);
+                        break;
+                    }
+                    case CK_PARAMS_AES_CCM: {
+                        param = Scoped<ParamBase>(new ParamAesCCM);
+                        break;
+                    }
+                    case CK_PARAMS_RSA_OAEP: {
+                        param = Scoped<ParamBase>(new ParamRsaOAEP);
+                        break;
+                    }
+                    case CK_PARAMS_RSA_PSS: {
+                        param = Scoped<ParamBase>(new ParamRsaPSS);
+                        break;
+                    }
+                    default:
+                        THROW_ERROR("Unknown type Mech param in use", NULL);
+                }
 			}
 			else {
-				GET_BUFFER_SMPL(buf, v8Parameter->ToObject());
-				data.pParameter = (char*)malloc(bufLen);
-				memcpy(data.pParameter, buf, bufLen);
-				data.ulParameterLen = (CK_ULONG)bufLen;
+                // Parameter is buffer
+                param = Scoped<ParamBase>(new ParamBuffer);
 			}
+            param->FromV8(v8Parameter);
+            data.pParameter = param->Get();
+            data.ulParameterLen = param->GetSize();
 		}
 	}
 	CATCH_ERROR;
@@ -111,13 +107,4 @@ CK_MECHANISM_PTR Mechanism::New() {
 	data.pParameter = NULL;
 	data.ulParameterLen = 0;
 	return Get();
-}
-
-void Mechanism::Free() {
-	if (Get() && data.pParameter && !param) {
-		free(data.pParameter);
-	}
-	if (param) {
-		delete(param);
-	}
 }
