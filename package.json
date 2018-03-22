@@ -8,13 +8,14 @@
   },
   "keywords": [
     "pkcs11",
-    "token",
     "rsa",
     "ecdsa",
     "aes",
     "crypto",
     "smartcard",
-    "token"
+    "token",
+    "nss",
+    "softhsm2"
   ],
   "main": "index.js",
   "types": "index.d.ts",
