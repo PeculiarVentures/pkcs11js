@@ -1,9 +1,15 @@
-/.vscode
-/build
-/node_modules
-/typings
-/.nyc_output
-/coverage
-
 # OS X
 .DS_Store
+
+# Project settings
+.vscode
+
+# build
+build
+
+# nodejs
+node_modules
+
+# test
+.nyc_output
+coverage

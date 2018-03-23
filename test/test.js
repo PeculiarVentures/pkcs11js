@@ -1,5 +1,6 @@
-const pkcs11 = require("../index");
 const assert = require("assert");
+const os = require("os");
+const pkcs11 = require("../index");
 
 // const libPath = "C:\\Windows\\System32\\jcPKCS11.dll";
 // const libPath = "C:\\tmp\\rtpkcs11ecp.dll";
@@ -658,5 +659,28 @@ describe("PKCS11", () => {
             assert.equal(Buffer.isBuffer(derivedKey), true, "Handle is not Buffer");
         });
 
-    })
+    });
+
+    context("NSS", () => {
+
+        const libPathNSS = os.platform() === "darwin" ?  "/usr/local/opt/nss/lib/libsoftokn3.dylib" : "/usr/lib/x86_64-linux-gnu/nss/libsoftokn3.so";
+
+        it("open", () => {
+            const mod = new pkcs11.PKCS11();
+            mod.load(libPathNSS);
+
+            mod.C_Initialize({
+                libraryParameters: "configdir='' certPrefix='' keyPrefix='' secmod='' flags=readOnly,noCertDB,noModDB,forceOpen,optimizeSpace",
+            });
+
+            const slots = mod.C_GetSlotList(true);
+            const slot = slots[1];
+            const session = mod.C_OpenSession(slot, pkcs11.CKF_SERIAL_SESSION);
+            const rnd = mod.C_GenerateRandom(session, new Buffer(20));
+            assert.equal(!!rnd, true);
+            assert.equal(rnd.length, 20);
+
+            mod.C_Finalize();
+        });
+    });
 });

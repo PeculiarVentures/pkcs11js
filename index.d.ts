@@ -1,4 +1,4 @@
-// Type definitions for pkcs11js v1.0.3
+// Type definitions for pkcs11js v1.0.10
 // Project: https://github.com/PeculiarVentures/pkcs11js
 // Definitions by: Stepan Miroshin <https://github.com/microshine>
 
@@ -6,7 +6,7 @@
 
 /**
  * A Node.js implementation of the PKCS#11 2.3 interface
- * v1.0.3
+ * v1.0.10
  */
 
 declare module "pkcs11js" {
@@ -138,11 +138,26 @@ declare namespace Pkcs11Js {
         publicKey: Handle;
     }
 
+    interface InitializationOptions {
+        /**
+         * NSS library parameters
+         */
+        libraryParameters?: string;
+        /**
+         * bit flags specifying options for `C_Initialize`
+         * - CKF_LIBRARY_CANT_CREATE_OS_THREADS. True if application threads which are executing calls to the library
+         *   may not use native operating system calls to spawn new threads; false if they may
+         * - CKF_OS_LOCKING_OK. True if the library can use the native operation system threading model for locking;
+         *   false otherwise
+         */
+        flags?: number;
+    }
+
     export class PKCS11 {
         /**
          * Library path
          */
-        libPath: string;
+        public libPath: string;
 
         /**
          * Loads dynamic library with PKCS#11 interface
@@ -151,14 +166,19 @@ declare namespace Pkcs11Js {
          */
         public load(path: string): void;
         /**
+         * Initializes the Cryptoki library
+         * @param options Initialization options
+         * Supports implementation of standard `CK_C_INITIALIZE_ARGS` and extended NSS format.
+         * - if `options` is null or empty, it calls native `C_Initialize` with `NULL`
+         * - if `options` doesn't have `libraryParameters`, it uses `CK_C_INITIALIZE_ARGS` structure
+         * - if `options` has `libraryParameters`, it uses extended NSS structure
+         */
+        public C_Initialize(options?: InitializationOptions): void;
+        /**
          * Closes dynamic library
          *
          */
         public close(): void;
-        /**
-         * Initializes the Cryptoki library
-         */
-        public C_Initialize(): void;
         /**
          * Indicates that an application is done with the Cryptoki library
          */
@@ -471,7 +491,6 @@ declare namespace Pkcs11Js {
          * @param {Buffer} inData Incoming data
          * @param {Buffer} outData Coming data
          * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
-
          */
         public C_Digest(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -501,7 +520,7 @@ declare namespace Pkcs11Js {
          * initializes a signature (private key encryption)
          * operation, where the signature is (will be) an appendix to
          * the data, and plaintext cannot be recovered from the
-         *signature
+         * signature
          *
          * @param {Handle} session Session's handle
          * @param {Mechanism} mechanism Signature mechanism
@@ -1269,5 +1288,9 @@ declare namespace Pkcs11Js {
     const CKU_USER: number;
     const CKU_CONTEXT_SPECIFIC: number;
     //#endregion
+
+    // Initialize flags
+    const CKF_LIBRARY_CANT_CREATE_OS_THREADS: number;
+    const CKF_OS_LOCKING_OK: number;
 
 }

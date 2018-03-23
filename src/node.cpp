@@ -65,6 +65,19 @@
 	CHECK_BUFFER(argsIndex);												\
 	Scoped<string> name = buffer_to_string(info[argsIndex])
 
+// Extended structure for NSS
+typedef struct CK_NSS_C_INITIALIZE_ARGS {
+    CK_CREATEMUTEX CreateMutex;
+    CK_DESTROYMUTEX DestroyMutex;
+    CK_LOCKMUTEX LockMutex;
+    CK_UNLOCKMUTEX UnlockMutex;
+    CK_FLAGS flags;
+    CK_CHAR_PTR LibraryParameters;
+    CK_VOID_PTR pReserved;
+} CK_NSS_C_INITIALIZE_ARGS;
+
+typedef CK_NSS_C_INITIALIZE_ARGS* CK_NSS_C_INITIALIZE_ARGS_PTR;
+
 static Scoped<string> buffer_to_string(Local<Value> v8Value) {
 	Nan::HandleScope();
 	Local<Object> v8Buffer = v8Value->ToObject();
@@ -256,6 +269,17 @@ NAN_METHOD(WPKCS11::Load) {
 	CATCH_V8_ERROR;
 }
 
+static void free_args(CK_VOID_PTR args) {
+    if (args) {
+        if (static_cast<CK_NSS_C_INITIALIZE_ARGS_PTR>(args)) {
+            CK_NSS_C_INITIALIZE_ARGS_PTR nssArgs = static_cast<CK_NSS_C_INITIALIZE_ARGS_PTR>(args);
+            free(nssArgs->LibraryParameters);
+        }
+        free(args);
+        args = NULL;
+    }
+}
+
 NAN_METHOD(WPKCS11::Close) {
     UNWRAP_PKCS11;
 
@@ -267,11 +291,57 @@ NAN_METHOD(WPKCS11::Close) {
 
 NAN_METHOD(WPKCS11::C_Initialize) {
 	UNWRAP_PKCS11;
-
-	try {
-		__pkcs11->C_Initialize();
+	
+    CK_VOID_PTR initArgs = NULL;
+    try {
+        if (info.Length() == 0 || info[0]->IsUndefined() || info[0]->IsNull()) {
+            __pkcs11->C_Initialize(NULL);
+        } else if (info[0]->IsObject()) {
+            Local<Object> obj = info[0]->ToObject();
+            Local<Value> v8FlagsProperty = Nan::New("flags").ToLocalChecked();
+            Local<Value> v8LibraryParametersProperty = Nan::New("libraryParameters").ToLocalChecked();
+            
+            if (obj->Has(v8LibraryParametersProperty)) {
+                Scoped<string> libraryParameters = Scoped<string>(new string(*String::Utf8Value(obj->Get(v8LibraryParametersProperty)->ToString())));
+                CK_NSS_C_INITIALIZE_ARGS_PTR args = (CK_NSS_C_INITIALIZE_ARGS_PTR)malloc(sizeof(CK_NSS_C_INITIALIZE_ARGS));
+                initArgs = (CK_VOID_PTR)args;
+                args->CreateMutex = NULL;
+                args->DestroyMutex = NULL;
+                args->LibraryParameters = (CK_CHAR_PTR)malloc(libraryParameters->size());
+                memcpy(args->LibraryParameters, libraryParameters->c_str(), libraryParameters->size());
+                args->LockMutex = NULL;
+                args->UnlockMutex = NULL;
+                args->pReserved = NULL;
+                if (obj->Has(v8FlagsProperty)) {
+                    args->flags = Nan::To<uint32_t>(obj->Get(v8FlagsProperty)).FromJust();
+                } else {
+                    args->flags = 0;
+                }
+            } else {
+                CK_C_INITIALIZE_ARGS_PTR args = (CK_C_INITIALIZE_ARGS_PTR)malloc(sizeof(CK_C_INITIALIZE_ARGS));
+                initArgs = (CK_VOID_PTR)args;
+                args->CreateMutex = NULL;
+                args->DestroyMutex = NULL;
+                args->LockMutex = NULL;
+                args->UnlockMutex = NULL;
+                args->pReserved = NULL;
+                if (obj->Has(v8FlagsProperty)) {
+                    args->flags = Nan::To<uint32_t>(obj->Get(v8FlagsProperty)).FromJust();
+                } else {
+                    args->flags = 0;
+                }
+            }
+            __pkcs11->C_Initialize(initArgs);
+            free_args(initArgs);
+        } else {
+            THROW_ERROR("Parameter has wrong type. Should me empty or Object", NULL);
+        }
 	}
-	CATCH_V8_ERROR;
+	catch (Scoped<Error> e) {
+        free_args(initArgs);
+        Nan::ThrowError(e->ToString()->c_str());
+        return;
+    }
 }
 
 NAN_METHOD(WPKCS11::C_Finalize) {

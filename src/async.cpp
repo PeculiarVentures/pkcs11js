@@ -28,7 +28,7 @@ void AsyncGenerateKey::HandleOKCallback() {
 		handle_to_v8(hKey)
 	};
 
-	callback->Call(2, argv);
+	callback->Call(2, argv, async_resource);
 }
 
 void AsyncGenerateKeyPair::Execute() {
@@ -52,7 +52,7 @@ void AsyncGenerateKeyPair::HandleOKCallback() {
 		v8KeyPair
 	};
 
-	callback->Call(2, argv);
+	callback->Call(2, argv, async_resource);
 }
 
 void AsyncCrypto::Execute() {
@@ -97,7 +97,7 @@ void AsyncCrypto::HandleOKCallback() {
 		v8Result
 	};
 
-	callback->Call(2, argv);
+	callback->Call(2, argv, async_resource);
 }
 
 void AsyncWrapKey::Execute() {
@@ -121,7 +121,7 @@ void AsyncWrapKey::HandleOKCallback() {
 		v8Result
 	};
 
-	callback->Call(2, argv);
+	callback->Call(2, argv, async_resource);
 }
 
 void AsyncUnwrapKey::Execute() {
@@ -145,7 +145,7 @@ void AsyncUnwrapKey::HandleOKCallback() {
 		v8Result
 	};
 
-	callback->Call(2, argv);
+	callback->Call(2, argv, async_resource);
 }
 
 void AsyncDeriveKey::Execute() {
@@ -169,5 +169,5 @@ void AsyncDeriveKey::HandleOKCallback() {
 		v8Result
 	};
 
-	callback->Call(2, argv);
+	callback->Call(2, argv, async_resource);
 }

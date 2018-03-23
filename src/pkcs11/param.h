@@ -14,17 +14,28 @@ DECLARE_CHECK_PARAM(empty);
 
 #undef DECLARE_CHECK_PARAM
 
-#define DECLARE_PARAM_CLASS(name, CK_TYPE, CK_PARAM)								\
-class Param##name : public V8Converter<CK_TYPE> {									\
-public:																				\
-	Param##name() { type = CK_PARAM; New(); }										\
-	~Param##name() { Free(); }														\
-	void FromV8(Local<Value> obj);													\
-	CK_TYPE##_PTR New();															\
-	void Free();																	\
-	CK_ULONG type;																	\
-}
+class ParamBase {
+public:
+    const CK_ULONG type;
+    
+    ParamBase(CK_ULONG type) : type(type) { }
+    virtual void FromV8(Local<Value> v8Obj) {}
+    virtual void* Get() = 0;
+    virtual CK_ULONG GetSize() = 0;
+protected:
+};
 
+template<typename T>
+class Param : public ParamBase {
+public:
+    Param(CK_ULONG type) : ParamBase(type) { }
+    void* Get() override { return &param; }
+    virtual CK_ULONG GetSize() override { return sizeof(T); }
+protected:
+    T param;
+};
+
+#define CK_PARAMS_BUFFER        0
 #define CK_PARAMS_AES_CBC		1
 #define CK_PARAMS_AES_CCM		2
 #define CK_PARAMS_AES_GCM		3
@@ -32,13 +43,80 @@ public:																				\
 #define CK_PARAMS_RSA_PSS		5
 #define CK_PARAMS_EC_DH			6
 
-DECLARE_PARAM_CLASS(AesCBC, CK_AES_CBC_ENCRYPT_DATA_PARAMS, CK_PARAMS_AES_CBC);
-DECLARE_PARAM_CLASS(AesCCM, CK_AES_CCM_PARAMS, CK_PARAMS_AES_CCM);
-DECLARE_PARAM_CLASS(AesGCM, CK_AES_GCM_PARAMS, CK_PARAMS_AES_GCM);
-DECLARE_PARAM_CLASS(RsaOAEP, CK_RSA_PKCS_OAEP_PARAMS, CK_PARAMS_RSA_OAEP);
-DECLARE_PARAM_CLASS(RsaPSS, CK_RSA_PKCS_PSS_PARAMS, CK_PARAMS_RSA_PSS);
-DECLARE_PARAM_CLASS(Ecdh1, CK_ECDH1_DERIVE_PARAMS, CK_PARAMS_EC_DH);
+class ParamBuffer : public ParamBase {
+public:
+    ParamBuffer() : ParamBase(CK_PARAMS_BUFFER) {}
+    void* Get() { return param.data(); }
+    virtual CK_ULONG GetSize() { return (CK_ULONG)param.size(); }
+    void FromV8(Local<Value> v8Obj);
+protected:
+    std::vector<CK_BYTE> param;
+};
 
-#undef DECLARE_PARAM_CLASS
+// AES
+
+class ParamAesCBC : public Param<CK_AES_CBC_ENCRYPT_DATA_PARAMS> {
+public:
+    ParamAesCBC() : Param(CK_PARAMS_AES_CBC) { Init(); }
+    ~ParamAesCBC() { Free(); }
+    void FromV8(Local<Value> v8Obj) override;
+protected:
+    void Init();
+    void Free();
+};
+
+class ParamAesCCM : public Param<CK_AES_CCM_PARAMS> {
+public:
+    ParamAesCCM() : Param(CK_PARAMS_AES_CCM) { Init(); }
+    ~ParamAesCCM() { Free(); }
+    void FromV8(Local<Value> v8Obj) override;
+protected:
+    void Init();
+    void Free();
+};
+
+class ParamAesGCM : public Param<CK_AES_GCM_PARAMS> {
+public:
+    ParamAesGCM() : Param(CK_PARAMS_AES_GCM) { Init(); }
+    ~ParamAesGCM() { Free(); }
+    void FromV8(Local<Value> v8Obj) override;
+protected:
+    void Init();
+    void Free();
+};
+
+// RSA
+
+class ParamRsaOAEP : public Param<CK_RSA_PKCS_OAEP_PARAMS> {
+public:
+    ParamRsaOAEP() : Param(CK_PARAMS_RSA_OAEP) { Init(); }
+    ~ParamRsaOAEP() { Free(); }
+    void FromV8(Local<Value> v8Obj) override;
+protected:
+    void Init();
+    void Free();
+};
+
+class ParamRsaPSS : public Param<CK_RSA_PKCS_PSS_PARAMS> {
+public:
+    ParamRsaPSS() : Param(CK_PARAMS_RSA_PSS) { Init(); }
+    ~ParamRsaPSS() { Free(); }
+    void FromV8(Local<Value> v8Obj) override;
+protected:
+    void Init();
+    void Free();
+};
+
+// ECC
+
+class ParamEcdh1 : public Param<CK_ECDH1_DERIVE_PARAMS> {
+public:
+    ParamEcdh1() : Param(CK_PARAMS_EC_DH) { Init(); }
+    ~ParamEcdh1() { Free(); }
+    void FromV8(Local<Value> v8Obj) override;
+protected:
+    void Init();
+    void Free();
+};
 
 #endif // INCLUDE_H_PKCS11_PARAM

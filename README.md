@@ -331,6 +331,54 @@ var derivedKey = pkcs11.C_DeriveKey(
     ]
 );
 ```
+### Example #10
+
+Initializing NSS crypto library
+
+Use `options` parameter for `C_Initialize` function.
+
+__Type__
+```ts
+interface InitializationOptions {
+    /**
+     * NSS library parameters
+     */
+    libraryParameters?: string;
+    /**
+     * bit flags specifying options for `C_Initialize`
+     * - CKF_LIBRARY_CANT_CREATE_OS_THREADS. True if application threads which are executing calls to the library
+     *   may not use native operating system calls to spawn new threads; false if they may
+     * - CKF_OS_LOCKING_OK. True if the library can use the native operation system threading model for locking;
+     *   false otherwise
+     */
+    flags?: number;
+}
+/**
+ * Initializes the Cryptoki library
+ * @param options Initialization options
+ * Supports implementation of standard `CK_C_INITIALIZE_ARGS` and extended NSS format.
+ * - if `options` is null or empty, it calls native `C_Initialize` with `NULL`
+ * - if `options` doesn't have `libraryParameters`, it uses `CK_C_INITIALIZE_ARGS` structure
+ * - if `options` has `libraryParameters`, it uses extended NSS structure
+ */
+C_Initialize(options?: InitializationOptions): void;
+```
+
+__Code__
+```js
+const mod = new pkcs11.PKCS11();
+mod.load("/usr/local/opt/nss/lib/libsoftokn3.dylib");
+
+mod.C_Initialize({
+    libraryParameters: "configdir='' certPrefix='' keyPrefix='' secmod='' flags=readOnly,noCertDB,noModDB,forceOpen,optimizeSpace",
+});
+
+// Your code here
+
+mod.C_Finalize();
+```
+
+[More](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Reference/FC_Initialize) info about NSS params for `C_Initialize`
 
 ## Suitability
 At this time this solution should be considered suitable for research and experimentation, further code and security review is needed before utilization in a production application.

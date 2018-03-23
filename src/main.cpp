@@ -18,6 +18,7 @@ NAN_MODULE_INIT(init) {
 	declare_mgf(target);
 	declare_kdf(target);
 	declare_params(target);
+    declare_initialize_flags(target);
     declare_user_types(target);
 }
 

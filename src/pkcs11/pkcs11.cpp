@@ -161,11 +161,12 @@ void PKCS11::Close()
     CATCH_ERROR;
 }
 
-void PKCS11::C_Initialize() {
+void PKCS11::C_Initialize(CK_VOID_PTR args) 
+{
 	try {
 
 		CHECK_PKCS11_RV(functionList->C_Initialize(
-			NULL_PTR
+			args
 		));
 
 	}

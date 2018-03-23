@@ -19,41 +19,41 @@ void ParamEcdh1::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Attribute 'publicData' MUST be Buffer", NULL);
 
 		Free();
-		New();
+		Init();
 
-		data.kdf = (CK_ULONG)Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		param.kdf = (CK_ULONG)Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
 
 		if (check_param_buffer(v8Params, STR_SHARED_DATA)) {
 			GET_BUFFER_SMPL(sharedData, v8Params->Get(Nan::New(STR_SHARED_DATA).ToLocalChecked())->ToObject());
-			data.pSharedData = (CK_BYTE_PTR)malloc(sharedDataLen * sizeof(CK_BYTE));
-			memcpy(data.pSharedData, sharedData, sharedDataLen);
-			data.ulSharedDataLen = (CK_ULONG) sharedDataLen;
+			param.pSharedData = (CK_BYTE_PTR)malloc(sharedDataLen * sizeof(CK_BYTE));
+			memcpy(param.pSharedData, sharedData, sharedDataLen);
+			param.ulSharedDataLen = (CK_ULONG) sharedDataLen;
 		}
 
 		GET_BUFFER_SMPL(publicData, v8Params->Get(Nan::New(STR_PUBLIC_DATA).ToLocalChecked())->ToObject());
-		data.pPublicData = (CK_BYTE_PTR)malloc(publicDataLen * sizeof(CK_BYTE));
-		memcpy(data.pPublicData, publicData, publicDataLen);
-		data.ulPublicDataLen = (CK_ULONG) publicDataLen;
+		param.pPublicData = (CK_BYTE_PTR)malloc(publicDataLen * sizeof(CK_BYTE));
+		memcpy(param.pPublicData, publicData, publicDataLen);
+		param.ulPublicDataLen = (CK_ULONG) publicDataLen;
 	}
 	CATCH_ERROR;
 }
 
-CK_ECDH1_DERIVE_PARAMS_PTR ParamEcdh1::New() {
-	data = CK_ECDH1_DERIVE_PARAMS();
-	data.kdf = CKD_NULL;
-	data.pSharedData = NULL;
-	data.ulSharedDataLen = 0;
-	data.pPublicData = NULL;
-	data.ulPublicDataLen = 0;
-
-	return Get();
+void ParamEcdh1::Init() {
+	param = CK_ECDH1_DERIVE_PARAMS();
+	param.kdf = CKD_NULL;
+	param.pSharedData = NULL;
+	param.ulSharedDataLen = 0;
+	param.pPublicData = NULL;
+	param.ulPublicDataLen = 0;
 }
 
 void ParamEcdh1::Free() {
-	if (Get()) {
-		if (data.pSharedData)
-			free(data.pSharedData);
-		if (data.pPublicData)
-			free(data.pPublicData);
-	}
+    if (param.pSharedData) {
+        free(param.pSharedData);
+        param.pSharedData = NULL;
+    }
+    if (param.pPublicData) {
+        free(param.pPublicData);
+        param.pPublicData = NULL;
+    }
 }
