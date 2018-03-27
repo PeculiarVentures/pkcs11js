@@ -118,7 +118,72 @@ void ParamAesCCM::Free() {
 
 // GCM ========================================================
 
+// v2.30
 void ParamAesGCM::FromV8(Local<Value> v8Value) {
+    try {
+        Nan::HandleScope();
+        
+        if (!v8Value->IsObject()) {
+            THROW_ERROR("Parameter 1 MUST be Object", NULL);
+        }
+        
+        Local<Object> v8Params = v8Value->ToObject();
+        
+        // Check data
+        if (!check_param_number(v8Params, STR_TAG_BITS))
+            THROW_ERROR("Attribute 'tagBits' MUST be NUMBER", NULL);
+        if (!check_param_number(v8Params, STR_IV_BITS))
+            THROW_ERROR("Attribute 'ivBits' MUST be NUMBER", NULL);
+        if (!(check_param_empty(v8Params, STR_IV) || check_param_buffer(v8Params, STR_IV)))
+            THROW_ERROR("Attribute 'iv' MUST be NULL || BUFFER", NULL);
+        if (!(check_param_empty(v8Params, STR_AAD) || check_param_buffer(v8Params, STR_AAD)))
+            THROW_ERROR("Attribute 'aad' MUST be NULL || BUFFER", NULL);
+        
+        Free();
+        Init();
+        
+        param.ulTagBits = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_TAG_BITS).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+        
+        if (!check_param_empty(v8Params, STR_IV)) {
+            GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_IV).ToLocalChecked())->ToObject());
+            param.pIv = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
+            memcpy(param.pIv, buffer, bufferLen);
+            param.ulIvLen = (CK_ULONG)bufferLen;
+        }
+        
+        if (!check_param_empty(v8Params, STR_AAD)) {
+            GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_AAD).ToLocalChecked())->ToObject());
+            param.pAAD = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
+            memcpy(param.pAAD, buffer, bufferLen);
+            param.ulAADLen = (CK_ULONG)bufferLen;
+        }
+    }
+    CATCH_ERROR;
+}
+
+void ParamAesGCM::Init() {
+    param = CK_AES_GCM_PARAMS();
+    param.pAAD = NULL;
+    param.ulAADLen = 0;
+    param.pIv = NULL;
+    param.ulIvLen = 0;
+    param.ulTagBits = 0;
+}
+
+void ParamAesGCM::Free() {
+    if (param.pIv) {
+        free(param.pIv);
+        param.pIv = NULL;
+    }
+    if (param.pAAD) {
+        free(param.pAAD);
+        param.pAAD = NULL;
+    }
+}
+
+// v2.30
+
+void ParamAesGCMv240::FromV8(Local<Value> v8Value) {
 	try {
 		Nan::HandleScope();
 
@@ -161,8 +226,8 @@ void ParamAesGCM::FromV8(Local<Value> v8Value) {
 	CATCH_ERROR;
 }
 
-void ParamAesGCM::Init() {
-	param = CK_AES_GCM_PARAMS();
+void ParamAesGCMv240::Init() {
+	param = CK_AES_GCM_240_PARAMS();
 	param.pAAD = NULL;
 	param.ulAADLen = 0;
 	param.pIv = NULL;
@@ -171,7 +236,7 @@ void ParamAesGCM::Init() {
 	param.ulTagBits = 0;
 }
 
-void ParamAesGCM::Free() {
+void ParamAesGCMv240::Free() {
     if (param.pIv) {
         free(param.pIv);
         param.pIv = NULL;

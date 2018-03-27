@@ -1745,16 +1745,27 @@ typedef struct CK_AES_CTR_PARAMS {
 
 typedef CK_AES_CTR_PARAMS CK_PTR CK_AES_CTR_PARAMS_PTR;
 
+// CK_GCM_PARAMS for Cryptoki v2.30
 typedef struct CK_AES_GCM_PARAMS {
+  CK_BYTE_PTR pIv;
+  CK_ULONG ulIvLen;
+  CK_BYTE_PTR pAAD;
+  CK_ULONG ulAADLen;
+  CK_ULONG ulTagBits;
+} CK_AES_GCM_PARAMS;
+
+// CK_GCM_PARAMS for Cryptoki v2.40
+typedef struct CK_AES_GCM_240_PARAMS {
   CK_BYTE_PTR pIv;
   CK_ULONG ulIvLen;
   CK_ULONG ulIvBits;
   CK_BYTE_PTR pAAD;
   CK_ULONG ulAADLen;
   CK_ULONG ulTagBits;
-} CK_AES_GCM_PARAMS;
+} CK_AES_GCM_240_PARAMS;
 
 typedef CK_AES_GCM_PARAMS CK_PTR CK_AES_GCM_PARAMS_PTR;
+typedef CK_AES_GCM_240_PARAMS CK_PTR CK_AES_GCM_240_PARAMS_PTR;
 
 typedef struct CK_AES_CCM_PARAMS {
 	CK_ULONG ulDataLen; /*plaintext or ciphertext*/

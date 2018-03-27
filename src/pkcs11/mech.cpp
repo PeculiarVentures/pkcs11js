@@ -50,6 +50,10 @@ void Mechanism::FromV8(Local<Value> v8Value) {
                         param = Scoped<ParamBase>(new ParamAesGCM);
                         break;
                     }
+                    case CK_PARAMS_AES_GCM_v240: {
+                        param = Scoped<ParamBase>(new ParamAesGCMv240);
+                        break;
+                    }
                     case CK_PARAMS_AES_CCM: {
                         param = Scoped<ParamBase>(new ParamAesCCM);
                         break;

@@ -1281,6 +1281,7 @@ declare namespace Pkcs11Js {
     const CK_PARAMS_RSA_OAEP: number;
     const CK_PARAMS_RSA_PSS: number;
     const CK_PARAMS_EC_DH: number;
+    const CK_PARAMS_AES_GCM_v240: number;
     //#endregion
 
     //#region User types

@@ -35,13 +35,14 @@ protected:
     T param;
 };
 
-#define CK_PARAMS_BUFFER        0
-#define CK_PARAMS_AES_CBC		1
-#define CK_PARAMS_AES_CCM		2
-#define CK_PARAMS_AES_GCM		3
-#define CK_PARAMS_RSA_OAEP		4
-#define CK_PARAMS_RSA_PSS		5
-#define CK_PARAMS_EC_DH			6
+#define CK_PARAMS_BUFFER            0
+#define CK_PARAMS_AES_CBC		    1
+#define CK_PARAMS_AES_CCM		    2
+#define CK_PARAMS_AES_GCM		    3
+#define CK_PARAMS_RSA_OAEP		    4
+#define CK_PARAMS_RSA_PSS		    5
+#define CK_PARAMS_EC_DH			    6
+#define CK_PARAMS_AES_GCM_v240      7
 
 class ParamBuffer : public ParamBase {
 public:
@@ -79,6 +80,17 @@ class ParamAesGCM : public Param<CK_AES_GCM_PARAMS> {
 public:
     ParamAesGCM() : Param(CK_PARAMS_AES_GCM) { Init(); }
     ~ParamAesGCM() { Free(); }
+    void FromV8(Local<Value> v8Obj) override;
+protected:
+    void Init();
+    void Free();
+};
+
+
+class ParamAesGCMv240 : public Param<CK_AES_GCM_240_PARAMS> {
+public:
+    ParamAesGCMv240() : Param(CK_PARAMS_AES_GCM_v240) { Init(); }
+    ~ParamAesGCMv240() { Free(); }
     void FromV8(Local<Value> v8Obj) override;
 protected:
     void Init();

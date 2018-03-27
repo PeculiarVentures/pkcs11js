@@ -553,6 +553,7 @@ void declare_params(Local<Object> target) {
 	SET_CONST(target, CK_PARAMS_AES_CBC);
 	SET_CONST(target, CK_PARAMS_AES_CCM);
 	SET_CONST(target, CK_PARAMS_AES_GCM);
+    SET_CONST(target, CK_PARAMS_AES_GCM_v240);
 	SET_CONST(target, CK_PARAMS_RSA_OAEP);
 	SET_CONST(target, CK_PARAMS_RSA_PSS);
 	SET_CONST(target, CK_PARAMS_EC_DH);
