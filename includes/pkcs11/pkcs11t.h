@@ -1177,6 +1177,19 @@ typedef struct CK_C_INITIALIZE_ARGS {
 
 typedef CK_C_INITIALIZE_ARGS CK_PTR CK_C_INITIALIZE_ARGS_PTR;
 
+// Extended structure for NSS
+typedef struct CK_NSS_C_INITIALIZE_ARGS {
+    CK_CREATEMUTEX CreateMutex;
+    CK_DESTROYMUTEX DestroyMutex;
+    CK_LOCKMUTEX LockMutex;
+    CK_UNLOCKMUTEX UnlockMutex;
+    CK_FLAGS flags;
+    CK_CHAR_PTR LibraryParameters;
+    CK_VOID_PTR pReserved;
+} CK_NSS_C_INITIALIZE_ARGS;
+
+typedef CK_NSS_C_INITIALIZE_ARGS* CK_NSS_C_INITIALIZE_ARGS_PTR;
+
 
 /* additional flags for parameters to functions */
 
