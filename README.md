@@ -12,7 +12,7 @@ We make a package called [Graphene](https://github.com/PeculiarVentures/graphene
 
 PKCS#11 (also known as CryptoKI or PKCS11) is the standard interface for interacting with hardware crypto devices such as Smart Cards and Hardware Security Modules (HSMs). 
 
-This was developed to the PKCS#11 2.3 specification, the 2.4 headers were not availible at the time we created this, it should be easy enough to extend it for the new version at a later date.
+This was developed to the PKCS#11 2.30 specification, the 2.40 headers were not availible at the time we created this, it should be easy enough to extend it for the new version at a later date.
 
 It has been tested with :
 - [SoftHSM2](https://www.opendnssec.org/softhsm/)
