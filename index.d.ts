@@ -1248,6 +1248,28 @@ declare namespace Pkcs11Js {
     const CKF_DERIVE: number;
     //#endregion
 
+    //#region Token Information Flags
+    const CKF_RNG: number;
+    const CKF_WRITE_PROTECTED: number;
+    const CKF_LOGIN_REQUIRED: number;
+    const CKF_USER_PIN_INITIALIZED: number;
+    const CKF_RESTORE_KEY_NOT_NEEDED: number;
+    const CKF_CLOCK_ON_TOKEN: number;
+    const CKF_PROTECTED_AUTHENTICATION_PATH: number;
+    const CKF_DUAL_CRYPTO_OPERATIONS: number;
+    const CKF_TOKEN_INITIALIZED: number;
+    const CKF_SECONDARY_AUTHENTICATION: number;
+    const CKF_USER_PIN_COUNT_LOW: number;
+    const CKF_USER_PIN_FINAL_TRY: number;
+    const CKF_USER_PIN_LOCKED: number;
+    const CKF_USER_PIN_TO_BE_CHANGED: number;
+    const CKF_SO_PIN_COUNT_LOW: number;
+    const CKF_SO_PIN_FINAL_TRY: number;
+    const CKF_SO_PIN_LOCKED: number;
+    const CKF_SO_PIN_TO_BE_CHANGED: number;
+    const CKF_ERROR_STATE: number;
+    //#endregion
+
     //#region Certificates
     const CKC_X_509: number;
     const CKC_X_509_ATTR_CERT: number;
