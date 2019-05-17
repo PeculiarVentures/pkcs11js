@@ -54,8 +54,9 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 			uint32_t long_size = sizeof(CK_ULONG);
 
 			attr->pValue = (char*)malloc(long_size);
-			for (uint32_t i = 0; i < long_size; i++)
-				((char*)attr->pValue)[i] = (char)(num >> (i * 8));
+			//for (uint32_t i = 0; i < long_size; i++)
+			//	((char*)attr->pValue)[i] = (char)(num >> (i * 8));
+			*(CK_ULONG*)attr->pValue = num;
 			attr->ulValueLen = long_size;
 		}
 		else if (v8Value->IsString()) {
