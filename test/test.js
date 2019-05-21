@@ -249,7 +249,7 @@ describe("PKCS11", () => {
         });
 
         it("seed random", () => {
-            var inBuf = new Buffer(20);
+            var inBuf = Buffer.alloc(20);
             var outBuf;
             if (runPkcs11Function(() => {
                 outBuf = _mod.C_SeedRandom(_session, inBuf);
@@ -260,7 +260,7 @@ describe("PKCS11", () => {
         });
 
         it("generate random", () => {
-            var inBuf = new Buffer(20);
+            var inBuf = Buffer.alloc(20);
             var outBuf;
             if (runPkcs11Function(() => {
                 outBuf = _mod.C_GenerateRandom(_session, inBuf);
@@ -318,7 +318,7 @@ describe("PKCS11", () => {
                 { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
                 { type: pkcs11.CKA_TOKEN, value: false },
                 { type: pkcs11.CKA_LABEL, value: "My RSA Public Key" },
-                { type: pkcs11.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
+                { type: pkcs11.CKA_PUBLIC_EXPONENT, value: Buffer.from([1, 0, 1]) },
                 { type: pkcs11.CKA_MODULUS_BITS, value: 1024 },
                 { type: pkcs11.CKA_VERIFY, value: true }
             ];
@@ -349,7 +349,7 @@ describe("PKCS11", () => {
                 { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
                 { type: pkcs11.CKA_TOKEN, value: false },
                 { type: pkcs11.CKA_LABEL, value: "My RSA Public Key" },
-                { type: pkcs11.CKA_PUBLIC_EXPONENT, value: new Buffer([1, 0, 1]) },
+                { type: pkcs11.CKA_PUBLIC_EXPONENT, value: Buffer.from([1, 0, 1]) },
                 { type: pkcs11.CKA_MODULUS_BITS, value: 1024 },
                 { type: pkcs11.CKA_VERIFY, value: true }
             ];
@@ -384,7 +384,7 @@ describe("PKCS11", () => {
                 { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
                 { type: pkcs11.CKA_TOKEN, value: false },
                 { type: pkcs11.CKA_LABEL, value: "My EC Public Key" },
-                { type: pkcs11.CKA_EC_PARAMS, value: new Buffer("06082A8648CE3D030107", "hex") },
+                { type: pkcs11.CKA_EC_PARAMS, value: Buffer.from("06082A8648CE3D030107", "hex") },
             ];
             var privateKeyTemplate = [
                 { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
@@ -533,9 +533,9 @@ describe("PKCS11", () => {
             var digest;
             if (runPkcs11Function(() => {
                 _mod.C_DigestInit(_session, { mechanism: pkcs11.CKM_SHA256 });
-                _mod.C_DigestUpdate(_session, new Buffer("Hello my test"));
-                _mod.C_DigestUpdate(_session, new Buffer("!!!"));
-                digest = _mod.C_DigestFinal(_session, Buffer(digest_size + 10));
+                _mod.C_DigestUpdate(_session, Buffer.from("Hello my test"));
+                _mod.C_DigestUpdate(_session, Buffer.from("!!!"));
+                digest = _mod.C_DigestFinal(_session, Buffer.alloc(digest_size + 10));
             }, ignoreErrors)) {
                 assert.equal(digest.length, digest_size);
                 assert.equal(digest.toString("hex"), "557685952545061c49b04f4c0658496f56da5d8858f6dad5540eb10885dc7736");
@@ -550,7 +550,7 @@ describe("PKCS11", () => {
             if (!checkParam(!!_privateKey, true, private_assert)) return;
             if (!checkParam(!!_publicKey, true, public_assert)) return;
 
-            var crypto_param = new Buffer([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+            var crypto_param = Buffer.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
 
             _mod.C_EncryptInit(
                 _session,
@@ -560,11 +560,11 @@ describe("PKCS11", () => {
                 },
                 _secretKey
             );
-            var enc = new Buffer(0);
-            enc = Buffer.concat([enc, _mod.C_EncryptUpdate(_session, new Buffer("1234567812345678"), new Buffer(200))]);
-            enc = Buffer.concat([enc, _mod.C_EncryptUpdate(_session, new Buffer("1234567812345678"), new Buffer(200))]);
+            var enc = Buffer.alloc(0);
+            enc = Buffer.concat([enc, _mod.C_EncryptUpdate(_session, Buffer.from("1234567812345678"), Buffer.alloc(200))]);
+            enc = Buffer.concat([enc, _mod.C_EncryptUpdate(_session, Buffer.from("1234567812345678"), Buffer.alloc(200))]);
             const enc_size = 32;
-            enc = Buffer.concat([enc, _mod.C_EncryptFinal(_session, new Buffer(16))]);
+            enc = Buffer.concat([enc, _mod.C_EncryptFinal(_session, Buffer.alloc(16))]);
             assert.equal(enc_size, enc.length);
 
             // Correct decrypt
@@ -576,9 +576,9 @@ describe("PKCS11", () => {
                 },
                 _secretKey
             );
-            var dec = new Buffer(0);
-            dec = Buffer.concat([dec, _mod.C_DecryptUpdate(_session, enc, new Buffer(200))]);
-            dec = Buffer.concat([dec, _mod.C_DecryptFinal(_session, new Buffer(16))]);
+            var dec = Buffer.alloc(0);
+            dec = Buffer.concat([dec, _mod.C_DecryptUpdate(_session, enc, Buffer.alloc(200))]);
+            dec = Buffer.concat([dec, _mod.C_DecryptFinal(_session, Buffer.alloc(16))]);
             assert.equal(32, dec.length);
             assert.equal(dec.toString(), "12345678123456781234567812345678");
 
@@ -592,9 +592,9 @@ describe("PKCS11", () => {
                 },
                 _secretKey
             );
-            var dec = new Buffer(0);
-            dec = Buffer.concat([dec, _mod.C_DecryptUpdate(_session, new Buffer("Wrong data______Wrong data______"), new Buffer(200))]);
-            dec = Buffer.concat([dec, _mod.C_DecryptFinal(_session, new Buffer(16))]);
+            var dec = Buffer.alloc(0);
+            dec = Buffer.concat([dec, _mod.C_DecryptUpdate(_session, Buffer.from("Wrong data______Wrong data______"), Buffer.alloc(200))]);
+            dec = Buffer.concat([dec, _mod.C_DecryptFinal(_session, Buffer.alloc(16))]);
             assert.notEqual(dec.toString(), "12345678123456781234567812345678");
         });
 
@@ -605,22 +605,22 @@ describe("PKCS11", () => {
             if (!checkParam(!!_privateKey, true, private_assert)) return;
 
             _mod.C_SignInit(_session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, _privateKey);
-            _mod.C_SignUpdate(_session, new Buffer("Hello my test"));
-            _mod.C_SignUpdate(_session, new Buffer("!!!"));
+            _mod.C_SignUpdate(_session, Buffer.from("Hello my test"));
+            _mod.C_SignUpdate(_session, Buffer.from("!!!"));
             const signature_size = 256;
-            var signature = _mod.C_SignFinal(_session, Buffer(signature_size + 10));
+            var signature = _mod.C_SignFinal(_session, Buffer.alloc(signature_size + 10));
 
             // Correct signature
             _mod.C_VerifyInit(_session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, _publicKey);
-            _mod.C_VerifyUpdate(_session, new Buffer("Hello my test"));
-            _mod.C_VerifyUpdate(_session, new Buffer("!!!"));
+            _mod.C_VerifyUpdate(_session, Buffer.from("Hello my test"));
+            _mod.C_VerifyUpdate(_session, Buffer.from("!!!"));
             var verify = _mod.C_VerifyFinal(_session, signature);
             assert.equal(verify, true);
 
             // Not correct signature
             _mod.C_VerifyInit(_session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, _publicKey);
-            _mod.C_VerifyUpdate(_session, new Buffer("Hello my test"));
-            _mod.C_VerifyUpdate(_session, new Buffer("!!!<Error here"));
+            _mod.C_VerifyUpdate(_session, Buffer.from("Hello my test"));
+            _mod.C_VerifyUpdate(_session, Buffer.from("!!!<Error here"));
             assert.throws(() => { _mod.C_VerifyFinal(_session, signature); }, "Signed content is not right, MUST be CKR_SIGNATURE_INVALID error here");
         });
 
@@ -676,7 +676,7 @@ describe("PKCS11", () => {
             const slots = mod.C_GetSlotList(true);
             const slot = slots[1];
             const session = mod.C_OpenSession(slot, pkcs11.CKF_SERIAL_SESSION);
-            const rnd = mod.C_GenerateRandom(session, new Buffer(20));
+            const rnd = mod.C_GenerateRandom(session, Buffer.alloc(20));
             assert.equal(!!rnd, true);
             assert.equal(rnd.length, 20);
 
