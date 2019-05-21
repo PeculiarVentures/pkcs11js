@@ -12,7 +12,7 @@
 
 #define UNWRAP_PKCS11 auto __pkcs11= WPKCS11::Unwrap<WPKCS11>(info.This())->pkcs11
 
-#define SET_PKCS11_METHOD(name) SetPrototypeMethod(tpl, #name, name)
+#define SET_PKCS11_METHOD(name) Nan::SetPrototypeMethod(tpl, #name, name)
 
 #define THROW_V8_ERROR(text)	\
 	{Nan::ThrowError(text);		\
@@ -139,7 +139,7 @@ static Handle<Object> GetVersion(CK_VERSION& version) {
 
 #define CN_PKCS11 "PKCS11"
 
-void WPKCS11::Init(Handle<Object> exports) {
+NAN_MODULE_INIT(WPKCS11::Init) {
 	Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
 	tpl->SetClassName(Nan::New(CN_PKCS11).ToLocalChecked());
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -214,7 +214,7 @@ void WPKCS11::Init(Handle<Object> exports) {
 	// static methods
 	// Nan::SetMethod<Local<Object>>(tpl->GeFunction(), "generate", Generate);
 
-	exports->Set(Nan::New(CN_PKCS11).ToLocalChecked(), tpl->GetFunction());
+    Nan::Set(target, Nan::New(CN_PKCS11).ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 NAN_PROPERTY_GETTER(WPKCS11::GetLibPath)
