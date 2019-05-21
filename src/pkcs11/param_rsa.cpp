@@ -23,9 +23,12 @@ void ParamRsaOAEP::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.source = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_SOURCE).ToLocalChecked())).FromJust();
-		param.mgf= Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).FromJust();
-		param.hashAlg = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).FromJust();
+        v8::Local<v8::Value> v8Source = Nan::Get(v8Params, Nan::New(STR_SOURCE).ToLocalChecked()).ToLocalChecked();
+        param.source = Nan::To<uint32_t>(v8Source).FromJust();
+        v8::Local<v8::Value> v8Mgf = Nan::Get(v8Params, Nan::New(STR_MGF).ToLocalChecked()).ToLocalChecked();
+		param.mgf= Nan::To<uint32_t>(v8Mgf).FromJust();
+        v8::Local<v8::Value> v8HashAlg = Nan::Get(v8Params, Nan::New(STR_HASH_ALG).ToLocalChecked()).ToLocalChecked();
+		param.hashAlg = Nan::To<uint32_t>(v8HashAlg).FromJust();
 
 		if (!check_param_empty(v8Params, STR_SOURCE_DATA)) {
 			GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(Nan::New(STR_SOURCE_DATA).ToLocalChecked()).ToLocalChecked());
@@ -76,9 +79,14 @@ void ParamRsaPSS::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.sLen = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_SALT_LEN).ToLocalChecked())).FromJust();
-		param.mgf = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).FromJust();
-		param.hashAlg = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).FromJust();
+        v8::Local<v8::Value> v8SaltLen = Nan::Get(v8Params, Nan::New(STR_SALT_LEN).ToLocalChecked()).ToLocalChecked();
+		param.sLen = Nan::To<uint32_t>(v8SaltLen).FromJust();
+        
+        v8::Local<v8::Value> v8Mgf = Nan::Get(v8Params, Nan::New(STR_MGF).ToLocalChecked()).ToLocalChecked();
+		param.mgf = Nan::To<uint32_t>(v8Mgf).FromJust();
+        
+        v8::Local<v8::Value> v8HashAlg = Nan::Get(v8Params, Nan::New(STR_HASH_ALG).ToLocalChecked()).ToLocalChecked();
+		param.hashAlg = Nan::To<uint32_t>(v8HashAlg).FromJust();
 
 	}
 	CATCH_ERROR;

@@ -17,12 +17,12 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 
         Local<Object> v8Object = Nan::To<v8::Object>(v8Attribute).ToLocalChecked();
 
-		Local<Value> v8Type = v8Object->Get(Nan::New(STR_TYPE).ToLocalChecked());
+        Local<Value> v8Type = Nan::Get(v8Object, Nan::New(STR_TYPE).ToLocalChecked()).ToLocalChecked();
 		if (!v8Type->IsNumber()) {
 			THROW_ERROR("Member 'type' MUST be Number", NULL);
 		}
 
-		Local<Value> v8Value = v8Object->Get(Nan::New(STR_VALUE).ToLocalChecked());
+        Local<Value> v8Value = Nan::Get(v8Object, Nan::New(STR_VALUE).ToLocalChecked()).ToLocalChecked();
 		if (!(v8Value->IsUndefined() || v8Value->IsNull() ||
 			node::Buffer::HasInstance(v8Value) ||
 			v8Value->IsBoolean() ||
@@ -81,11 +81,11 @@ static Local<Object> c2v_ATTRIBUTE(CK_ATTRIBUTE_PTR attr) {
 		Local<Object> v8Attribute = Nan::New<Object>();
 
 		// Type
-		v8Attribute->Set(Nan::New(STR_TYPE).ToLocalChecked(), Nan::New<Number>(attr->type));
+        Nan::Set(v8Attribute, Nan::New(STR_TYPE).ToLocalChecked(), Nan::New<Number>(attr->type));
 
 		// Value
 		Local<Object> v8Value = node::Buffer::Copy(Isolate::GetCurrent(), (char *)attr->pValue, attr->ulValueLen).ToLocalChecked();
-		v8Attribute->Set(Nan::New(STR_VALUE).ToLocalChecked(), v8Value);
+        Nan::Set(v8Attribute, Nan::New(STR_VALUE).ToLocalChecked(), v8Value);
 
 		return v8Attribute;
 	}
@@ -143,12 +143,14 @@ void Attributes::FromV8(Local<Value> v8Value) {
 		}
 
 		Local<Object> v8Template = Nan::To<v8::Object>(v8Value).ToLocalChecked();
-		uint32_t templateLen = Nan::To<uint32_t>(v8Template->Get(Nan::New("length").ToLocalChecked())).FromJust();
+        
+        Local<Value> v8TemplateLen = Nan::Get(v8Template, Nan::New("length").ToLocalChecked()).ToLocalChecked();
+		uint32_t templateLen = Nan::To<uint32_t>(v8TemplateLen).FromJust();
 
 		uint32_t i = 0;
 		New();
 		for (i = 0; i < templateLen; i++) {
-			Local<Value> v8Attribute = v8Template->Get(i);
+            Local<Value> v8Attribute = Nan::Get(v8Template, i).ToLocalChecked();
 			Scoped<CK_ATTRIBUTE> attr = v2c_ATTRIBUTE(v8Attribute);
 			this->Push(attr.get());
 		}
@@ -165,7 +167,7 @@ Local<Object> Attributes::ToV8() {
 			CK_ATTRIBUTE_PTR pItem = &data.items[i];
 			Local<Object> v8Attribute = c2v_ATTRIBUTE(pItem);
 
-			v8Res->Set(i, v8Attribute);
+            Nan::Set(v8Res, i, v8Attribute);
 		}
 		return v8Res;
 	}

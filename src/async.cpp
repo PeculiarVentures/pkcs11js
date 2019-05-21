@@ -44,8 +44,8 @@ void AsyncGenerateKeyPair::HandleOKCallback() {
 	Nan::HandleScope scope;
 
 	Local<Object> v8KeyPair = Nan::New<Object>();
-	v8KeyPair->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), handle_to_v8(keyPair->privateKey));
-	v8KeyPair->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), handle_to_v8(keyPair->publicKey));
+    Nan::Set(v8KeyPair, Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), handle_to_v8(keyPair->privateKey));
+    Nan::Set(v8KeyPair, Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), handle_to_v8(keyPair->publicKey));
 
 	v8::Local<v8::Value> argv[] = {
 		Nan::Null(),

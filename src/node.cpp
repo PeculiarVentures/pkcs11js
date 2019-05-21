@@ -23,22 +23,21 @@
 	return;}
 
 #define THROW_REQUIRED(argsIndex)	\
-	{Local<String> v8ErrorMessage = String::Concat(Nan::New("Parameter ").ToLocalChecked(), Nan::New<Number>(argsIndex+1)->ToString()); \
-	v8ErrorMessage = String::Concat(v8ErrorMessage, Nan::New(" is REQUIRED").ToLocalChecked()); \
+    {std::string errorMessage = "Parameter " + std::to_string(argsIndex+1) + " is REQUIRED";    \
+    Local<String> v8ErrorMessage = Nan::New(errorMessage).ToLocalChecked(); \
 	THROW_V8_TYPE_ERROR(v8ErrorMessage)}
 
-#define CHECK_REQUIRED(argsIndex)								\
-	if (info[argsIndex]->IsUndefined() /*|| info[argsIndex]->IsNull()*/)	\
+#define CHECK_REQUIRED(argsIndex)                                           \
+	if (info[argsIndex]->IsUndefined() /*|| info[argsIndex]->IsNull()*/)    \
 		THROW_REQUIRED(argsIndex)
 
 #define THROW_WRONG_TYPE(argsIndex, v8Type)	\
-	{Local<String> v8ErrorMessage = String::Concat(Nan::New("Parameter ").ToLocalChecked(), Nan::New<Number>(argsIndex+1)->ToString()); \
-	v8ErrorMessage = String::Concat(v8ErrorMessage, Nan::New(" MUST be ").ToLocalChecked()); \
-	v8ErrorMessage = String::Concat(v8ErrorMessage, Nan::New(#v8Type).ToLocalChecked()); \
+    {std::string errorMessage = "Parameter " + std::to_string(argsIndex+1) + "  MUST be " + #v8Type;    \
+    Local<String> v8ErrorMessage = Nan::New(errorMessage).ToLocalChecked();                             \
 	THROW_V8_TYPE_ERROR(v8ErrorMessage)}
 
-#define CHECK_BUFFER(argsIndex)											\
-	if (!node::Buffer::HasInstance(info[argsIndex]))						\
+#define CHECK_BUFFER(argsIndex)                                             \
+	if (!node::Buffer::HasInstance(info[argsIndex]))                        \
 		THROW_WRONG_TYPE(argsIndex, Buffer)
 
 #define CATCH_V8_ERROR catch (Scoped<Error> e) {Nan::ThrowError(e->ToString()->c_str());return;}
@@ -127,12 +126,12 @@ static Scoped<string> get_string(Local<Value> v8String, const char* defaultValue
 #define GET_STRING(name, argsIndex, defaultValue)								\
 	Scoped<string> name = get_string(info[argsIndex], defaultValue);
 
-static Handle<Object> GetVersion(CK_VERSION& version) {
+static Local<Object> GetVersion(CK_VERSION& version) {
 	Nan::HandleScope();
 
 	Local<Object> v8Version = Nan::New<Object>();
-	v8Version->Set(Nan::New(STR_MAJOR).ToLocalChecked(), Nan::New(version.major));
-	v8Version->Set(Nan::New(STR_MINOR).ToLocalChecked(), Nan::New(version.minor));
+    Nan::Set(v8Version, Nan::New(STR_MAJOR).ToLocalChecked(), Nan::New(version.major));
+    Nan::Set(v8Version, Nan::New(STR_MINOR).ToLocalChecked(), Nan::New(version.minor));
 
 	return  v8Version;
 }
@@ -149,7 +148,7 @@ NAN_MODULE_INIT(WPKCS11::Init) {
 
 	// methods
 	SetPrototypeMethod(tpl, "load", Load);
-    SetPrototypeMethod(tpl, "close", Close);
+  SetPrototypeMethod(tpl, "close", Close);
 	SET_PKCS11_METHOD(C_Initialize);
 	SET_PKCS11_METHOD(C_Finalize);
 	SET_PKCS11_METHOD(C_GetInfo);
@@ -268,6 +267,7 @@ static void free_args(CK_VOID_PTR args) {
 }
 
 NAN_METHOD(WPKCS11::Close) {
+    Nan::HandleScope();
     UNWRAP_PKCS11;
 
     try {
@@ -277,6 +277,7 @@ NAN_METHOD(WPKCS11::Close) {
 }
 
 NAN_METHOD(WPKCS11::C_Initialize) {
+    Nan::HandleScope();
 	UNWRAP_PKCS11;
 	
     CK_VOID_PTR initArgs = NULL;
@@ -285,11 +286,12 @@ NAN_METHOD(WPKCS11::C_Initialize) {
             __pkcs11->C_Initialize(NULL);
         } else if (info[0]->IsObject()) {
             Local<Object> obj =  Nan::To<v8::Object>(info[0]).ToLocalChecked();
-            Local<Value> v8FlagsProperty = Nan::New("flags").ToLocalChecked();
-            Local<Value> v8LibraryParametersProperty = Nan::New("libraryParameters").ToLocalChecked();
+            Local<String> v8FlagsProperty = Nan::New("flags").ToLocalChecked();
+            Local<String> v8LibraryParametersProperty = Nan::New("libraryParameters").ToLocalChecked();
             
-            if (obj->Has(v8LibraryParametersProperty)) {
-                Scoped<string> libraryParameters = Scoped<string>(new string(*Nan::Utf8String(obj->Get(v8LibraryParametersProperty)->ToString())));
+            if (Nan::Has(obj, v8LibraryParametersProperty).FromJust()) {
+                Nan::Utf8String v8LibraryParameters(Nan::Get(obj, v8LibraryParametersProperty).ToLocalChecked());
+                Scoped<string> libraryParameters = Scoped<string>(new string(*v8LibraryParameters));
                 CK_NSS_C_INITIALIZE_ARGS_PTR args = (CK_NSS_C_INITIALIZE_ARGS_PTR)malloc(sizeof(CK_NSS_C_INITIALIZE_ARGS));
                 initArgs = (CK_VOID_PTR)args;
                 args->CreateMutex = NULL;
@@ -299,8 +301,9 @@ NAN_METHOD(WPKCS11::C_Initialize) {
                 args->LockMutex = NULL;
                 args->UnlockMutex = NULL;
                 args->pReserved = NULL;
-                if (obj->Has(v8FlagsProperty)) {
-                    args->flags = Nan::To<uint32_t>(obj->Get(v8FlagsProperty)).FromJust();
+                if (Nan::Has(obj, v8FlagsProperty).FromJust()) {
+                    v8::Local<v8::Value> v8Flag = Nan::Get(obj, v8FlagsProperty).ToLocalChecked();
+                    args->flags = Nan::To<uint32_t>(v8Flag).FromJust();
                 } else {
                     args->flags = 0;
                 }
@@ -312,8 +315,9 @@ NAN_METHOD(WPKCS11::C_Initialize) {
                 args->LockMutex = NULL;
                 args->UnlockMutex = NULL;
                 args->pReserved = NULL;
-                if (obj->Has(v8FlagsProperty)) {
-                    args->flags = Nan::To<uint32_t>(obj->Get(v8FlagsProperty)).FromJust();
+                if (Nan::Has(obj, v8FlagsProperty).FromJust()) {
+                    v8::Local<v8::Value> v8Flag = Nan::Get(obj, v8FlagsProperty).ToLocalChecked();
+                    args->flags = Nan::To<uint32_t>(v8Flag).FromJust();
                 } else {
                     args->flags = 0;
                 }
@@ -332,6 +336,7 @@ NAN_METHOD(WPKCS11::C_Initialize) {
 }
 
 NAN_METHOD(WPKCS11::C_Finalize) {
+    Nan::HandleScope();
 	UNWRAP_PKCS11;
 
 	try {
@@ -341,6 +346,7 @@ NAN_METHOD(WPKCS11::C_Finalize) {
 }
 
 NAN_METHOD(WPKCS11::C_GetInfo) {
+    Nan::HandleScope();
 	UNWRAP_PKCS11;
 
 	try {
@@ -348,13 +354,13 @@ NAN_METHOD(WPKCS11::C_GetInfo) {
 
 		Local<Object> v8Object = Nan::New<Object>();
 		if (_info->cryptokiVersion.major == 2) {
-			/* Do lots of interesting cryptographic things with the token */
-			v8Object->Set(Nan::New(STR_CRYPTOKI_VERSION).ToLocalChecked(), GetVersion(_info->cryptokiVersion));
-			v8Object->Set(Nan::New(STR_MANUFACTURER_ID).ToLocalChecked(), Nan::New((char*)_info->manufacturerID, 32).ToLocalChecked());
-			v8Object->Set(Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New((uint32_t)_info->flags));
+            /* Do lots of interesting cryptographic things with the token */
+            Nan::Set(v8Object, Nan::New(STR_CRYPTOKI_VERSION).ToLocalChecked(), GetVersion(_info->cryptokiVersion));
+            Nan::Set(v8Object, Nan::New(STR_MANUFACTURER_ID).ToLocalChecked(), Nan::New((char*)_info->manufacturerID, 32).ToLocalChecked());
+            Nan::Set(v8Object, Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New((uint32_t)_info->flags));
 
-			v8Object->Set(Nan::New(STR_LIBRARY_DESCRIPTION).ToLocalChecked(), Nan::New((char*)_info->libraryDescription, 32).ToLocalChecked());
-			v8Object->Set(Nan::New(STR_LIBRARY_VERSION).ToLocalChecked(), GetVersion(_info->libraryVersion));
+            Nan::Set(v8Object, Nan::New(STR_LIBRARY_DESCRIPTION).ToLocalChecked(), Nan::New((char*)_info->libraryDescription, 32).ToLocalChecked());
+            Nan::Set(v8Object, Nan::New(STR_LIBRARY_VERSION).ToLocalChecked(), GetVersion(_info->libraryVersion));
 		}
 
 		info.GetReturnValue().Set(v8Object);
@@ -363,6 +369,8 @@ NAN_METHOD(WPKCS11::C_GetInfo) {
 }
 
 NAN_METHOD(WPKCS11::C_GetSlotList) {
+    Nan::HandleScope();
+    
 	try {
 
 		UNWRAP_PKCS11;
@@ -373,7 +381,7 @@ NAN_METHOD(WPKCS11::C_GetSlotList) {
 
 		Local<Array> v8SlotList = Nan::New<Array>();
 		for (uint32_t i = 0; i < arSlotList.size(); i++) {
-			v8SlotList->Set(i, handle_to_v8(arSlotList[i]));
+            Nan::Set(v8SlotList, i, handle_to_v8(arSlotList[i]));
 		}
 
 		info.GetReturnValue().Set(v8SlotList);
@@ -382,6 +390,8 @@ NAN_METHOD(WPKCS11::C_GetSlotList) {
 }
 
 NAN_METHOD(WPKCS11::C_GetSlotInfo) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -391,11 +401,11 @@ NAN_METHOD(WPKCS11::C_GetSlotInfo) {
 
 		Local<Object> v8Object = Nan::New<Object>();
 
-		v8Object->Set(Nan::New(STR_SLOT_DESCRIPTION).ToLocalChecked(), Nan::New((char*)_info->slotDescription, 64).ToLocalChecked());
-		v8Object->Set(Nan::New(STR_MANUFACTURER_ID).ToLocalChecked(), Nan::New((char*)_info->manufacturerID, 32).ToLocalChecked());
-		v8Object->Set(Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New((uint32_t)_info->flags));
-		v8Object->Set(Nan::New(STR_HARDWARE_VERSION).ToLocalChecked(), GetVersion(_info->hardwareVersion));
-		v8Object->Set(Nan::New(STR_FIRMWARE_VERSION).ToLocalChecked(), GetVersion(_info->firmwareVersion));
+        Nan::Set(v8Object, Nan::New(STR_SLOT_DESCRIPTION).ToLocalChecked(), Nan::New((char*)_info->slotDescription, 64).ToLocalChecked());
+        Nan::Set(v8Object, Nan::New(STR_MANUFACTURER_ID).ToLocalChecked(), Nan::New((char*)_info->manufacturerID, 32).ToLocalChecked());
+        Nan::Set(v8Object, Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New((uint32_t)_info->flags));
+        Nan::Set(v8Object, Nan::New(STR_HARDWARE_VERSION).ToLocalChecked(), GetVersion(_info->hardwareVersion));
+        Nan::Set(v8Object, Nan::New(STR_FIRMWARE_VERSION).ToLocalChecked(), GetVersion(_info->firmwareVersion));
 
 		info.GetReturnValue().Set(v8Object);
 	}
@@ -403,6 +413,8 @@ NAN_METHOD(WPKCS11::C_GetSlotInfo) {
 }
 
 NAN_METHOD(WPKCS11::C_GetTokenInfo) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -411,24 +423,24 @@ NAN_METHOD(WPKCS11::C_GetTokenInfo) {
 		auto _info = __pkcs11->C_GetTokenInfo(slotID);
 
 		Local<Object> v8Object = Nan::New<Object>();
-		v8Object->Set(Nan::New(STR_LABEL).ToLocalChecked(), Nan::New((char*)_info->label, 32).ToLocalChecked());
-		v8Object->Set(Nan::New(STR_MANUFACTURER_ID).ToLocalChecked(), Nan::New((char*)_info->manufacturerID, 32).ToLocalChecked());
-		v8Object->Set(Nan::New(STR_MODEL).ToLocalChecked(), Nan::New((char*)_info->model, 16).ToLocalChecked());
-		v8Object->Set(Nan::New(STR_SERIAL_NUMER).ToLocalChecked(), Nan::New((char*)_info->serialNumber, 16).ToLocalChecked());
-		v8Object->Set(Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New<Number>(_info->flags));
-		v8Object->Set(Nan::New(STR_MAX_SESSION_COUNT).ToLocalChecked(), Nan::New<Number>(_info->ulMaxSessionCount));
-		v8Object->Set(Nan::New(STR_SESSION_COUNT).ToLocalChecked(), Nan::New<Number>(_info->ulSessionCount));
-		v8Object->Set(Nan::New(STR_MAX_RW_SESSION_COUNT).ToLocalChecked(), Nan::New<Number>(_info->ulMaxRwSessionCount));
-		v8Object->Set(Nan::New(STR_RW_SESSION_COUNT).ToLocalChecked(), Nan::New<Number>(_info->ulRwSessionCount));
-		v8Object->Set(Nan::New(STR_MAX_PIN_LEN).ToLocalChecked(), Nan::New<Number>(_info->ulMaxPinLen));
-		v8Object->Set(Nan::New(STR_MIN_PIN_LEN).ToLocalChecked(), Nan::New<Number>(_info->ulMinPinLen));
-		v8Object->Set(Nan::New(STR_HARDWARE_VERSION).ToLocalChecked(), GetVersion(_info->hardwareVersion));
-		v8Object->Set(Nan::New(STR_FIRMWARE_VERSION).ToLocalChecked(), GetVersion(_info->firmwareVersion));
-		v8Object->Set(Nan::New(STR_UTC_TIME).ToLocalChecked(), Nan::New((char*)_info->utcTime, 16).ToLocalChecked());
-		v8Object->Set(Nan::New(STR_TOTAL_PUBLIC_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulTotalPublicMemory));
-		v8Object->Set(Nan::New(STR_FREE_PUBLIC_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulFreePublicMemory));
-		v8Object->Set(Nan::New(STR_TOTAL_PRIVATE_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulTotalPrivateMemory));
-		v8Object->Set(Nan::New(STR_FREE_PRIVATE_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulFreePrivateMemory));
+		Nan::Set(v8Object, Nan::New(STR_LABEL).ToLocalChecked(), Nan::New((char*)_info->label, 32).ToLocalChecked());
+		Nan::Set(v8Object, Nan::New(STR_MANUFACTURER_ID).ToLocalChecked(), Nan::New((char*)_info->manufacturerID, 32).ToLocalChecked());
+		Nan::Set(v8Object, Nan::New(STR_MODEL).ToLocalChecked(), Nan::New((char*)_info->model, 16).ToLocalChecked());
+		Nan::Set(v8Object, Nan::New(STR_SERIAL_NUMER).ToLocalChecked(), Nan::New((char*)_info->serialNumber, 16).ToLocalChecked());
+		Nan::Set(v8Object, Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New<Number>(_info->flags));
+		Nan::Set(v8Object, Nan::New(STR_MAX_SESSION_COUNT).ToLocalChecked(), Nan::New<Number>(_info->ulMaxSessionCount));
+		Nan::Set(v8Object, Nan::New(STR_SESSION_COUNT).ToLocalChecked(), Nan::New<Number>(_info->ulSessionCount));
+		Nan::Set(v8Object, Nan::New(STR_MAX_RW_SESSION_COUNT).ToLocalChecked(), Nan::New<Number>(_info->ulMaxRwSessionCount));
+		Nan::Set(v8Object, Nan::New(STR_RW_SESSION_COUNT).ToLocalChecked(), Nan::New<Number>(_info->ulRwSessionCount));
+		Nan::Set(v8Object, Nan::New(STR_MAX_PIN_LEN).ToLocalChecked(), Nan::New<Number>(_info->ulMaxPinLen));
+		Nan::Set(v8Object, Nan::New(STR_MIN_PIN_LEN).ToLocalChecked(), Nan::New<Number>(_info->ulMinPinLen));
+		Nan::Set(v8Object, Nan::New(STR_HARDWARE_VERSION).ToLocalChecked(), GetVersion(_info->hardwareVersion));
+		Nan::Set(v8Object, Nan::New(STR_FIRMWARE_VERSION).ToLocalChecked(), GetVersion(_info->firmwareVersion));
+		Nan::Set(v8Object, Nan::New(STR_UTC_TIME).ToLocalChecked(), Nan::New((char*)_info->utcTime, 16).ToLocalChecked());
+		Nan::Set(v8Object, Nan::New(STR_TOTAL_PUBLIC_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulTotalPublicMemory));
+		Nan::Set(v8Object, Nan::New(STR_FREE_PUBLIC_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulFreePublicMemory));
+		Nan::Set(v8Object, Nan::New(STR_TOTAL_PRIVATE_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulTotalPrivateMemory));
+		Nan::Set(v8Object, Nan::New(STR_FREE_PRIVATE_MEMORY).ToLocalChecked(), Nan::New<Number>(_info->ulFreePrivateMemory));
 
 		info.GetReturnValue().Set(v8Object);
 	}
@@ -436,6 +448,8 @@ NAN_METHOD(WPKCS11::C_GetTokenInfo) {
 }
 
 NAN_METHOD(WPKCS11::C_GetMechanismList) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -445,7 +459,7 @@ NAN_METHOD(WPKCS11::C_GetMechanismList) {
 
 		Local<Array> v8Res = Nan::New<Array>();
 		for (uint32_t i = 0; i < pMechanismList.size(); i++) {
-			v8Res->Set(i, Nan::New<Number>(pMechanismList[i]));
+			Nan::Set(v8Res, i, Nan::New<Number>(pMechanismList[i]));
 		}
 		info.GetReturnValue().Set(v8Res);
 	}
@@ -453,6 +467,8 @@ NAN_METHOD(WPKCS11::C_GetMechanismList) {
 }
 
 NAN_METHOD(WPKCS11::C_GetMechanismInfo) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -466,9 +482,9 @@ NAN_METHOD(WPKCS11::C_GetMechanismInfo) {
 
 		Local<Object> v8Res = Nan::New<Object>();
 
-		v8Res->Set(Nan::New(STR_MIN_KEY_SIZE).ToLocalChecked(), Nan::New<Number>(pInfo->ulMinKeySize));
-		v8Res->Set(Nan::New(STR_MAX_KEY_SIZE).ToLocalChecked(), Nan::New<Number>(pInfo->ulMaxKeySize));
-		v8Res->Set(Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New<Number>(pInfo->flags));
+		Nan::Set(v8Res, Nan::New(STR_MIN_KEY_SIZE).ToLocalChecked(), Nan::New<Number>(pInfo->ulMinKeySize));
+		Nan::Set(v8Res, Nan::New(STR_MAX_KEY_SIZE).ToLocalChecked(), Nan::New<Number>(pInfo->ulMaxKeySize));
+		Nan::Set(v8Res, Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New<Number>(pInfo->flags));
 
 		info.GetReturnValue().Set(v8Res);
 	}
@@ -478,6 +494,8 @@ NAN_METHOD(WPKCS11::C_GetMechanismInfo) {
 ///* C_InitToken initializes a token. */
 
 NAN_METHOD(WPKCS11::C_InitToken) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 		GET_STRING(pin, 1, "");
@@ -492,6 +510,8 @@ NAN_METHOD(WPKCS11::C_InitToken) {
 }
 
 NAN_METHOD(WPKCS11::C_InitPIN) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_STRING(pin, 1, "");
@@ -506,6 +526,8 @@ NAN_METHOD(WPKCS11::C_InitPIN) {
 }
 
 NAN_METHOD(WPKCS11::C_SetPIN) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_STRING(oldPin, 1, "");
@@ -521,6 +543,8 @@ NAN_METHOD(WPKCS11::C_SetPIN) {
 }
 
 NAN_METHOD(WPKCS11::C_OpenSession) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -538,6 +562,8 @@ NAN_METHOD(WPKCS11::C_OpenSession) {
 }
 
 NAN_METHOD(WPKCS11::C_CloseSession) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -551,6 +577,8 @@ NAN_METHOD(WPKCS11::C_CloseSession) {
 }
 
 NAN_METHOD(WPKCS11::C_CloseAllSessions) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -564,6 +592,8 @@ NAN_METHOD(WPKCS11::C_CloseAllSessions) {
 }
 
 NAN_METHOD(WPKCS11::C_GetSessionInfo) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -573,10 +603,10 @@ NAN_METHOD(WPKCS11::C_GetSessionInfo) {
 
 		Local<Object> v8Res = Nan::New<Object>();
 
-		v8Res->Set(Nan::New(STR_SLOT_ID).ToLocalChecked(), handle_to_v8(_info->slotID));
-		v8Res->Set(Nan::New(STR_STATE).ToLocalChecked(), Nan::New<Number>(_info->state));
-		v8Res->Set(Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New<Number>(_info->flags));
-		v8Res->Set(Nan::New(STR_DEVICE_ERROR).ToLocalChecked(), Nan::New<Number>(_info->ulDeviceError));
+        Nan::Set(v8Res, Nan::New(STR_SLOT_ID).ToLocalChecked(), handle_to_v8(_info->slotID));
+        Nan::Set(v8Res, Nan::New(STR_STATE).ToLocalChecked(), Nan::New<Number>(_info->state));
+        Nan::Set(v8Res, Nan::New(STR_FLAGS).ToLocalChecked(), Nan::New<Number>(_info->flags));
+        Nan::Set(v8Res, Nan::New(STR_DEVICE_ERROR).ToLocalChecked(), Nan::New<Number>(_info->ulDeviceError));
 
 		info.GetReturnValue().Set(v8Res);
 	}
@@ -584,6 +614,8 @@ NAN_METHOD(WPKCS11::C_GetSessionInfo) {
 }
 
 NAN_METHOD(WPKCS11::C_Login) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -603,6 +635,8 @@ NAN_METHOD(WPKCS11::C_Login) {
 }
 
 NAN_METHOD(WPKCS11::C_Logout) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -616,6 +650,8 @@ NAN_METHOD(WPKCS11::C_Logout) {
 }
 
 NAN_METHOD(WPKCS11::C_FindObjectsInit) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -637,6 +673,8 @@ NAN_METHOD(WPKCS11::C_FindObjectsInit) {
 }
 
 NAN_METHOD(WPKCS11::C_FindObjects) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -652,6 +690,8 @@ NAN_METHOD(WPKCS11::C_FindObjects) {
 }
 
 NAN_METHOD(WPKCS11::C_FindObjectsFinal) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -665,6 +705,8 @@ NAN_METHOD(WPKCS11::C_FindObjectsFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_GetAttributeValue) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -680,6 +722,8 @@ NAN_METHOD(WPKCS11::C_GetAttributeValue) {
 }
 
 NAN_METHOD(WPKCS11::C_SetAttributeValue) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -698,6 +742,8 @@ NAN_METHOD(WPKCS11::C_SetAttributeValue) {
 }
 
 NAN_METHOD(WPKCS11::C_CreateObject) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_TEMPLATE_R(tmpl, 1);
@@ -712,6 +758,8 @@ NAN_METHOD(WPKCS11::C_CreateObject) {
 }
 
 NAN_METHOD(WPKCS11::C_CopyObject) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -727,6 +775,8 @@ NAN_METHOD(WPKCS11::C_CopyObject) {
 }
 
 NAN_METHOD(WPKCS11::C_DestroyObject) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -741,6 +791,8 @@ NAN_METHOD(WPKCS11::C_DestroyObject) {
 }
 
 NAN_METHOD(WPKCS11::C_GetObjectSize) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -755,6 +807,8 @@ NAN_METHOD(WPKCS11::C_GetObjectSize) {
 }
 
 NAN_METHOD(WPKCS11::C_EncryptInit) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -770,6 +824,8 @@ NAN_METHOD(WPKCS11::C_EncryptInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Encrypt) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -792,6 +848,8 @@ NAN_METHOD(WPKCS11::C_Encrypt) {
 }
 
 NAN_METHOD(WPKCS11::C_EncryptUpdate) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -807,6 +865,8 @@ NAN_METHOD(WPKCS11::C_EncryptUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_EncryptFinal) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(output, 1);
@@ -821,6 +881,8 @@ NAN_METHOD(WPKCS11::C_EncryptFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_DecryptInit) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -836,6 +898,8 @@ NAN_METHOD(WPKCS11::C_DecryptInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Decrypt) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -858,6 +922,8 @@ NAN_METHOD(WPKCS11::C_Decrypt) {
 }
 
 NAN_METHOD(WPKCS11::C_DecryptUpdate) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -873,6 +939,8 @@ NAN_METHOD(WPKCS11::C_DecryptUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_DecryptFinal) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(output, 1);
@@ -887,6 +955,8 @@ NAN_METHOD(WPKCS11::C_DecryptFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_DigestInit) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -901,6 +971,8 @@ NAN_METHOD(WPKCS11::C_DigestInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Digest) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -923,6 +995,8 @@ NAN_METHOD(WPKCS11::C_Digest) {
 }
 
 NAN_METHOD(WPKCS11::C_DigestUpdate) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -937,6 +1011,8 @@ NAN_METHOD(WPKCS11::C_DigestUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_DigestFinal) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(output, 1);
@@ -951,6 +1027,8 @@ NAN_METHOD(WPKCS11::C_DigestFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_DigestKey) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -965,6 +1043,8 @@ NAN_METHOD(WPKCS11::C_DigestKey) {
 }
 
 NAN_METHOD(WPKCS11::C_SignInit) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -980,6 +1060,8 @@ NAN_METHOD(WPKCS11::C_SignInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Sign) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -1002,6 +1084,8 @@ NAN_METHOD(WPKCS11::C_Sign) {
 }
 
 NAN_METHOD(WPKCS11::C_SignUpdate) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -1016,6 +1100,8 @@ NAN_METHOD(WPKCS11::C_SignUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_SignFinal) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(output, 1);
@@ -1030,6 +1116,8 @@ NAN_METHOD(WPKCS11::C_SignFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_SignRecoverInit) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1045,6 +1133,8 @@ NAN_METHOD(WPKCS11::C_SignRecoverInit) {
 }
 
 NAN_METHOD(WPKCS11::C_SignRecover) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(data, 1);
@@ -1060,6 +1150,8 @@ NAN_METHOD(WPKCS11::C_SignRecover) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyInit) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1075,6 +1167,8 @@ NAN_METHOD(WPKCS11::C_VerifyInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Verify) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -1097,6 +1191,8 @@ NAN_METHOD(WPKCS11::C_Verify) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyUpdate) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(data, 1);
@@ -1111,6 +1207,8 @@ NAN_METHOD(WPKCS11::C_VerifyUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyFinal) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(signature, 1);
@@ -1125,6 +1223,8 @@ NAN_METHOD(WPKCS11::C_VerifyFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyRecoverInit) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1140,6 +1240,8 @@ NAN_METHOD(WPKCS11::C_VerifyRecoverInit) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyRecover) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(signature, 1);
@@ -1155,6 +1257,8 @@ NAN_METHOD(WPKCS11::C_VerifyRecover) {
 }
 
 NAN_METHOD(WPKCS11::C_GenerateKey) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1178,6 +1282,8 @@ NAN_METHOD(WPKCS11::C_GenerateKey) {
 }
 
 NAN_METHOD(WPKCS11::C_GenerateKeyPair) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1191,8 +1297,8 @@ NAN_METHOD(WPKCS11::C_GenerateKeyPair) {
 
 			// Result
 			Local<Object> v8Result = Nan::New<Object>();
-			v8Result->Set(Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), handle_to_v8(keyPair->privateKey));
-			v8Result->Set(Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), handle_to_v8(keyPair->publicKey));
+            Nan::Set(v8Result, Nan::New(STR_PRIVATE_KEY).ToLocalChecked(), handle_to_v8(keyPair->privateKey));
+            Nan::Set(v8Result, Nan::New(STR_PUBLIC_KEY).ToLocalChecked(), handle_to_v8(keyPair->publicKey));
 
 			info.GetReturnValue().Set(v8Result);
 		}
@@ -1206,6 +1312,8 @@ NAN_METHOD(WPKCS11::C_GenerateKeyPair) {
 }
 
 NAN_METHOD(WPKCS11::C_WrapKey) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1232,6 +1340,8 @@ NAN_METHOD(WPKCS11::C_WrapKey) {
 }
 
 NAN_METHOD(WPKCS11::C_UnwrapKey) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1258,6 +1368,8 @@ NAN_METHOD(WPKCS11::C_UnwrapKey) {
 }
 
 NAN_METHOD(WPKCS11::C_DeriveKey) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1283,6 +1395,8 @@ NAN_METHOD(WPKCS11::C_DeriveKey) {
 }
 
 NAN_METHOD(WPKCS11::C_SeedRandom) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		CHECK_BUFFER(1);
@@ -1298,6 +1412,8 @@ NAN_METHOD(WPKCS11::C_SeedRandom) {
 }
 
 NAN_METHOD(WPKCS11::C_GenerateRandom) {
+    Nan::HandleScope();
+    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		CHECK_BUFFER(1);
