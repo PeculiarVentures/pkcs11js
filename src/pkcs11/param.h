@@ -19,6 +19,7 @@ public:
     const CK_ULONG type;
     
     ParamBase(CK_ULONG type) : type(type) { }
+    virtual ~ParamBase() { }
     virtual void FromV8(Local<Value> v8Obj) {}
     virtual void* Get() = 0;
     virtual CK_ULONG GetSize() = 0;

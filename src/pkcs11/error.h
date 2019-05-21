@@ -32,11 +32,11 @@ public:
 	Scoped<string> ToString();
 };
 
-#define THROW_ERROR(msg, stack)					\
+#define THROW_ERROR(msg, stack)                         \
      throw Scoped<Error>(new Error(msg, stack, __FUNCTION__, __LINE__))
 
-#define CATCH_ERROR										\
-	catch (Scoped<Error> e) { throw e; }					\
+#define CATCH_ERROR                                     \
+	catch (Scoped<Error> e) { throw std::move(e); }	    \
 	catch (...) { THROW_ERROR("Unknown error", NULL); }
 
 #endif // INCLUDE_H_PKCS11_ERROR

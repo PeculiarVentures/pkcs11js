@@ -8,7 +8,7 @@ void ParamRsaOAEP::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Params = v8Value->ToObject();
+        Local<Object> v8Params = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		// Check data
 		if (!check_param_number(v8Params, STR_MGF))
@@ -23,12 +23,12 @@ void ParamRsaOAEP::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.source = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_SOURCE).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.mgf= Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.hashAlg = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		param.source = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_SOURCE).ToLocalChecked())).FromJust();
+		param.mgf= Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).FromJust();
+		param.hashAlg = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).FromJust();
 
 		if (!check_param_empty(v8Params, STR_SOURCE_DATA)) {
-			GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_SOURCE_DATA).ToLocalChecked())->ToObject());
+			GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(Nan::New(STR_SOURCE_DATA).ToLocalChecked()).ToLocalChecked());
 			param.pSourceData = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
 			memcpy(param.pSourceData, buffer, bufferLen);
 			param.ulSourceDataLen = (CK_ULONG)bufferLen;
@@ -63,7 +63,7 @@ void ParamRsaPSS::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Params = v8Value->ToObject();
+        Local<Object> v8Params = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		// Check data
 		if (!check_param_number(v8Params, STR_MGF))
@@ -76,9 +76,9 @@ void ParamRsaPSS::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.sLen = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_SALT_LEN).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.mgf = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.hashAlg = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		param.sLen = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_SALT_LEN).ToLocalChecked())).FromJust();
+		param.mgf = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).FromJust();
+		param.hashAlg = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).FromJust();
 
 	}
 	CATCH_ERROR;

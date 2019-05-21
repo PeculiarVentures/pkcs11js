@@ -12,10 +12,10 @@ static void attr_set_value(CK_ATTRIBUTE_PTR attr, const char* value, uint32_t va
 static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 	try {
 		if (!v8Attribute->IsObject()) {
-			THROW_ERROR("Parameter 1 MSUT be Object", NULL);
+			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Object = v8Attribute->ToObject();
+        Local<Object> v8Object = Nan::To<v8::Object>(v8Attribute).ToLocalChecked();
 
 		Local<Value> v8Type = v8Object->Get(Nan::New(STR_TYPE).ToLocalChecked());
 		if (!v8Type->IsNumber()) {
@@ -35,7 +35,7 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 		attr->pValue = NULL;
 		attr->ulValueLen = 0;
 
-		attr->type = Nan::To<v8::Number>(v8Type).ToLocalChecked()->Uint32Value();
+		attr->type = Nan::To<uint32_t>(v8Type).FromJust();
 		if (node::Buffer::HasInstance(v8Value)) {
 			// Buffer
 			GET_BUFFER_SMPL(data, v8Value);
@@ -44,24 +44,22 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 		else if (v8Value->IsBoolean()) {
 			// Boolean
 			char data[1];
-			data[0] = (char)v8Value->ToBoolean()->Value();
+            data[0] = (char)Nan::To<bool>(v8Value).FromJust();
 			attr_set_value(attr.get(), data, 1);
 		}
 		else if (v8Value->IsNumber()) {
 			// Number
-			CK_ULONG num = Nan::To<v8::Number>(v8Value).ToLocalChecked()->Uint32Value();
+			CK_ULONG num = (CK_ULONG)Nan::To<uint32_t>(v8Value).FromJust();
 
 			uint32_t long_size = sizeof(CK_ULONG);
 
 			attr->pValue = (char*)malloc(long_size);
-			//for (uint32_t i = 0; i < long_size; i++)
-			//	((char*)attr->pValue)[i] = (char)(num >> (i * 8));
 			*(CK_ULONG*)attr->pValue = num;
 			attr->ulValueLen = long_size;
 		}
 		else if (v8Value->IsString()) {
 			// String
-			String::Utf8Value utf8Val(v8Value);
+            Nan::Utf8String utf8Val(v8Value);
 			char* val = *utf8Val;
 			int valLen = utf8Val.length();
 			attr_set_value(attr.get(), val, valLen);
@@ -144,8 +142,8 @@ void Attributes::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Parameter 1 MUST be Array", NULL);
 		}
 
-		Local<Object> v8Template = v8Value->ToObject();
-		uint32_t templateLen = Nan::To<v8::Number>(v8Template->Get(Nan::New("length").ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		Local<Object> v8Template = Nan::To<v8::Object>(v8Value).ToLocalChecked();
+		uint32_t templateLen = Nan::To<uint32_t>(v8Template->Get(Nan::New("length").ToLocalChecked())).FromJust();
 
 		uint32_t i = 0;
 		New();

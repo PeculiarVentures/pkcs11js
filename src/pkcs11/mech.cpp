@@ -15,7 +15,7 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Object = v8Value->ToObject();
+        Local<Object> v8Object = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		Local<Value> v8MechType = v8Object->Get(Nan::New(STR_MECHANISM).ToLocalChecked());
 		if (!v8MechType->IsNumber()) {
@@ -29,14 +29,13 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 
 		New();
 
-		data.mechanism = Nan::To<v8::Number>(v8MechType).ToLocalChecked()->Uint32Value();
+		data.mechanism = Nan::To<uint32_t>(v8MechType).FromJust();
 		if (!(v8Parameter->IsUndefined() || v8Parameter->IsNull())) {
-			Local<Object> v8Param = v8Parameter->ToObject();
+            Local<Object> v8Param =  Nan::To<v8::Object>(v8Parameter).ToLocalChecked();
 			if (!node::Buffer::HasInstance(v8Param)) {
                 // Parameter is Object
-				Local<Object> v8Param = v8Parameter->ToObject();
 				Local<Value> v8Type = v8Param->Get(Nan::New(STR_TYPE).ToLocalChecked());
-				CK_ULONG type = v8Type->IsNumber() ? Nan::To<v8::Number>(v8Type).ToLocalChecked()->Uint32Value() : 0;
+				CK_ULONG type = v8Type->IsNumber() ? Nan::To<uint32_t>(v8Type).FromJust() : 0;
                 switch (type) {
                     case CK_PARAMS_EC_DH: {
                         param = Scoped<ParamBase>(new ParamEcdh1);

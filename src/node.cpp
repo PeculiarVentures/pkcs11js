@@ -67,7 +67,7 @@
 
 static Scoped<string> buffer_to_string(Local<Value> v8Value) {
 	Nan::HandleScope();
-	Local<Object> v8Buffer = v8Value->ToObject();
+	Local<Object> v8Buffer =  Nan::To<v8::Object>(v8Value).ToLocalChecked();
 	auto buf = node::Buffer::Data(v8Buffer);
 	auto bufLen = node::Buffer::Length(v8Buffer);
 	return Scoped<string>(new string(buf, bufLen));
@@ -116,7 +116,7 @@ static CK_ULONG v8_to_handle(Local<Value> v8Value) {
 static Scoped<string> get_string(Local<Value> v8String, const char* defaultValue = "") {
 	Scoped<string> res;
 	if (v8String->IsString()) {
-		res = Scoped<string>(new string(*String::Utf8Value(v8String)));
+        res = Scoped<string>(new string(*Nan::Utf8String(v8String)));
 	}
 	else
 		res = Scoped<string>(new string(defaultValue));
@@ -284,12 +284,12 @@ NAN_METHOD(WPKCS11::C_Initialize) {
         if (info.Length() == 0 || info[0]->IsUndefined() || info[0]->IsNull()) {
             __pkcs11->C_Initialize(NULL);
         } else if (info[0]->IsObject()) {
-            Local<Object> obj = info[0]->ToObject();
+            Local<Object> obj =  Nan::To<v8::Object>(info[0]).ToLocalChecked();
             Local<Value> v8FlagsProperty = Nan::New("flags").ToLocalChecked();
             Local<Value> v8LibraryParametersProperty = Nan::New("libraryParameters").ToLocalChecked();
             
             if (obj->Has(v8LibraryParametersProperty)) {
-                Scoped<string> libraryParameters = Scoped<string>(new string(*String::Utf8Value(obj->Get(v8LibraryParametersProperty)->ToString())));
+                Scoped<string> libraryParameters = Scoped<string>(new string(*Nan::Utf8String(obj->Get(v8LibraryParametersProperty)->ToString())));
                 CK_NSS_C_INITIALIZE_ARGS_PTR args = (CK_NSS_C_INITIALIZE_ARGS_PTR)malloc(sizeof(CK_NSS_C_INITIALIZE_ARGS));
                 initArgs = (CK_VOID_PTR)args;
                 args->CreateMutex = NULL;
@@ -367,7 +367,7 @@ NAN_METHOD(WPKCS11::C_GetSlotList) {
 
 		UNWRAP_PKCS11;
 
-		CK_BBOOL tokenPresent = info[0]->IsBoolean() ? true : info[0]->ToBoolean()->Value();
+        CK_BBOOL tokenPresent = info[0]->IsBoolean() ? true : Nan::To<bool>(info[0]).FromJust();
 
 		auto arSlotList = __pkcs11->C_GetSlotList(tokenPresent);
 
@@ -458,7 +458,7 @@ NAN_METHOD(WPKCS11::C_GetMechanismInfo) {
 
 		CHECK_REQUIRED(1);
 		CHECK_TYPE(1, Number);
-		CK_MECHANISM_TYPE type = Nan::To<v8::Number>(info[1]).ToLocalChecked()->Uint32Value();
+		CK_MECHANISM_TYPE type = Nan::To<uint32_t>(info[1]).FromJust();
 
 		UNWRAP_PKCS11;
 
@@ -526,7 +526,7 @@ NAN_METHOD(WPKCS11::C_OpenSession) {
 
 		CHECK_REQUIRED(1);
 		CHECK_TYPE(1, Number);
-		CK_FLAGS flags = Nan::To<v8::Number>(info[1]).ToLocalChecked()->Uint32Value();
+		CK_FLAGS flags = Nan::To<uint32_t>(info[1]).FromJust();
 
 		UNWRAP_PKCS11;
 
@@ -589,7 +589,7 @@ NAN_METHOD(WPKCS11::C_Login) {
 
 		CHECK_REQUIRED(1);
 		CHECK_TYPE(1, Number);
-		CK_USER_TYPE userType = Nan::To<v8::Number>(info[1]).ToLocalChecked()->Uint32Value();
+		CK_USER_TYPE userType = Nan::To<uint32_t>(info[1]).FromJust();
 
 		UNWRAP_PKCS11;
 

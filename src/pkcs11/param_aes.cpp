@@ -10,7 +10,7 @@ void ParamAesCBC::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Params = v8Value->ToObject();
+		Local<Object> v8Params =  Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		// Check data
 		if (!check_param_buffer(v8Params, STR_IV))
@@ -22,12 +22,12 @@ void ParamAesCBC::FromV8(Local<Value> v8Value) {
 		Init();
 
 		// Iv
-		Local<Object> v8Iv = v8Params->Get(Nan::New(STR_IV).ToLocalChecked())->ToObject();
+		Local<Object> v8Iv =  Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_IV).ToLocalChecked())).ToLocalChecked();
 		memcpy(param.iv, node::Buffer::Data(v8Iv), node::Buffer::Length(v8Iv));
 
 		// Data?
 		if (!v8Params->Get(Nan::New(STR_DATA).ToLocalChecked())->IsUndefined()) {
-			GET_BUFFER_SMPL(aesData, v8Params->Get(Nan::New(STR_DATA).ToLocalChecked())->ToObject());
+            GET_BUFFER_SMPL(aesData, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_DATA).ToLocalChecked())).ToLocalChecked());
 			param.pData = (CK_BYTE_PTR)malloc(aesDataLen* sizeof(CK_BYTE));
 			memcpy(param.pData, aesData, aesDataLen);
 			param.length = (CK_ULONG)aesDataLen;
@@ -59,7 +59,7 @@ void ParamAesCCM::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Params = v8Value->ToObject();
+        Local<Object> v8Params = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		// Check data
 		if (!check_param_number(v8Params, STR_DATA_LEN))
@@ -74,18 +74,18 @@ void ParamAesCCM::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.ulDataLen = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_DATA_LEN).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.ulMACLen = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_MAC_LEN).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		param.ulDataLen = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_DATA_LEN).ToLocalChecked())).FromJust();
+		param.ulMACLen = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_MAC_LEN).ToLocalChecked())).FromJust();
 
 		if (!check_param_empty(v8Params,STR_NONCE)) {
-			GET_BUFFER_SMPL(nonce, v8Params->Get(Nan::New(STR_NONCE).ToLocalChecked())->ToObject());
+            GET_BUFFER_SMPL(nonce, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_NONCE).ToLocalChecked())).ToLocalChecked());
 			param.pNonce = (CK_BYTE_PTR)malloc(nonceLen * sizeof(CK_BYTE));
 			memcpy(param.pNonce, nonce, nonceLen);
 			param.ulNonceLen = (CK_ULONG)nonceLen;
 		}
 
 		if (!check_param_empty(v8Params, STR_AAD)) {
-			GET_BUFFER_SMPL(aad, v8Params->Get(Nan::New(STR_AAD).ToLocalChecked())->ToObject());
+            GET_BUFFER_SMPL(aad, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_AAD).ToLocalChecked())).ToLocalChecked());
 			param.pAAD = (CK_BYTE_PTR)malloc(aadLen * sizeof(CK_BYTE));
 			memcpy(param.pAAD, aad, aadLen);
 			param.ulAADLen = (CK_ULONG)aadLen;
@@ -127,7 +127,7 @@ void ParamAesGCM::FromV8(Local<Value> v8Value) {
             THROW_ERROR("Parameter 1 MUST be Object", NULL);
         }
         
-        Local<Object> v8Params = v8Value->ToObject();
+        Local<Object> v8Params = Nan::To<v8::Object>(v8Value).ToLocalChecked();
         
         // Check data
         if (!check_param_number(v8Params, STR_TAG_BITS))
@@ -142,17 +142,17 @@ void ParamAesGCM::FromV8(Local<Value> v8Value) {
         Free();
         Init();
         
-        param.ulTagBits = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_TAG_BITS).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+        param.ulTagBits = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_TAG_BITS).ToLocalChecked())).FromJust();
         
         if (!check_param_empty(v8Params, STR_IV)) {
-            GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_IV).ToLocalChecked())->ToObject());
+            GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_IV).ToLocalChecked())).ToLocalChecked());
             param.pIv = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
             memcpy(param.pIv, buffer, bufferLen);
             param.ulIvLen = (CK_ULONG)bufferLen;
         }
         
         if (!check_param_empty(v8Params, STR_AAD)) {
-            GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_AAD).ToLocalChecked())->ToObject());
+            GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_AAD).ToLocalChecked())).ToLocalChecked());
             param.pAAD = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
             memcpy(param.pAAD, buffer, bufferLen);
             param.ulAADLen = (CK_ULONG)bufferLen;
@@ -191,7 +191,7 @@ void ParamAesGCMv240::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Params = v8Value->ToObject();
+		Local<Object> v8Params = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		// Check data
 		if (!check_param_number(v8Params, STR_TAG_BITS))
@@ -206,18 +206,18 @@ void ParamAesGCMv240::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.ulIvBits = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_IV_BITS).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.ulTagBits = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_TAG_BITS).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		param.ulIvBits = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_IV_BITS).ToLocalChecked())).FromJust();
+		param.ulTagBits = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_TAG_BITS).ToLocalChecked())).FromJust();
 
 		if (!check_param_empty(v8Params, STR_IV)) {
-			GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_IV).ToLocalChecked())->ToObject());
+			GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_IV).ToLocalChecked())).ToLocalChecked());
 			param.pIv = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
 			memcpy(param.pIv, buffer, bufferLen);
 			param.ulIvLen = (CK_ULONG)bufferLen;
 		}
 
 		if (!check_param_empty(v8Params, STR_AAD)) {
-			GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_AAD).ToLocalChecked())->ToObject());
+            GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_AAD).ToLocalChecked())).ToLocalChecked());
 			param.pAAD = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
 			memcpy(param.pAAD, buffer, bufferLen);
 			param.ulAADLen = (CK_ULONG)bufferLen;

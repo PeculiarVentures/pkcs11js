@@ -20,6 +20,7 @@ class V8Converter {
 protected:
 	T data;
 public:
+    virtual ~V8Converter(){}
 	virtual void FromV8(Local<Value> obj) { THROW_ERROR("Not implemented", NULL); }
 	virtual Local<Object> ToV8() { THROW_ERROR("Not implemented", NULL); }
 	virtual T* New() {

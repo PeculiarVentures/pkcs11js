@@ -8,7 +8,7 @@ void ParamEcdh1::FromV8(Local<Value> v8Value) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Params = v8Value->ToObject();
+        Local<Object> v8Params = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		// Check data
 		if (!v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())->IsNumber())
@@ -21,21 +21,21 @@ void ParamEcdh1::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.kdf = (CK_ULONG)Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		param.kdf = Nan::To<uint32_t>(v8Params->Get(Nan::New(STR_KDF).ToLocalChecked())).FromJust();
 
 		if (check_param_buffer(v8Params, STR_SHARED_DATA)) {
-			GET_BUFFER_SMPL(sharedData, v8Params->Get(Nan::New(STR_SHARED_DATA).ToLocalChecked())->ToObject());
+			GET_BUFFER_SMPL(sharedData, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_SHARED_DATA).ToLocalChecked())).ToLocalChecked());
 			param.pSharedData = (CK_BYTE_PTR)malloc(sharedDataLen * sizeof(CK_BYTE));
 			memcpy(param.pSharedData, sharedData, sharedDataLen);
 			param.ulSharedDataLen = (CK_ULONG) sharedDataLen;
 		}
 
-		GET_BUFFER_SMPL(publicData, v8Params->Get(Nan::New(STR_PUBLIC_DATA).ToLocalChecked())->ToObject());
+		GET_BUFFER_SMPL(publicData, Nan::To<v8::Object>(v8Params->Get(Nan::New(STR_PUBLIC_DATA).ToLocalChecked())).ToLocalChecked());
 		param.pPublicData = (CK_BYTE_PTR)malloc(publicDataLen * sizeof(CK_BYTE));
 		memcpy(param.pPublicData, publicData, publicDataLen);
 		param.ulPublicDataLen = (CK_ULONG) publicDataLen;
 	}
-	CATCH_ERROR;
+    CATCH_ERROR;
 }
 
 void ParamEcdh1::Init() {
