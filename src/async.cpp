@@ -1,14 +1,14 @@
 #include "./async.h"
 
 static Local<Object> handle_to_v8(CK_ULONG handle) {
-	Nan::HandleScope();
+	Nan::EscapableHandleScope scope;
 
 	Local<Object> v8Buffer = Nan::NewBuffer(sizeof(CK_ULONG)).ToLocalChecked();
 	char* buf = node::Buffer::Data(v8Buffer);
 
 	memcpy(buf, &handle, sizeof(CK_ULONG));
 
-	return v8Buffer;
+	return scope.Escape(v8Buffer);
 }
 
 void AsyncGenerateKey::Execute() {

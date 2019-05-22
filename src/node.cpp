@@ -65,7 +65,8 @@
 	Scoped<string> name = buffer_to_string(info[argsIndex])
 
 static Scoped<string> buffer_to_string(Local<Value> v8Value) {
-	Nan::HandleScope();
+    Nan::HandleScope scope;
+    
 	Local<Object> v8Buffer =  Nan::To<v8::Object>(v8Value).ToLocalChecked();
 	auto buf = node::Buffer::Data(v8Buffer);
 	auto bufLen = node::Buffer::Length(v8Buffer);
@@ -73,18 +74,18 @@ static Scoped<string> buffer_to_string(Local<Value> v8Value) {
 }
 
 static Local<Object> handle_to_v8(CK_ULONG handle) {
-	Nan::HandleScope();
+    Nan::EscapableHandleScope scope;
 
 	Local<Object> v8Buffer = Nan::NewBuffer(sizeof(CK_ULONG)).ToLocalChecked();
 	char* buf = node::Buffer::Data(v8Buffer);
 
 	memcpy(buf, &handle, sizeof(CK_ULONG));
 
-	return v8Buffer;
+	return scope.Escape(v8Buffer);
 }
 
 static CK_ULONG v8_to_handle(Local<Value> v8Value) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
 
 	// Check buffer size
 	if (node::Buffer::Length(v8Value) < sizeof(CK_ULONG)) {
@@ -127,13 +128,13 @@ static Scoped<string> get_string(Local<Value> v8String, const char* defaultValue
 	Scoped<string> name = get_string(info[argsIndex], defaultValue);
 
 static Local<Object> GetVersion(CK_VERSION& version) {
-	Nan::HandleScope();
+	Nan::EscapableHandleScope scope;
 
 	Local<Object> v8Version = Nan::New<Object>();
     Nan::Set(v8Version, Nan::New(STR_MAJOR).ToLocalChecked(), Nan::New(version.major));
     Nan::Set(v8Version, Nan::New(STR_MINOR).ToLocalChecked(), Nan::New(version.minor));
 
-	return  v8Version;
+	return  scope.Escape(v8Version);
 }
 
 #define CN_PKCS11 "PKCS11"
@@ -242,7 +243,6 @@ NAN_METHOD(WPKCS11::New) {
 };
 
 NAN_METHOD(WPKCS11::Load) {
-
 	CHECK_REQUIRED(0);
 	CHECK_TYPE(0, String);
 	GET_STRING(path, 0, "");
@@ -267,7 +267,6 @@ static void free_args(CK_VOID_PTR args) {
 }
 
 NAN_METHOD(WPKCS11::Close) {
-    Nan::HandleScope();
     UNWRAP_PKCS11;
 
     try {
@@ -277,7 +276,6 @@ NAN_METHOD(WPKCS11::Close) {
 }
 
 NAN_METHOD(WPKCS11::C_Initialize) {
-    Nan::HandleScope();
 	UNWRAP_PKCS11;
 	
     CK_VOID_PTR initArgs = NULL;
@@ -336,7 +334,6 @@ NAN_METHOD(WPKCS11::C_Initialize) {
 }
 
 NAN_METHOD(WPKCS11::C_Finalize) {
-    Nan::HandleScope();
 	UNWRAP_PKCS11;
 
 	try {
@@ -346,7 +343,6 @@ NAN_METHOD(WPKCS11::C_Finalize) {
 }
 
 NAN_METHOD(WPKCS11::C_GetInfo) {
-    Nan::HandleScope();
 	UNWRAP_PKCS11;
 
 	try {
@@ -369,8 +365,6 @@ NAN_METHOD(WPKCS11::C_GetInfo) {
 }
 
 NAN_METHOD(WPKCS11::C_GetSlotList) {
-    Nan::HandleScope();
-    
 	try {
 
 		UNWRAP_PKCS11;
@@ -390,8 +384,6 @@ NAN_METHOD(WPKCS11::C_GetSlotList) {
 }
 
 NAN_METHOD(WPKCS11::C_GetSlotInfo) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -413,8 +405,6 @@ NAN_METHOD(WPKCS11::C_GetSlotInfo) {
 }
 
 NAN_METHOD(WPKCS11::C_GetTokenInfo) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -448,8 +438,6 @@ NAN_METHOD(WPKCS11::C_GetTokenInfo) {
 }
 
 NAN_METHOD(WPKCS11::C_GetMechanismList) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -467,8 +455,6 @@ NAN_METHOD(WPKCS11::C_GetMechanismList) {
 }
 
 NAN_METHOD(WPKCS11::C_GetMechanismInfo) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -494,8 +480,6 @@ NAN_METHOD(WPKCS11::C_GetMechanismInfo) {
 ///* C_InitToken initializes a token. */
 
 NAN_METHOD(WPKCS11::C_InitToken) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 		GET_STRING(pin, 1, "");
@@ -510,8 +494,6 @@ NAN_METHOD(WPKCS11::C_InitToken) {
 }
 
 NAN_METHOD(WPKCS11::C_InitPIN) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_STRING(pin, 1, "");
@@ -526,8 +508,6 @@ NAN_METHOD(WPKCS11::C_InitPIN) {
 }
 
 NAN_METHOD(WPKCS11::C_SetPIN) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_STRING(oldPin, 1, "");
@@ -543,8 +523,6 @@ NAN_METHOD(WPKCS11::C_SetPIN) {
 }
 
 NAN_METHOD(WPKCS11::C_OpenSession) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -562,8 +540,6 @@ NAN_METHOD(WPKCS11::C_OpenSession) {
 }
 
 NAN_METHOD(WPKCS11::C_CloseSession) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -577,8 +553,6 @@ NAN_METHOD(WPKCS11::C_CloseSession) {
 }
 
 NAN_METHOD(WPKCS11::C_CloseAllSessions) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SLOT_ID_HANDLE(slotID, 0);
 
@@ -592,8 +566,6 @@ NAN_METHOD(WPKCS11::C_CloseAllSessions) {
 }
 
 NAN_METHOD(WPKCS11::C_GetSessionInfo) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -614,8 +586,6 @@ NAN_METHOD(WPKCS11::C_GetSessionInfo) {
 }
 
 NAN_METHOD(WPKCS11::C_Login) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -635,8 +605,6 @@ NAN_METHOD(WPKCS11::C_Login) {
 }
 
 NAN_METHOD(WPKCS11::C_Logout) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -650,8 +618,6 @@ NAN_METHOD(WPKCS11::C_Logout) {
 }
 
 NAN_METHOD(WPKCS11::C_FindObjectsInit) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -673,8 +639,6 @@ NAN_METHOD(WPKCS11::C_FindObjectsInit) {
 }
 
 NAN_METHOD(WPKCS11::C_FindObjects) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -690,8 +654,6 @@ NAN_METHOD(WPKCS11::C_FindObjects) {
 }
 
 NAN_METHOD(WPKCS11::C_FindObjectsFinal) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 
@@ -705,8 +667,6 @@ NAN_METHOD(WPKCS11::C_FindObjectsFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_GetAttributeValue) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -722,8 +682,6 @@ NAN_METHOD(WPKCS11::C_GetAttributeValue) {
 }
 
 NAN_METHOD(WPKCS11::C_SetAttributeValue) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -742,8 +700,6 @@ NAN_METHOD(WPKCS11::C_SetAttributeValue) {
 }
 
 NAN_METHOD(WPKCS11::C_CreateObject) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_TEMPLATE_R(tmpl, 1);
@@ -758,8 +714,6 @@ NAN_METHOD(WPKCS11::C_CreateObject) {
 }
 
 NAN_METHOD(WPKCS11::C_CopyObject) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -775,8 +729,6 @@ NAN_METHOD(WPKCS11::C_CopyObject) {
 }
 
 NAN_METHOD(WPKCS11::C_DestroyObject) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -791,8 +743,6 @@ NAN_METHOD(WPKCS11::C_DestroyObject) {
 }
 
 NAN_METHOD(WPKCS11::C_GetObjectSize) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -807,8 +757,6 @@ NAN_METHOD(WPKCS11::C_GetObjectSize) {
 }
 
 NAN_METHOD(WPKCS11::C_EncryptInit) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -824,8 +772,6 @@ NAN_METHOD(WPKCS11::C_EncryptInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Encrypt) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -848,8 +794,6 @@ NAN_METHOD(WPKCS11::C_Encrypt) {
 }
 
 NAN_METHOD(WPKCS11::C_EncryptUpdate) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -865,8 +809,6 @@ NAN_METHOD(WPKCS11::C_EncryptUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_EncryptFinal) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(output, 1);
@@ -881,8 +823,6 @@ NAN_METHOD(WPKCS11::C_EncryptFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_DecryptInit) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -898,8 +838,6 @@ NAN_METHOD(WPKCS11::C_DecryptInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Decrypt) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -922,8 +860,6 @@ NAN_METHOD(WPKCS11::C_Decrypt) {
 }
 
 NAN_METHOD(WPKCS11::C_DecryptUpdate) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -939,8 +875,6 @@ NAN_METHOD(WPKCS11::C_DecryptUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_DecryptFinal) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(output, 1);
@@ -955,8 +889,6 @@ NAN_METHOD(WPKCS11::C_DecryptFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_DigestInit) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -971,8 +903,6 @@ NAN_METHOD(WPKCS11::C_DigestInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Digest) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -995,8 +925,6 @@ NAN_METHOD(WPKCS11::C_Digest) {
 }
 
 NAN_METHOD(WPKCS11::C_DigestUpdate) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -1011,8 +939,6 @@ NAN_METHOD(WPKCS11::C_DigestUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_DigestFinal) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(output, 1);
@@ -1027,8 +953,6 @@ NAN_METHOD(WPKCS11::C_DigestFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_DigestKey) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_OBJECT_HANDLE(hObject, 1);
@@ -1043,8 +967,6 @@ NAN_METHOD(WPKCS11::C_DigestKey) {
 }
 
 NAN_METHOD(WPKCS11::C_SignInit) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1060,8 +982,6 @@ NAN_METHOD(WPKCS11::C_SignInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Sign) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -1084,8 +1004,6 @@ NAN_METHOD(WPKCS11::C_Sign) {
 }
 
 NAN_METHOD(WPKCS11::C_SignUpdate) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -1100,8 +1018,6 @@ NAN_METHOD(WPKCS11::C_SignUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_SignFinal) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(output, 1);
@@ -1116,8 +1032,6 @@ NAN_METHOD(WPKCS11::C_SignFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_SignRecoverInit) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1133,8 +1047,6 @@ NAN_METHOD(WPKCS11::C_SignRecoverInit) {
 }
 
 NAN_METHOD(WPKCS11::C_SignRecover) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(data, 1);
@@ -1150,8 +1062,6 @@ NAN_METHOD(WPKCS11::C_SignRecover) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyInit) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1167,8 +1077,6 @@ NAN_METHOD(WPKCS11::C_VerifyInit) {
 }
 
 NAN_METHOD(WPKCS11::C_Verify) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(input, 1);
@@ -1191,8 +1099,6 @@ NAN_METHOD(WPKCS11::C_Verify) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyUpdate) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(data, 1);
@@ -1207,8 +1113,6 @@ NAN_METHOD(WPKCS11::C_VerifyUpdate) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyFinal) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(signature, 1);
@@ -1223,8 +1127,6 @@ NAN_METHOD(WPKCS11::C_VerifyFinal) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyRecoverInit) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1240,8 +1142,6 @@ NAN_METHOD(WPKCS11::C_VerifyRecoverInit) {
 }
 
 NAN_METHOD(WPKCS11::C_VerifyRecover) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_BUFFER(signature, 1);
@@ -1257,8 +1157,6 @@ NAN_METHOD(WPKCS11::C_VerifyRecover) {
 }
 
 NAN_METHOD(WPKCS11::C_GenerateKey) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1282,8 +1180,6 @@ NAN_METHOD(WPKCS11::C_GenerateKey) {
 }
 
 NAN_METHOD(WPKCS11::C_GenerateKeyPair) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1312,8 +1208,6 @@ NAN_METHOD(WPKCS11::C_GenerateKeyPair) {
 }
 
 NAN_METHOD(WPKCS11::C_WrapKey) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1340,8 +1234,6 @@ NAN_METHOD(WPKCS11::C_WrapKey) {
 }
 
 NAN_METHOD(WPKCS11::C_UnwrapKey) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1368,8 +1260,6 @@ NAN_METHOD(WPKCS11::C_UnwrapKey) {
 }
 
 NAN_METHOD(WPKCS11::C_DeriveKey) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		GET_MECHANISM(mech, 1);
@@ -1395,8 +1285,6 @@ NAN_METHOD(WPKCS11::C_DeriveKey) {
 }
 
 NAN_METHOD(WPKCS11::C_SeedRandom) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		CHECK_BUFFER(1);
@@ -1412,8 +1300,6 @@ NAN_METHOD(WPKCS11::C_SeedRandom) {
 }
 
 NAN_METHOD(WPKCS11::C_GenerateRandom) {
-    Nan::HandleScope();
-    
 	try {
 		GET_SESSION_HANDLE(hSession, 0);
 		CHECK_BUFFER(1);

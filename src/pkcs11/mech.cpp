@@ -8,9 +8,9 @@ Mechanism::~Mechanism() {
 }
 
 void Mechanism::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!v8Value->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
@@ -82,9 +82,9 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 }
 
 Local<Object> Mechanism::ToV8() {
+    Nan::EscapableHandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		Local<Object> v8Mechanism = Nan::New<Object>();
 		// Mechanism
         Nan::Set(v8Mechanism, Nan::New(STR_MECHANISM).ToLocalChecked(), Nan::New<Number>(data.mechanism));
@@ -98,7 +98,7 @@ Local<Object> Mechanism::ToV8() {
             Nan::Set(v8Mechanism, Nan::New(STR_PARAMETER).ToLocalChecked(), Nan::Null());
 		}
 
-		return v8Mechanism;
+		return scope.Escape(v8Mechanism);
 	}
 	CATCH_ERROR;
 }

@@ -3,9 +3,9 @@
 // CBC ========================================================
 
 void ParamAesCBC::FromV8(Local<Value> v8Value) {
-	try {
-		Nan::HandleScope();
-
+	Nan::HandleScope scope;
+    
+    try {
 		if (!v8Value->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
@@ -54,9 +54,9 @@ void ParamAesCBC::Free() {
 // CCM ========================================================
 
 void ParamAesCCM::FromV8(Local<Value> v8Value) {
-	try {
-		Nan::HandleScope();
-
+	Nan::HandleScope scope;
+    
+    try {
 		if (!v8Value->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
@@ -126,9 +126,9 @@ void ParamAesCCM::Free() {
 
 // v2.30
 void ParamAesGCM::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
     try {
-        Nan::HandleScope();
-        
         if (!v8Value->IsObject()) {
             THROW_ERROR("Parameter 1 MUST be Object", NULL);
         }
@@ -193,9 +193,9 @@ void ParamAesGCM::Free() {
 // v2.30
 
 void ParamAesGCMv240::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!v8Value->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}

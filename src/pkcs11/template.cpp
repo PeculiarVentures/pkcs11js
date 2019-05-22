@@ -10,6 +10,8 @@ static void attr_set_value(CK_ATTRIBUTE_PTR attr, const char* value, uint32_t va
 }
 
 static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
+    Nan::HandleScope scope;
+    
 	try {
 		if (!v8Attribute->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
@@ -71,9 +73,9 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 }
 
 static Local<Object> c2v_ATTRIBUTE(CK_ATTRIBUTE_PTR attr) {
+    Nan::EscapableHandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!attr) {
 			THROW_ERROR("Parameter 1 is EMPTY", NULL);
 		}
@@ -87,7 +89,7 @@ static Local<Object> c2v_ATTRIBUTE(CK_ATTRIBUTE_PTR attr) {
 		Local<Object> v8Value = node::Buffer::Copy(Isolate::GetCurrent(), (char *)attr->pValue, attr->ulValueLen).ToLocalChecked();
         Nan::Set(v8Attribute, Nan::New(STR_VALUE).ToLocalChecked(), v8Value);
 
-		return v8Attribute;
+		return scope.Escape(v8Attribute);
 	}
 	CATCH_ERROR;
 }
@@ -135,9 +137,9 @@ void Attributes::Push(CK_ATTRIBUTE_PTR attr) {
 }
 
 void Attributes::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!v8Value->IsArray()) {
 			THROW_ERROR("Parameter 1 MUST be Array", NULL);
 		}
@@ -159,9 +161,9 @@ void Attributes::FromV8(Local<Value> v8Value) {
 }
 
 Local<Object> Attributes::ToV8() {
+    Nan::EscapableHandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		Local<Array> v8Res = Nan::New<Array>();
 		for (uint32_t i = 0; i < data.size; i++) {
 			CK_ATTRIBUTE_PTR pItem = &data.items[i];
@@ -169,7 +171,7 @@ Local<Object> Attributes::ToV8() {
 
             Nan::Set(v8Res, i, v8Attribute);
 		}
-		return v8Res;
+		return scope.Escape(v8Res);
 	}
 	CATCH_ERROR;
 }

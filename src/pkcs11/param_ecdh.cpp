@@ -1,9 +1,9 @@
 #include "param.h"
 
 void ParamEcdh1::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!v8Value->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
