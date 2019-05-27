@@ -210,119 +210,122 @@ context("PKCS11", () => {
             token.C_FindObjectsFinal(session);
           });
         });
-        context("Digest (SHA-1)", () => {
+        context("Digest (SHA-256)", () => {
           it("C_DigestInit, C_Digest", () => {
             const data = Buffer.from("message");
-            const hash = Buffer.alloc(30);
-            token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA_1 });
+            const hash = Buffer.alloc(40);
+            token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
             const hash2 = token.C_Digest(session, data, hash);
-            assert.equal(hash.toString("hex"), "6f9b9af3cd6e8b8a73c2cdced37fe9f59226e27d00000000000000000000");
-            assert.equal(hash2.toString("hex"), "6f9b9af3cd6e8b8a73c2cdced37fe9f59226e27d");
+            assert.equal(hash.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d0000000000000000");
+            assert.equal(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
           });
           it("C_DigestInit, C_Digest async", (done) => {
             const data = Buffer.from("message");
-            const hash = Buffer.alloc(30);
-            token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA_1 });
+            const hash = Buffer.alloc(40);
+            token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
             token.C_Digest(session, data, hash, (error, hash2) => {
               if (error) {
                 done(data);
               }
               else {
-                assert.equal(hash2.toString("hex"), "6f9b9af3cd6e8b8a73c2cdced37fe9f59226e27d");
+                assert.equal(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
                 done();
               }
             });
           });
           it("C_DigestInit, C_DigestUpdate, C_DigestFinal", () => {
             const data = Buffer.from("message");
-            const hash = Buffer.alloc(30);
-            token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA_1 });
+            const hash = Buffer.alloc(40);
+            token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
             token.C_DigestUpdate(session, data);
             const hash2 = token.C_DigestFinal(session, hash);
-            assert.equal(hash.toString("hex"), "6f9b9af3cd6e8b8a73c2cdced37fe9f59226e27d00000000000000000000");
-            assert.equal(hash2.toString("hex"), "6f9b9af3cd6e8b8a73c2cdced37fe9f59226e27d");
+            assert.equal(hash.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d0000000000000000");
+            assert.equal(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
           });
         });
-        context("Sign/Verify (RSA SHA-1, SHA-256)", () => {
-          let keys;
-          const data = Buffer.from("12345678901234567890");
-          let rsaPkcsSignature;
-          let rsaPkcsSha256Signature;
-          before(() => {
-            token.C_Login(session, pkcs11.CKU_USER, pin);
-            keys = token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [
-              { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
-              { type: pkcs11.CKA_PUBLIC_EXPONENT, value: Buffer.from([1, 0, 1]) },
-              { type: pkcs11.CKA_MODULUS_BITS, value: 2048 },
-              { type: pkcs11.CKA_VERIFY, value: true },
-            ], [
-                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
-                { type: pkcs11.CKA_SIGN, value: true },
-              ]);
-          });
-          before(() => {
-            token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
-            rsaPkcsSignature = token.C_Sign(session, data, Buffer.alloc(1024));
-          });
-          before(() => {
-            token.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
-            rsaPkcsSha256Signature = token.C_Sign(session, data, Buffer.alloc(1024));
-          });
-          after(() => {
-            token.C_Logout(session);
-          });
-          it("C_SignInit, C_Sign", () => {
-            const signature = Buffer.alloc(1024);
-            token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
-            const signature2 = token.C_Sign(session, data, signature);
-            assert.equal(signature2.length < signature.length, true);
-            assert.equal(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
-          });
-          it("C_SignInit, C_Sign async", (done) => {
-            const signature = Buffer.alloc(1024);
-            token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
-            token.C_Sign(session, data, signature, (error, signature2) => {
-              if (error) {
-                done(error);
-              }
-              else {
-                assert.equal(signature2.length < signature.length, true);
-                done();
-              }
+        // https://github.com/PeculiarVentures/pkcs11js/issues/47
+        (os.platform() === "linux" && +/v(\d+)/.exec(process.version)[1] > 9
+          ? context.skip
+          : context)("Sign/Verify (RSA SHA-1, SHA-256)", () => {
+            let keys;
+            const data = Buffer.from("12345678901234567890");
+            let rsaPkcsSignature;
+            let rsaPkcsSha256Signature;
+            before(() => {
+              token.C_Login(session, pkcs11.CKU_USER, pin);
+              keys = token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+                { type: pkcs11.CKA_PUBLIC_EXPONENT, value: Buffer.from([1, 0, 1]) },
+                { type: pkcs11.CKA_MODULUS_BITS, value: 2048 },
+                { type: pkcs11.CKA_VERIFY, value: true },
+              ], [
+                  { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+                  { type: pkcs11.CKA_SIGN, value: true },
+                ]);
+            });
+            before(() => {
+              token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
+              rsaPkcsSignature = token.C_Sign(session, data, Buffer.alloc(1024));
+            });
+            before(() => {
+              token.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
+              rsaPkcsSha256Signature = token.C_Sign(session, data, Buffer.alloc(1024));
+            });
+            after(() => {
+              token.C_Logout(session);
+            });
+            it("C_SignInit, C_Sign", () => {
+              const signature = Buffer.alloc(1024);
+              token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
+              const signature2 = token.C_Sign(session, data, signature);
+              assert.equal(signature2.length < signature.length, true);
+              assert.equal(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
+            });
+            it("C_SignInit, C_Sign async", (done) => {
+              const signature = Buffer.alloc(1024);
+              token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
+              token.C_Sign(session, data, signature, (error, signature2) => {
+                if (error) {
+                  done(error);
+                }
+                else {
+                  assert.equal(signature2.length < signature.length, true);
+                  done();
+                }
+              });
+            });
+            it("C_SignInit, C_SignUpdate, C_SignFinal", () => {
+              const signature = Buffer.alloc(1024);
+              token.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
+              token.C_SignUpdate(session, data);
+              const signature2 = token.C_SignFinal(session, signature);
+              assert.equal(signature2.length < signature.length, true);
+              assert.equal(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
+            });
+            it("C_VerifyInit, C_Verify", () => {
+              token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
+              const ok = token.C_Verify(session, data, rsaPkcsSignature);
+              assert.equal(ok, true);
+            });
+            it("C_VerifyInit, C_Verify async", (done) => {
+              token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
+              token.C_Verify(session, data, rsaPkcsSignature, (error, ok) => {
+                if (error) {
+                  done(error);
+                }
+                else {
+                  assert.equal(ok, true);
+                  done();
+                }
+              });
+            });
+            it("C_VerifyInit, C_VerifyUpdate, C_VerifyFinal", () => {
+              token.C_VerifyInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.publicKey);
+              token.C_VerifyUpdate(session, data);
+              const ok = token.C_VerifyFinal(session, rsaPkcsSha256Signature);
+              assert.equal(ok, true);
             });
           });
-          it("C_SignInit, C_SignUpdate, C_SignFinal", () => {
-            const signature = Buffer.alloc(1024);
-            token.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
-            token.C_SignUpdate(session, data);
-            const signature2 = token.C_SignFinal(session, signature);
-            assert.equal(signature2.length < signature.length, true);
-            assert.equal(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
-          });
-          it("C_VerifyInit, C_Verify", () => {
-            token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
-            const ok = token.C_Verify(session, data, rsaPkcsSignature);
-            assert.equal(ok, true);
-          });
-          it("C_VerifyInit, C_Verify async", (done) => {
-            token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
-            token.C_Verify(session, data, rsaPkcsSignature, (error, ok) => {
-              if (error) {
-                done(error);
-              }
-              else {
-                assert.equal(ok, true);
-                done();
-              }
-            });
-          });
-          it("C_VerifyInit, C_VerifyUpdate, C_VerifyFinal", () => {
-            token.C_VerifyInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.publicKey);
-            token.C_VerifyUpdate(session, data);
-            const ok = token.C_VerifyFinal(session, rsaPkcsSha256Signature);
-            assert.equal(ok, true);
-          });
-        });
         context("Encrypt/Decrypt (AES-CBC)", () => {
           let key;
           const data = Buffer.from("12345678901234567890");
