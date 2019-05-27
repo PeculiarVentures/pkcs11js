@@ -137,6 +137,27 @@ static Local<Object> GetVersion(CK_VERSION& version) {
 	return  scope.Escape(v8Version);
 }
 
+static v8::Local<v8::Value> FillBuffer(v8::Local<v8::Value> buffer, std::string* data) {
+    Nan::EscapableHandleScope scope;
+    
+    v8::Local<v8::Object> v8Buffer = Nan::To<v8::Object>(buffer).ToLocalChecked();
+    
+    // Copy from data to buffer
+    for (uint32_t i = 0; i < data->length(); i++) {
+        Nan::Set(v8Buffer, i, Nan::New<v8::Number>((uint32_t)data->at(i)));
+    }
+    
+    // Slice buffer
+    v8::Local<v8::Value> v8Slice = Nan::Get(v8Buffer, Nan::New("slice").ToLocalChecked()).ToLocalChecked();
+    v8::Local<v8::Function> v8SliceFn = Nan::To<v8::Function>(v8Slice).ToLocalChecked();
+    v8::Local<v8::Value> v8SliceArgs[2];
+    v8SliceArgs[0] = Nan::New<v8::Number>(0);
+    v8SliceArgs[1] = Nan::New<v8::Number>(data->length());
+    v8::Local<v8::Value> v8SliceResult = v8SliceFn->Call(v8Buffer, 2, v8SliceArgs);
+    
+    return scope.Escape(v8SliceResult);
+}
+
 #define CN_PKCS11 "PKCS11"
 
 NAN_MODULE_INIT(WPKCS11::Init) {
@@ -369,7 +390,7 @@ NAN_METHOD(WPKCS11::C_GetSlotList) {
 
 		UNWRAP_PKCS11;
 
-        CK_BBOOL tokenPresent = info[0]->IsBoolean() ? true : Nan::To<bool>(info[0]).FromJust();
+        CK_BBOOL tokenPresent = info[0]->IsBoolean() ? Nan::To<bool>(info[0]).FromJust() : false;
 
 		auto arSlotList = __pkcs11->C_GetSlotList(tokenPresent);
 
@@ -644,11 +665,22 @@ NAN_METHOD(WPKCS11::C_FindObjects) {
 
 		UNWRAP_PKCS11;
 
-		CK_OBJECT_HANDLE hObject = __pkcs11->C_FindObjects(hSession);
+        CK_ULONG ulMaxObjectCount = info.Length() > 1 ? Nan::To<uint32_t>(info[1]).ToChecked() : 1;
+        
+		vector<CK_OBJECT_HANDLE> hObjects = __pkcs11->C_FindObjects(hSession, ulMaxObjectCount);
 
-		Local<Value> v8Res = (hObject != 0) ? handle_to_v8(hObject).As<Value>() : Nan::Null().As<Value>();
-
-		info.GetReturnValue().Set(v8Res);
+        Local<Value> v8Res;
+        if (info.Length() > 1) {
+            v8::Local<v8::Array> v8Array = Nan::New<v8::Array>(hObjects.size());
+            for (size_t i = 0; i < hObjects.size(); i++) {
+                Nan::Set(v8Array, i, handle_to_v8(hObjects[i]));
+            }
+            v8Res = v8Array.As<v8::Value>();
+        } else {
+            // TODO: Should remove this Return in future
+            v8Res = (hObjects.size() != 0) ? handle_to_v8(hObjects[0]).As<Value>() : Nan::Null().As<Value>();
+        }
+        info.GetReturnValue().Set(v8Res);
 	}
 	CATCH_V8_ERROR;
 }
@@ -782,7 +814,9 @@ NAN_METHOD(WPKCS11::C_Encrypt) {
 		if (!info[3]->IsFunction()) {
 			Scoped<string> res = __pkcs11->C_Encrypt(hSession, input, output);
 
-			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+            v8::Local<v8::Value> v8Result = FillBuffer(info[2], res.get());
+            
+			info.GetReturnValue().Set(v8Result);
 		}
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
@@ -803,7 +837,9 @@ NAN_METHOD(WPKCS11::C_EncryptUpdate) {
 
 		Scoped<string> res = __pkcs11->C_EncryptUpdate(hSession, input, output);
 
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+        v8::Local<v8::Value> v8Result = FillBuffer(info[2], res.get());
+        
+        info.GetReturnValue().Set(v8Result);
 	}
 	CATCH_V8_ERROR;
 }
@@ -816,8 +852,10 @@ NAN_METHOD(WPKCS11::C_EncryptFinal) {
 		UNWRAP_PKCS11;
 
 		Scoped<string> res = __pkcs11->C_EncryptFinal(hSession, output);
-
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+        
+        v8::Local<v8::Value> v8Result = FillBuffer(info[1], res.get());
+        
+        info.GetReturnValue().Set(v8Result);
 	}
 	CATCH_V8_ERROR;
 }
@@ -848,7 +886,9 @@ NAN_METHOD(WPKCS11::C_Decrypt) {
 		if (!info[3]->IsFunction()) {
 			Scoped<string> res = __pkcs11->C_Decrypt(hSession, input, output);
 
-			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+            v8::Local<v8::Value> v8Result = FillBuffer(info[2], res.get());
+            
+            info.GetReturnValue().Set(v8Result);
 		}
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
@@ -869,7 +909,9 @@ NAN_METHOD(WPKCS11::C_DecryptUpdate) {
 
 		Scoped<string> res = __pkcs11->C_DecryptUpdate(hSession, input, output);
 
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+        v8::Local<v8::Value> v8Result = FillBuffer(info[2], res.get());
+        
+        info.GetReturnValue().Set(v8Result);
 	}
 	CATCH_V8_ERROR;
 }
@@ -883,7 +925,9 @@ NAN_METHOD(WPKCS11::C_DecryptFinal) {
 
 		Scoped<string> res = __pkcs11->C_DecryptFinal(hSession, output);
 
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+        v8::Local<v8::Value> v8Result = FillBuffer(info[1], res.get());
+        
+        info.GetReturnValue().Set(v8Result);
 	}
 	CATCH_V8_ERROR;
 }
@@ -913,7 +957,9 @@ NAN_METHOD(WPKCS11::C_Digest) {
 		if (!info[3]->IsFunction()) {
 			Scoped<string> res = __pkcs11->C_Digest(hSession, input, output);
 
-			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+            v8::Local<v8::Value> v8Result = FillBuffer(info[2], res.get());
+            
+            info.GetReturnValue().Set(v8Result);
 		}
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
@@ -947,7 +993,9 @@ NAN_METHOD(WPKCS11::C_DigestFinal) {
 
 		Scoped<string> res = __pkcs11->C_DigestFinal(hSession, output);
 
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+        v8::Local<v8::Value> v8Result = FillBuffer(info[1], res.get());
+        
+        info.GetReturnValue().Set(v8Result);
 	}
 	CATCH_V8_ERROR;
 }
@@ -992,7 +1040,9 @@ NAN_METHOD(WPKCS11::C_Sign) {
 		if (!info[3]->IsFunction()) {
 			Scoped<string> res = __pkcs11->C_Sign(hSession, input, output);
 
-			info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+            v8::Local<v8::Value> v8Result = FillBuffer(info[2], res.get());
+            
+            info.GetReturnValue().Set(v8Result);
 		}
 		else {
 			Nan::Callback *callback = new Nan::Callback(info[3].As<Function>());
@@ -1026,7 +1076,9 @@ NAN_METHOD(WPKCS11::C_SignFinal) {
 
 		Scoped<string> res = __pkcs11->C_SignFinal(hSession, output);
 
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+        v8::Local<v8::Value> v8Result = FillBuffer(info[1], res.get());
+        
+        info.GetReturnValue().Set(v8Result);
 	}
 	CATCH_V8_ERROR;
 }
