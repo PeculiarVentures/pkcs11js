@@ -401,36 +401,38 @@ context("PKCS11", () => {
             assert.equal(dec.length > 0, true);
           });
         });
-        context("Derive (ECDH P-256)", () => {
-          let keys;
-          before(() => {
-            token.C_Login(session, pkcs11.CKU_USER, pin);
-            keys = token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_ECDSA_KEY_PAIR_GEN }, [
-              { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
-              { type: pkcs11.CKA_ECDSA_PARAMS, value: Buffer.from([0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x0A]) },
-              { type: pkcs11.CKA_DERIVE, value: true },
-            ], [
-                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+        (os.platform() === "linux" && +/v(\d+)/.exec(process.version)[1] > 9
+          ? context.skip
+          : context)("Derive (ECDH P-256)", () => {
+            let keys;
+            before(() => {
+              token.C_Login(session, pkcs11.CKU_USER, pin);
+              keys = token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_ECDSA_KEY_PAIR_GEN }, [
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+                { type: pkcs11.CKA_ECDSA_PARAMS, value: Buffer.from([0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x0A]) },
                 { type: pkcs11.CKA_DERIVE, value: true },
-              ]);
+              ], [
+                  { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+                  { type: pkcs11.CKA_DERIVE, value: true },
+                ]);
+            });
+            it("C_DeriveKey", () => {
+              const key = token.C_DeriveKey(session, {
+                mechanism: pkcs11.CKM_ECDH1_DERIVE,
+                parameter: {
+                  type: pkcs11.CK_PARAMS_EC_DH,
+                  kdf: pkcs11.CKD_NULL,
+                  publicData: token.C_GetAttributeValue(session, keys.publicKey, [{ type: pkcs11.CKA_EC_POINT }])[0].value,
+                },
+              }, keys.privateKey, [
+                  { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
+                  { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_AES },
+                  { type: pkcs11.CKA_ENCRYPT, value: true },
+                  { type: pkcs11.CKA_VALUE_LEN, value: 16 },
+                ]);
+              assert.equal(!!key, true);
+            });
           });
-          it("C_DeriveKey", () => {
-            const key = token.C_DeriveKey(session, {
-              mechanism: pkcs11.CKM_ECDH1_DERIVE,
-              parameter: {
-                type: pkcs11.CK_PARAMS_EC_DH,
-                kdf: pkcs11.CKD_NULL,
-                publicData: token.C_GetAttributeValue(session, keys.publicKey, [{ type: pkcs11.CKA_EC_POINT }])[0].value,
-              },
-            }, keys.privateKey, [
-                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
-                { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_AES },
-                { type: pkcs11.CKA_ENCRYPT, value: true },
-                { type: pkcs11.CKA_VALUE_LEN, value: 16 },
-              ]);
-            assert.equal(!!key, true);
-          });
-        });
       });
     });
   });
