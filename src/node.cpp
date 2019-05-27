@@ -153,7 +153,7 @@ static v8::Local<v8::Value> FillBuffer(v8::Local<v8::Value> buffer, std::string*
     v8::Local<v8::Value> v8SliceArgs[2];
     v8SliceArgs[0] = Nan::New<v8::Number>(0);
     v8SliceArgs[1] = Nan::New<v8::Number>(data->length());
-    v8::Local<v8::Value> v8SliceResult = v8SliceFn->Call(v8Buffer, 2, v8SliceArgs);
+    v8::Local<v8::Value> v8SliceResult = Nan::Call(v8SliceFn, v8Buffer, 2, v8SliceArgs).ToLocalChecked();
     
     return scope.Escape(v8SliceResult);
 }
