@@ -1,10 +1,10 @@
 #include "param.h"
 
-#define RELEASE_CHECK_PARAM(name)													\
-bool check_param_##name(Local<Object> obj, const char* paramName) {			\
-	Nan::HandleScope();														\
-	Local<Value> v8Value = obj->Get(Nan::New(paramName).ToLocalChecked());	\
-	return check_##name(v8Value);											\
+#define RELEASE_CHECK_PARAM(name)                                           \
+bool check_param_##name(Local<Object> obj, const char* paramName) {         \
+    Nan::HandleScope scope;                                                 \
+    Local<Value> v8Value = Nan::Get(obj, Nan::New(paramName).ToLocalChecked()).ToLocalChecked();    \
+    return check_##name(v8Value);                                           \
 }
 
 static bool check_buffer(Local<Value> obj) {

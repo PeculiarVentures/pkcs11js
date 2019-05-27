@@ -10,19 +10,21 @@ static void attr_set_value(CK_ATTRIBUTE_PTR attr, const char* value, uint32_t va
 }
 
 static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
+    Nan::HandleScope scope;
+    
 	try {
 		if (!v8Attribute->IsObject()) {
-			THROW_ERROR("Parameter 1 MSUT be Object", NULL);
+			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Object = v8Attribute->ToObject();
+        Local<Object> v8Object = Nan::To<v8::Object>(v8Attribute).ToLocalChecked();
 
-		Local<Value> v8Type = v8Object->Get(Nan::New(STR_TYPE).ToLocalChecked());
+        Local<Value> v8Type = Nan::Get(v8Object, Nan::New(STR_TYPE).ToLocalChecked()).ToLocalChecked();
 		if (!v8Type->IsNumber()) {
 			THROW_ERROR("Member 'type' MUST be Number", NULL);
 		}
 
-		Local<Value> v8Value = v8Object->Get(Nan::New(STR_VALUE).ToLocalChecked());
+        Local<Value> v8Value = Nan::Get(v8Object, Nan::New(STR_VALUE).ToLocalChecked()).ToLocalChecked();
 		if (!(v8Value->IsUndefined() || v8Value->IsNull() ||
 			node::Buffer::HasInstance(v8Value) ||
 			v8Value->IsBoolean() ||
@@ -35,7 +37,7 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 		attr->pValue = NULL;
 		attr->ulValueLen = 0;
 
-		attr->type = Nan::To<v8::Number>(v8Type).ToLocalChecked()->Uint32Value();
+		attr->type = Nan::To<uint32_t>(v8Type).FromJust();
 		if (node::Buffer::HasInstance(v8Value)) {
 			// Buffer
 			GET_BUFFER_SMPL(data, v8Value);
@@ -44,24 +46,22 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 		else if (v8Value->IsBoolean()) {
 			// Boolean
 			char data[1];
-			data[0] = (char)v8Value->ToBoolean()->Value();
+            data[0] = (char)Nan::To<bool>(v8Value).FromJust();
 			attr_set_value(attr.get(), data, 1);
 		}
 		else if (v8Value->IsNumber()) {
 			// Number
-			CK_ULONG num = Nan::To<v8::Number>(v8Value).ToLocalChecked()->Uint32Value();
+			CK_ULONG num = (CK_ULONG)Nan::To<uint32_t>(v8Value).FromJust();
 
 			uint32_t long_size = sizeof(CK_ULONG);
 
 			attr->pValue = (char*)malloc(long_size);
-			//for (uint32_t i = 0; i < long_size; i++)
-			//	((char*)attr->pValue)[i] = (char)(num >> (i * 8));
 			*(CK_ULONG*)attr->pValue = num;
 			attr->ulValueLen = long_size;
 		}
 		else if (v8Value->IsString()) {
 			// String
-			String::Utf8Value utf8Val(v8Value);
+            Nan::Utf8String utf8Val(v8Value);
 			char* val = *utf8Val;
 			int valLen = utf8Val.length();
 			attr_set_value(attr.get(), val, valLen);
@@ -73,9 +73,9 @@ static Scoped<CK_ATTRIBUTE> v2c_ATTRIBUTE(Local<Value> v8Attribute) {
 }
 
 static Local<Object> c2v_ATTRIBUTE(CK_ATTRIBUTE_PTR attr) {
+    Nan::EscapableHandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!attr) {
 			THROW_ERROR("Parameter 1 is EMPTY", NULL);
 		}
@@ -83,13 +83,13 @@ static Local<Object> c2v_ATTRIBUTE(CK_ATTRIBUTE_PTR attr) {
 		Local<Object> v8Attribute = Nan::New<Object>();
 
 		// Type
-		v8Attribute->Set(Nan::New(STR_TYPE).ToLocalChecked(), Nan::New<Number>(attr->type));
+        Nan::Set(v8Attribute, Nan::New(STR_TYPE).ToLocalChecked(), Nan::New<Number>(attr->type));
 
 		// Value
 		Local<Object> v8Value = node::Buffer::Copy(Isolate::GetCurrent(), (char *)attr->pValue, attr->ulValueLen).ToLocalChecked();
-		v8Attribute->Set(Nan::New(STR_VALUE).ToLocalChecked(), v8Value);
+        Nan::Set(v8Attribute, Nan::New(STR_VALUE).ToLocalChecked(), v8Value);
 
-		return v8Attribute;
+		return scope.Escape(v8Attribute);
 	}
 	CATCH_ERROR;
 }
@@ -137,20 +137,22 @@ void Attributes::Push(CK_ATTRIBUTE_PTR attr) {
 }
 
 void Attributes::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!v8Value->IsArray()) {
 			THROW_ERROR("Parameter 1 MUST be Array", NULL);
 		}
 
-		Local<Object> v8Template = v8Value->ToObject();
-		uint32_t templateLen = Nan::To<v8::Number>(v8Template->Get(Nan::New("length").ToLocalChecked())).ToLocalChecked()->Uint32Value();
+		Local<Object> v8Template = Nan::To<v8::Object>(v8Value).ToLocalChecked();
+        
+        Local<Value> v8TemplateLen = Nan::Get(v8Template, Nan::New("length").ToLocalChecked()).ToLocalChecked();
+		uint32_t templateLen = Nan::To<uint32_t>(v8TemplateLen).FromJust();
 
 		uint32_t i = 0;
 		New();
 		for (i = 0; i < templateLen; i++) {
-			Local<Value> v8Attribute = v8Template->Get(i);
+            Local<Value> v8Attribute = Nan::Get(v8Template, i).ToLocalChecked();
 			Scoped<CK_ATTRIBUTE> attr = v2c_ATTRIBUTE(v8Attribute);
 			this->Push(attr.get());
 		}
@@ -159,17 +161,17 @@ void Attributes::FromV8(Local<Value> v8Value) {
 }
 
 Local<Object> Attributes::ToV8() {
+    Nan::EscapableHandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		Local<Array> v8Res = Nan::New<Array>();
 		for (uint32_t i = 0; i < data.size; i++) {
 			CK_ATTRIBUTE_PTR pItem = &data.items[i];
 			Local<Object> v8Attribute = c2v_ATTRIBUTE(pItem);
 
-			v8Res->Set(i, v8Attribute);
+            Nan::Set(v8Res, i, v8Attribute);
 		}
-		return v8Res;
+		return scope.Escape(v8Res);
 	}
 	CATCH_ERROR;
 }

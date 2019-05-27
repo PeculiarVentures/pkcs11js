@@ -1,14 +1,14 @@
 #include "param.h"
 
 void ParamRsaOAEP::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!v8Value->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Params = v8Value->ToObject();
+        Local<Object> v8Params = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		// Check data
 		if (!check_param_number(v8Params, STR_MGF))
@@ -23,12 +23,15 @@ void ParamRsaOAEP::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.source = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_SOURCE).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.mgf= Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.hashAlg = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+        v8::Local<v8::Value> v8Source = Nan::Get(v8Params, Nan::New(STR_SOURCE).ToLocalChecked()).ToLocalChecked();
+        param.source = Nan::To<uint32_t>(v8Source).FromJust();
+        v8::Local<v8::Value> v8Mgf = Nan::Get(v8Params, Nan::New(STR_MGF).ToLocalChecked()).ToLocalChecked();
+		param.mgf= Nan::To<uint32_t>(v8Mgf).FromJust();
+        v8::Local<v8::Value> v8HashAlg = Nan::Get(v8Params, Nan::New(STR_HASH_ALG).ToLocalChecked()).ToLocalChecked();
+		param.hashAlg = Nan::To<uint32_t>(v8HashAlg).FromJust();
 
 		if (!check_param_empty(v8Params, STR_SOURCE_DATA)) {
-			GET_BUFFER_SMPL(buffer, v8Params->Get(Nan::New(STR_SOURCE_DATA).ToLocalChecked())->ToObject());
+			GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(Nan::New(STR_SOURCE_DATA).ToLocalChecked()).ToLocalChecked());
 			param.pSourceData = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
 			memcpy(param.pSourceData, buffer, bufferLen);
 			param.ulSourceDataLen = (CK_ULONG)bufferLen;
@@ -56,14 +59,14 @@ void ParamRsaOAEP::Free() {
 // PSS =================================================================================
 
 void ParamRsaPSS::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!v8Value->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Params = v8Value->ToObject();
+        Local<Object> v8Params = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
 		// Check data
 		if (!check_param_number(v8Params, STR_MGF))
@@ -76,9 +79,14 @@ void ParamRsaPSS::FromV8(Local<Value> v8Value) {
 		Free();
 		Init();
 
-		param.sLen = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_SALT_LEN).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.mgf = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_MGF).ToLocalChecked())).ToLocalChecked()->Uint32Value();
-		param.hashAlg = Nan::To<v8::Number>(v8Params->Get(Nan::New(STR_HASH_ALG).ToLocalChecked())).ToLocalChecked()->Uint32Value();
+        v8::Local<v8::Value> v8SaltLen = Nan::Get(v8Params, Nan::New(STR_SALT_LEN).ToLocalChecked()).ToLocalChecked();
+		param.sLen = Nan::To<uint32_t>(v8SaltLen).FromJust();
+        
+        v8::Local<v8::Value> v8Mgf = Nan::Get(v8Params, Nan::New(STR_MGF).ToLocalChecked()).ToLocalChecked();
+		param.mgf = Nan::To<uint32_t>(v8Mgf).FromJust();
+        
+        v8::Local<v8::Value> v8HashAlg = Nan::Get(v8Params, Nan::New(STR_HASH_ALG).ToLocalChecked()).ToLocalChecked();
+		param.hashAlg = Nan::To<uint32_t>(v8HashAlg).FromJust();
 
 	}
 	CATCH_ERROR;

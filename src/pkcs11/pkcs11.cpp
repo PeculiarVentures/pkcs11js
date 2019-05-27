@@ -407,17 +407,20 @@ void PKCS11::C_FindObjectsInit(CK_SESSION_HANDLE hSession) {
 	CATCH_ERROR;
 }
 
-CK_OBJECT_HANDLE PKCS11::C_FindObjects(CK_SESSION_HANDLE session) {
+vector<CK_OBJECT_HANDLE> PKCS11::C_FindObjects(CK_SESSION_HANDLE session, CK_ULONG ulMaxObjectCount) {
 	try {
 		CK_ULONG ulObjectCount = 0;
-		CK_OBJECT_HANDLE hObject = 0;
+		vector<CK_OBJECT_HANDLE> hObjects(ulMaxObjectCount);
 
 		CHECK_PKCS11_RV(functionList->C_FindObjects(
 			session,
-			&hObject, 1,
+			hObjects.data(),
+            ulMaxObjectCount,
 			&ulObjectCount));
+        
+        hObjects.resize(ulObjectCount);
 
-		return ulObjectCount ? hObject : 0;
+		return hObjects;
 	}
 	CATCH_ERROR;
 }

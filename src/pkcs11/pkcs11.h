@@ -52,7 +52,7 @@ public:
 	CK_ULONG C_GetObjectSize(CK_SESSION_HANDLE session, CK_OBJECT_HANDLE object);
 	void C_FindObjectsInit(CK_SESSION_HANDLE session, Scoped<Attributes> attrs);
 	void C_FindObjectsInit(CK_SESSION_HANDLE session);
-	CK_OBJECT_HANDLE C_FindObjects(CK_SESSION_HANDLE session);
+	vector<CK_OBJECT_HANDLE> C_FindObjects(CK_SESSION_HANDLE session, CK_ULONG ulMaxObjectCount);
 	void C_FindObjectsFinal(CK_SESSION_HANDLE session);
 	Scoped<Attributes> C_GetAttributeValue(CK_SESSION_HANDLE session, CK_OBJECT_HANDLE object, Scoped<Attributes> tmpl);
 	void C_SetAttributeValue(CK_SESSION_HANDLE session, CK_OBJECT_HANDLE object, Scoped<Attributes> tmpl);

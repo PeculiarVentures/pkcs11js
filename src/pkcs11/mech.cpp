@@ -8,35 +8,34 @@ Mechanism::~Mechanism() {
 }
 
 void Mechanism::FromV8(Local<Value> v8Value) {
+    Nan::HandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		if (!v8Value->IsObject()) {
 			THROW_ERROR("Parameter 1 MUST be Object", NULL);
 		}
 
-		Local<Object> v8Object = v8Value->ToObject();
+        Local<Object> v8Object = Nan::To<v8::Object>(v8Value).ToLocalChecked();
 
-		Local<Value> v8MechType = v8Object->Get(Nan::New(STR_MECHANISM).ToLocalChecked());
+        Local<Value> v8MechType = Nan::Get(v8Object, Nan::New(STR_MECHANISM).ToLocalChecked()).ToLocalChecked();
 		if (!v8MechType->IsNumber()) {
 			THROW_ERROR("Attribute 'mechanism' MUST be Number", NULL);
 		}
 
-		Local<Value> v8Parameter = v8Object->Get(Nan::New(STR_PARAMETER).ToLocalChecked());
+        Local<Value> v8Parameter = Nan::Get(v8Object, Nan::New(STR_PARAMETER).ToLocalChecked()).ToLocalChecked();
 		if (!(v8Parameter->IsUndefined() || v8Parameter->IsNull() || node::Buffer::HasInstance(v8Parameter) || v8Parameter->IsObject())) {
 			THROW_ERROR("Attribute 'parameter' MUST be Null | Buffer | Object", NULL);
 		}
 
 		New();
 
-		data.mechanism = Nan::To<v8::Number>(v8MechType).ToLocalChecked()->Uint32Value();
+		data.mechanism = Nan::To<uint32_t>(v8MechType).FromJust();
 		if (!(v8Parameter->IsUndefined() || v8Parameter->IsNull())) {
-			Local<Object> v8Param = v8Parameter->ToObject();
+            Local<Object> v8Param =  Nan::To<v8::Object>(v8Parameter).ToLocalChecked();
 			if (!node::Buffer::HasInstance(v8Param)) {
                 // Parameter is Object
-				Local<Object> v8Param = v8Parameter->ToObject();
-				Local<Value> v8Type = v8Param->Get(Nan::New(STR_TYPE).ToLocalChecked());
-				CK_ULONG type = v8Type->IsNumber() ? Nan::To<v8::Number>(v8Type).ToLocalChecked()->Uint32Value() : 0;
+                Local<Value> v8Type = Nan::Get(v8Param, Nan::New(STR_TYPE).ToLocalChecked()).ToLocalChecked();
+				CK_ULONG type = v8Type->IsNumber() ? Nan::To<uint32_t>(v8Type).FromJust() : 0;
                 switch (type) {
                     case CK_PARAMS_EC_DH: {
                         param = Scoped<ParamBase>(new ParamEcdh1);
@@ -83,23 +82,23 @@ void Mechanism::FromV8(Local<Value> v8Value) {
 }
 
 Local<Object> Mechanism::ToV8() {
+    Nan::EscapableHandleScope scope;
+    
 	try {
-		Nan::HandleScope();
-
 		Local<Object> v8Mechanism = Nan::New<Object>();
 		// Mechanism
-		v8Mechanism->Set(Nan::New(STR_MECHANISM).ToLocalChecked(), Nan::New<Number>(data.mechanism));
+        Nan::Set(v8Mechanism, Nan::New(STR_MECHANISM).ToLocalChecked(), Nan::New<Number>(data.mechanism));
 
 		// Parameter
 		if (data.pParameter) {
 			Local<Object> v8Parameter = node::Buffer::Copy(Isolate::GetCurrent(), (char *)data.pParameter, data.ulParameterLen).ToLocalChecked();
-			v8Mechanism->Set(Nan::New(STR_PARAMETER).ToLocalChecked(), v8Parameter);
+            Nan::Set(v8Mechanism, Nan::New(STR_PARAMETER).ToLocalChecked(), v8Parameter);
 		}
 		else {
-			v8Mechanism->Set(Nan::New(STR_PARAMETER).ToLocalChecked(), Nan::Null());
+            Nan::Set(v8Mechanism, Nan::New(STR_PARAMETER).ToLocalChecked(), Nan::Null());
 		}
 
-		return v8Mechanism;
+		return scope.Escape(v8Mechanism);
 	}
 	CATCH_ERROR;
 }

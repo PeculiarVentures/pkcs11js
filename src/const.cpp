@@ -1,7 +1,7 @@
 #include "const.h"
 
 void declare_attributes(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
 
 	SET_CONST(target, CKA_CLASS);
 	SET_CONST(target, CKA_TOKEN);
@@ -113,7 +113,7 @@ void declare_attributes(Local<Object> target) {
 }
 
 void declare_flags(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
 
 	SET_CONST(target, CKF_RW_SESSION);
 	SET_CONST(target, CKF_SERIAL_SESSION);
@@ -155,7 +155,7 @@ void declare_flags(Local<Object> target) {
 }
 
 void declare_objects(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
 
 	SET_CONST(target, CKO_DATA);
 	SET_CONST(target, CKO_CERTIFICATE);
@@ -170,7 +170,8 @@ void declare_objects(Local<Object> target) {
 }
 
 void declare_ket_types(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
+    
 	SET_CONST(target, CKK_RSA);
 	SET_CONST(target, CKK_DSA);
 	SET_CONST(target, CKK_DH);
@@ -218,7 +219,8 @@ void declare_ket_types(Local<Object> target) {
 }
 
 void declare_mechanisms(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
+    
 	SET_CONST(target, CKM_RSA_PKCS_KEY_PAIR_GEN);
 	SET_CONST(target, CKM_RSA_PKCS);
 	SET_CONST(target, CKM_RSA_9796);
@@ -520,14 +522,16 @@ void declare_mechanisms(Local<Object> target) {
 }
 
 void declare_certificates(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
+    
 	SET_CONST(target, CKC_WTLS);
 	SET_CONST(target, CKC_X_509);
 	SET_CONST(target, CKC_X_509_ATTR_CERT);
 }
 
 void declare_mgf(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
+    
 	SET_CONST(target, CKG_MGF1_SHA1);
 	SET_CONST(target, CKG_MGF1_SHA256);
 	SET_CONST(target, CKG_MGF1_SHA384);
@@ -536,7 +540,8 @@ void declare_mgf(Local<Object> target) {
 }
 
 void declare_kdf(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
+    
 	SET_CONST(target, CKD_NULL);
 	SET_CONST(target, CKD_SHA1_KDF);
 	SET_CONST(target, CKD_SHA1_KDF_ASN1);
@@ -549,7 +554,8 @@ void declare_kdf(Local<Object> target) {
 }
 
 void declare_params(Local<Object> target) {
-	Nan::HandleScope();
+	Nan::HandleScope scope;
+    
 	SET_CONST(target, CK_PARAMS_AES_CBC);
 	SET_CONST(target, CK_PARAMS_AES_CCM);
 	SET_CONST(target, CK_PARAMS_AES_GCM);
@@ -560,13 +566,15 @@ void declare_params(Local<Object> target) {
 }
 
 void declare_initialize_flags(Local<Object> target) {
-    Nan::HandleScope();
+    Nan::HandleScope scope;
+    
     SET_CONST(target, CKF_LIBRARY_CANT_CREATE_OS_THREADS);
     SET_CONST(target, CKF_OS_LOCKING_OK);
 }
 
 void declare_user_types(Local<Object> target) {
-    Nan::HandleScope();
+    Nan::HandleScope scope;
+    
     SET_CONST(target, CKU_SO);
     SET_CONST(target, CKU_USER);
     SET_CONST(target, CKU_CONTEXT_SPECIFIC);

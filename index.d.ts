@@ -81,7 +81,7 @@ declare namespace Pkcs11Js {
 
     interface Mechanism {
         mechanism: number;
-        parameter: Buffer | IParams;
+        parameter?: Buffer | IParams;
     }
 
     // Crypto parameters
@@ -347,8 +347,18 @@ declare namespace Pkcs11Js {
          * handles
          *
          * @param {Handle} session Session's handle
+         * @param {number} session The maximum number of object handles to be returned
+         * @returns {Handle} gets list of Object handles
+         */
+        public C_FindObjects(session: Handle, maxObjectCount: number): Handle[];
+        /**
+         * Continues a search for token and session
+         * objects that match a template, obtaining additional object
+         * handles
+         *
+         * @param {Handle} session Session's handle
          * @returns {Handle} gets Object's handle. If Object is not found
-         * the result is 0
+         * the result is Null
          */
         public C_FindObjects(session: Handle): Handle;
         /**

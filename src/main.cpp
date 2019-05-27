@@ -4,7 +4,8 @@
 #include "const.h"
 #include "node.h"
 
-NAN_MODULE_INIT(init) {
+NAN_MODULE_INIT(init)
+{
 	Nan::HandleScope scope;
 
 	WPKCS11::Init(target);
@@ -18,8 +19,8 @@ NAN_MODULE_INIT(init) {
 	declare_mgf(target);
 	declare_kdf(target);
 	declare_params(target);
-    declare_initialize_flags(target);
-    declare_user_types(target);
+	declare_initialize_flags(target);
+	declare_user_types(target);
 }
 
 NODE_MODULE(pkcs11, init)
