@@ -892,8 +892,8 @@ typedef CK_ULONG          CK_MECHANISM_TYPE;
 
 #define CKM_AES_GCM                    0x00001087
 #define CKM_AES_CCM                    0x00001088
-#define CKM_AES_KEY_WRAP               0x00001090
-#define CKM_AES_KEY_WRAP_PAD           0x00001091
+#define CKM_AES_KEY_WRAP               0x00002109
+#define CKM_AES_KEY_WRAP_PAD           0x0000210a
 
 #define CKM_BLOWFISH_CBC_PAD           0x00001094
 #define CKM_TWOFISH_CBC_PAD            0x00001095
