@@ -11,7 +11,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo apt-get install libtool -y
     
     # Installing SoftHSM
-    git clone https://github.com/opendnssec/SoftHSMv2.git -b develop
+    git clone https://github.com/opendnssec/SoftHSMv2.git -b master
     cd SoftHSMv2
     sh ./autogen.sh
     ./configure
