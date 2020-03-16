@@ -39,11 +39,14 @@
     "nan": "^2.14.0"
   },
   "devDependencies": {
-    "@types/mocha": "^5.2.7",
+    "@types/mocha": "^7.0.2",
     "@types/node": "^10.14.18",
-    "mocha": "^6.2.0"
+    "mocha": "^7.1.0"
   },
   "bugs": {
     "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
+  },
+  "mocha": {
+    "watch-files": "test/**/*.js"
   }
 }
