@@ -1,17 +1,10 @@
-"use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  result["default"] = mod;
-  return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const assert = __importStar(require("assert"));
-const os = __importStar(require("os"));
-const pkcs11 = __importStar(require("../"));
+const assert = require("assert");
+const os = require("os");
+const pkcs11 = require("../");
+
 const softHsmLib = "/usr/local/lib/softhsm/libsofthsm2.so";
 const pin = "12345";
+
 context("PKCS11", () => {
   context("load", () => {
     it("correct", () => {
@@ -326,45 +319,48 @@ context("PKCS11", () => {
               assert.equal(ok, true);
             });
           });
-        context("Encrypt/Decrypt RSA-OAEP", () => {
-          let keys;
-          before(() => {
-            token.C_Login(session, pkcs11.CKU_USER, pin);
-            // private key
-            keys = token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [
-              { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
-              { type: pkcs11.CKA_PUBLIC_EXPONENT, value: Buffer.from([1, 0, 1]) },
-              { type: pkcs11.CKA_MODULUS_BITS, value: 2048 },
-              { type: pkcs11.CKA_ENCRYPT, value: true },
-            ], [
-              { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
-              { type: pkcs11.CKA_DECRYPT, value: true },
-            ]);
-            // public key
-          });
-          after(() => {
-            token.C_Logout(session);
-          });
-          it("OAEP without label", () => {
-            const mechanism = {
-              mechanism: pkcs11.CKM_RSA_PKCS_OAEP,
-              parameter: {
-                type: pkcs11.CK_PARAMS_RSA_OAEP,
-                hashAlg: pkcs11.CKM_SHA_1,
-                mgf: pkcs11.CKG_MGF1_SHA1,
-                source: 1,
-                // sourceData: null, // SoftHSM v2.0.5 doesn't support sourceData parameter
-              }
-            };
-            const data = Buffer.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6]);
-            token.C_EncryptInit(session, mechanism, keys.publicKey);
-            const enc = token.C_Encrypt(session, data, Buffer.alloc(4098));
+        // https://github.com/PeculiarVentures/pkcs11js/issues/47
+        (os.platform() === "linux" && +/v(\d+)/.exec(process.version)[1] > 9
+          ? context.skip
+          : context)("Encrypt/Decrypt RSA-OAEP", () => {
+            let keys;
+            before(() => {
+              token.C_Login(session, pkcs11.CKU_USER, pin);
+              // private key
+              keys = token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+                { type: pkcs11.CKA_PUBLIC_EXPONENT, value: Buffer.from([1, 0, 1]) },
+                { type: pkcs11.CKA_MODULUS_BITS, value: 2048 },
+                { type: pkcs11.CKA_ENCRYPT, value: true },
+              ], [
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+                { type: pkcs11.CKA_DECRYPT, value: true },
+              ]);
+              // public key
+            });
+            after(() => {
+              token.C_Logout(session);
+            });
+            it("OAEP without label", () => {
+              const mechanism = {
+                mechanism: pkcs11.CKM_RSA_PKCS_OAEP,
+                parameter: {
+                  type: pkcs11.CK_PARAMS_RSA_OAEP,
+                  hashAlg: pkcs11.CKM_SHA_1,
+                  mgf: pkcs11.CKG_MGF1_SHA1,
+                  source: 1,
+                  // sourceData: null, // SoftHSM v2.0.5 doesn't support sourceData parameter
+                }
+              };
+              const data = Buffer.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6]);
+              token.C_EncryptInit(session, mechanism, keys.publicKey);
+              const enc = token.C_Encrypt(session, data, Buffer.alloc(4098));
 
-            token.C_DecryptInit(session, mechanism, keys.privateKey);
-            const dec = token.C_Decrypt(session, enc, Buffer.alloc(1024));
-            assert.equal(data.equals(dec), true);
-          })
-        });
+              token.C_DecryptInit(session, mechanism, keys.privateKey);
+              const dec = token.C_Decrypt(session, enc, Buffer.alloc(1024));
+              assert.equal(data.equals(dec), true);
+            })
+          });
         context("Encrypt/Decrypt (AES-CBC)", () => {
           let key;
           const data = Buffer.from("12345678901234567890");
