@@ -259,9 +259,9 @@ context("PKCS11", () => {
                 { type: pkcs11.CKA_MODULUS_BITS, value: 2048 },
                 { type: pkcs11.CKA_VERIFY, value: true },
               ], [
-                  { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
-                  { type: pkcs11.CKA_SIGN, value: true },
-                ]);
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+                { type: pkcs11.CKA_SIGN, value: true },
+              ]);
             });
             before(() => {
               token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
@@ -326,6 +326,45 @@ context("PKCS11", () => {
               assert.equal(ok, true);
             });
           });
+        context("Encrypt/Decrypt RSA-OAEP", () => {
+          let keys;
+          before(() => {
+            token.C_Login(session, pkcs11.CKU_USER, pin);
+            // private key
+            keys = token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [
+              { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
+              { type: pkcs11.CKA_PUBLIC_EXPONENT, value: Buffer.from([1, 0, 1]) },
+              { type: pkcs11.CKA_MODULUS_BITS, value: 2048 },
+              { type: pkcs11.CKA_ENCRYPT, value: true },
+            ], [
+              { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+              { type: pkcs11.CKA_DECRYPT, value: true },
+            ]);
+            // public key
+          });
+          after(() => {
+            token.C_Logout(session);
+          });
+          it("OAEP without label", () => {
+            const mechanism = {
+              mechanism: pkcs11.CKM_RSA_PKCS_OAEP,
+              parameter: {
+                type: pkcs11.CK_PARAMS_RSA_OAEP,
+                hashAlg: pkcs11.CKM_SHA_1,
+                mgf: pkcs11.CKG_MGF1_SHA1,
+                source: 1,
+                // sourceData: null, // SoftHSM v2.0.5 doesn't support sourceData parameter
+              }
+            };
+            const data = Buffer.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6]);
+            token.C_EncryptInit(session, mechanism, keys.publicKey);
+            const enc = token.C_Encrypt(session, data, Buffer.alloc(4098));
+
+            token.C_DecryptInit(session, mechanism, keys.privateKey);
+            const dec = token.C_Decrypt(session, enc, Buffer.alloc(1024));
+            assert.equal(data.equals(dec), true);
+          })
+        });
         context("Encrypt/Decrypt (AES-CBC)", () => {
           let key;
           const data = Buffer.from("12345678901234567890");
@@ -412,9 +451,9 @@ context("PKCS11", () => {
                 { type: pkcs11.CKA_ECDSA_PARAMS, value: Buffer.from([0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x0A]) },
                 { type: pkcs11.CKA_DERIVE, value: true },
               ], [
-                  { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
-                  { type: pkcs11.CKA_DERIVE, value: true },
-                ]);
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PRIVATE_KEY },
+                { type: pkcs11.CKA_DERIVE, value: true },
+              ]);
             });
             it("C_DeriveKey", () => {
               const key = token.C_DeriveKey(session, {
@@ -425,11 +464,11 @@ context("PKCS11", () => {
                   publicData: token.C_GetAttributeValue(session, keys.publicKey, [{ type: pkcs11.CKA_EC_POINT }])[0].value,
                 },
               }, keys.privateKey, [
-                  { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
-                  { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_AES },
-                  { type: pkcs11.CKA_ENCRYPT, value: true },
-                  { type: pkcs11.CKA_VALUE_LEN, value: 16 },
-                ]);
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
+                { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_AES },
+                { type: pkcs11.CKA_ENCRYPT, value: true },
+                { type: pkcs11.CKA_VALUE_LEN, value: 16 },
+              ]);
               assert.equal(!!key, true);
             });
           });

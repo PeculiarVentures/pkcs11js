@@ -18,7 +18,7 @@ void ParamRsaOAEP::FromV8(Local<Value> v8Value) {
 		if (!check_param_number(v8Params, STR_HASH_ALG))
 			THROW_ERROR("Attribute 'hashAlg' MUST be NUMBER", NULL);
 		if (!(check_param_empty(v8Params, STR_SOURCE_DATA) || check_param_buffer(v8Params, STR_SOURCE_DATA)))
-			THROW_ERROR("Attribute 'iv' MUST be NULL || BUFFER", NULL);
+			THROW_ERROR("Attribute 'sourceData' MUST be NULL || BUFFER", NULL);
 
 		Free();
 		Init();
@@ -31,7 +31,8 @@ void ParamRsaOAEP::FromV8(Local<Value> v8Value) {
 		param.hashAlg = Nan::To<uint32_t>(v8HashAlg).FromJust();
 
 		if (!check_param_empty(v8Params, STR_SOURCE_DATA)) {
-			GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(Nan::New(STR_SOURCE_DATA).ToLocalChecked()).ToLocalChecked());
+			v8::Local<v8::Value> v8SourceData = Nan::Get(v8Params, Nan::New(STR_SOURCE_DATA).ToLocalChecked()).ToLocalChecked();
+			GET_BUFFER_SMPL(buffer, Nan::To<v8::Object>(v8SourceData).ToLocalChecked());
 			param.pSourceData = (CK_BYTE_PTR)malloc(bufferLen * sizeof(CK_BYTE));
 			memcpy(param.pSourceData, buffer, bufferLen);
 			param.ulSourceDataLen = (CK_ULONG)bufferLen;
