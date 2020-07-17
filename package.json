@@ -36,12 +36,12 @@
   "author": "PeculiarVentures",
   "license": "MIT",
   "dependencies": {
-    "nan": "^2.14.0"
+    "nan": "^2.14.1"
   },
   "devDependencies": {
-    "@types/mocha": "^7.0.2",
-    "@types/node": "^10.17.18",
-    "mocha": "^7.1.1"
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^10.17.27",
+    "mocha": "^8.0.1"
   },
   "bugs": {
     "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
