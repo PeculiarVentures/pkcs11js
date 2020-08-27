@@ -164,7 +164,7 @@ var label = pkcs11.C_GetAttributeValue(session, nObject, [
     { type: pkcs11js.CKA_TOKEN }
 ]);
 console.log(label[0].value.toString()); // My custom data!!!
-console.log(!!label[1].value[0]; // false
+console.log(!!label[1].value[0]); // false
 
 // Copying Object
 var cObject = pkcs11.C_CopyObject(session, nObject, [
@@ -172,7 +172,7 @@ var cObject = pkcs11.C_CopyObject(session, nObject, [
     { type: pkcs11js.CKA_TOKEN},
     { type: pkcs11js.CKA_PRIVATE},
     { type: pkcs11js.CKA_LABEL},
-])
+]);
 
 // Removing Object
 pkcs11.C_DestroyObject(session, cObject);
