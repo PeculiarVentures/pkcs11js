@@ -19,6 +19,16 @@
   ],
   "main": "index.js",
   "types": "index.d.ts",
+  "files": [
+    "build/*",
+    "src/*",
+    "includes/*",
+    "binding.gyp",
+    "index.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "clean": "rm -rf build/ buildjs/ coverage/ .nyc_output/ npm-debug.log npm-debug.log.*",
     "prepare": "npm run build",
