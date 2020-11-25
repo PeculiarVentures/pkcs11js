@@ -20,7 +20,6 @@
   "main": "index.js",
   "types": "index.d.ts",
   "files": [
-    "build/*",
     "src/*",
     "includes/*",
     "binding.gyp",
