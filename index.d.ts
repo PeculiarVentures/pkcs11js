@@ -416,6 +416,14 @@ declare namespace Pkcs11Js {
          */
         public C_Encrypt(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
+         * Encrypts single-part data
+         *
+         * @param {Handle} session Session's handle
+         * @param {Buffer} inData Incoming data
+         * @param {Buffer} outData Output data
+         */
+        public C_EncryptAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        /**
          * Continues a multiple-part encryption operation
          *
          * @param {Handle} session Session's handle
@@ -458,6 +466,15 @@ declare namespace Pkcs11Js {
          * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
          */
         public C_Decrypt(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Decrypts encrypted data in a single part
+         *
+         * @param {Handle} session Session's handle
+         * @param {Buffer} inData Incoming data
+         * @param {Buffer} outData Coming data
+         * @returns Sliced coming data
+         */
+        public C_DecryptAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
          * continues a multiple-part decryption operation
          *
@@ -503,6 +520,15 @@ declare namespace Pkcs11Js {
          * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
          */
         public C_Digest(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Digests data in a single part
+         *
+         * @param {Handle} session Session's handle
+         * @param {Buffer} inData Incoming data
+         * @param {Buffer} outData Coming data
+         * @returns Sliced coming data
+         */
+        public C_DigestAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
          * continues a multiple-part message-digesting operation
          * operation, by digesting the value of a secret key as part of
@@ -560,7 +586,18 @@ declare namespace Pkcs11Js {
          */
         public C_Sign(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
-         * continues a multiple-part signature operation,
+         * Signs (encrypts with private key) data in a single
+         * part, where the signature is (will be) an appendix to the
+         * data, and plaintext cannot be recovered from the signature
+         *
+         * @param {Handle} session Session's handle
+         * @param {Buffer} inData Incoming data
+         * @param {Buffer} outData Coming data
+         * @returns Sliced coming data
+         */
+        public C_SignAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        /**
+         * Continues a multiple-part signature operation,
          * where the signature is (will be) an appendix to the data,
          * and plaintext cannot be recovered from the signature
          *
@@ -617,6 +654,17 @@ declare namespace Pkcs11Js {
          */
         public C_Verify(session: Handle, inData: Buffer, signature: Buffer, cb: (error: Error, verify: boolean) => void): void;
         /**
+         * Verifies a signature in a single-part operation,
+         * where the signature is an appendix to the data, and plaintext
+         * cannot be recovered from the signature
+         *
+         * @param {Handle} session Session's handle
+         * @param {Buffer} inData Incoming data
+         * @param {Buffer} signature Signature to verify
+         * @returns Verification result
+         */
+        public C_VerifyAsync(session: Handle, inData: Buffer, signature: Buffer): Promise<boolean>;
+        /**
          * Continues a multiple-part verification
          * operation, where the signature is an appendix to the data,
          * and plaintext cannot be recovered from the signature
@@ -647,7 +695,7 @@ declare namespace Pkcs11Js {
          * @param {Handle} session Session's handle
          * @param {Mechanism} mechanism Key generation mechanism
          * @param {Template} template Template for new key
-         * @returns {Handle} Gets handle of new key
+         * @returns {Handle} Handle of new key
          */
         public C_GenerateKey(session: Handle, mechanism: Mechanism, template: Template): Handle;
         /**
@@ -656,9 +704,18 @@ declare namespace Pkcs11Js {
          * @param {Handle} session Session's handle
          * @param {Mechanism} mechanism Key generation mechanism
          * @param {Template} template Template for new key
-         * @param {(error: Error, key: Handle) => void} cb Async callback with handle of ne key
+         * @param {(error: Error, key: Handle) => void} cb Async callback with handle of new key
          */
         public C_GenerateKey(session: Handle, mechanism: Mechanism, template: Template, cb: (error: Error, key: Handle) => void): void;
+        /**
+         * Generates a secret key, creating a new key object
+         *
+         * @param {Handle} session Session's handle
+         * @param {Mechanism} mechanism Key generation mechanism
+         * @param {Template} template Template for new key
+         * @returns Handle of new key
+         */
+        public C_GenerateKeyAsync(session: Handle, mechanism: Mechanism, template: Template): Promise<Handle>;
         /**
          * Generates a public-key/private-key pair,
          * creating new key objects
@@ -667,7 +724,7 @@ declare namespace Pkcs11Js {
          * @param {Mechanism} mechanism Key generation mechanism
          * @param {Template} publicTmpl Template for public key
          * @param {Template} privateTmpl Template for private key
-         * @returns {KeyPair} Get handles for private and public keys
+         * @returns {KeyPair} Handles for private and public keys
          */
         public C_GenerateKeyPair(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template): KeyPair;
         /**
@@ -681,6 +738,17 @@ declare namespace Pkcs11Js {
          * @param {(error: Error, keys: KeyPair) => void} cb Async callback with handles for private and public keys
          */
         public C_GenerateKeyPair(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template, cb: (error: Error, keys: KeyPair) => void): void;
+        /**
+         * Generates a public-key/private-key pair,
+         * creating new key objects
+         *
+         * @param {Handle} session Session's handle
+         * @param {Mechanism} mechanism Key generation mechanism
+         * @param {Template} publicTmpl Template for public key
+         * @param {Template} privateTmpl Template for private key
+         * @returns Handles for private and public keys
+         */
+        public C_GenerateKeyPairAsync(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template): Promise<KeyPair>;
         /**
          * Wraps (i.e., encrypts) a key
          *
@@ -704,6 +772,17 @@ declare namespace Pkcs11Js {
          */
         public C_WrapKey(session: Handle, mechanism: Mechanism, wrappingKey: Handle, key: Handle, wrappedKey: Buffer, cb: (error: Error, wrappedKey: Buffer) => void): void;
         /**
+         * Wraps (i.e., encrypts) a key
+         *
+         * @param {Handle} session Session's handle
+         * @param {Mechanism} mechanism Wrapping mechanism
+         * @param {Handle} wrappingKey Wrapping key
+         * @param {Handle} key Key to be wrapped
+         * @param {Buffer} wrappedKey Init buffer for wrapped key
+         * @returns Sliced wrapped key
+         */
+        public C_WrapKeyAsync(session: Handle, mechanism: Mechanism, wrappingKey: Handle, key: Handle, wrappedKey: Buffer): Promise<Buffer>;
+        /**
          * Unwraps (decrypts) a wrapped key, creating a new key object
          *
          * @param {Handle} session Session's handle
@@ -711,7 +790,7 @@ declare namespace Pkcs11Js {
          * @param {Handle} unwrappingKey Unwrapping key
          * @param {Buffer} wrappedKey Wrapped key
          * @param {Template} template New key template
-         * @returns {Handle} Gets new handle
+         * @returns {Handle} A new handle
          */
         public C_UnwrapKey(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template): Handle;
         /**
@@ -725,6 +804,17 @@ declare namespace Pkcs11Js {
          * @param {(error: Error, key: Handle) => void} cb Async callback with new key handle
          */
         public C_UnwrapKey(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template, cb: (error: Error, key: Handle) => void): void;
+        /**
+         * Unwraps (decrypts) a wrapped key, creating a new key object
+         *
+         * @param {Handle} session Session's handle
+         * @param {Mechanism} mechanism Unwrapping mechanism
+         * @param {Handle} unwrappingKey Unwrapping key
+         * @param {Buffer} wrappedKey Wrapped key
+         * @param {Template} template New key template
+         * @returns A new handle
+         */
+        public C_UnwrapKeyAsync(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template): Promise<Handle>;
         /**
          * Derives a key from a base key, creating a new key object
          *
@@ -745,6 +835,16 @@ declare namespace Pkcs11Js {
          * @param {(error: Error, hKey: Handle) => void} cb Async callback with new key handle
          */
         public C_DeriveKey(session: Handle, mechanism: Mechanism, key: Handle, template: Template, cb: (error: Error, hKey: Handle) => void): void;
+        /**
+         * Derives a key from a base key, creating a new key object
+         *
+         * @param {Handle} session Session's handle
+         * @param {Mechanism} mechanism Key derivation mechanism
+         * @param {Handle} key Base key
+         * @param {Template} template new key template
+         * @returns Get new key handle
+         */
+        public C_DeriveKeyAsync(session: Handle, mechanism: Mechanism, key: Handle, template: Template): Promise<Handle>;
         /**
          * Mixes additional seed material into the token's random number generator
          *
