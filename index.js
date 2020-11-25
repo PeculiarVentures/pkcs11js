@@ -1,3 +1,7 @@
+/*!
+ * Copyright (c) 2020 Peculiar Ventures, LLC
+ */
+
 const pkcs11 = require("./build/Release/pkcs11.node");
 const util = require("util");
 
