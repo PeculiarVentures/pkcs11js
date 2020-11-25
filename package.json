@@ -59,15 +59,8 @@
     "watch-files": "test/**/*.js"
   },
   "nyc": {
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
     "include": [
-      "src/**/*.ts"
-    ],
-    "exclude": [
-      "**/*.d.ts"
+      "index.js"
     ],
     "reporter": [
       "lcov",
