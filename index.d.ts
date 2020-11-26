@@ -1,14 +1,12 @@
-// Type definitions for pkcs11js v1.0.10
+// Type definitions for pkcs11js v1.1.2
 // Project: https://github.com/PeculiarVentures/pkcs11js
 // Definitions by: Stepan Miroshin <https://github.com/microshine>
 
 /// <reference types="node" />
 
 /**
- * A Node.js implementation of the PKCS#11 2.3 interface
- * v1.0.10
+ * A Node.js implementation of the PKCS#11 2.30 interface
  */
-
 declare module "pkcs11js" {
     /**
      * PKCS#11 handle type
