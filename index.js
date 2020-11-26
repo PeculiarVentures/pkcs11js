@@ -16,49 +16,45 @@ pkcs11.PKCS11.prototype.C_WrapKeyAsync = util.promisify(pkcs11.PKCS11.prototype.
 pkcs11.PKCS11.prototype.C_UnwrapKeyAsync = util.promisify(pkcs11.PKCS11.prototype.C_UnwrapKey);
 pkcs11.PKCS11.prototype.C_DeriveKeyAsync = util.promisify(pkcs11.PKCS11.prototype.C_DeriveKey);
 
-class NativeError extends Error {
-  constructor(message = "", method = "") {
-    super();
+function NativeError(message, method) {
+  this.name = NativeError.name;
+  this.message = message || "";
+  this.method = method || "";
+  this.nativeStack = "";
 
-    this.name = NativeError.name;
-    this.method = method;
-    this.nativeStack = "";
-    
-    const messages = message.split("\n");
-    this.message = messages[0];
-    if (messages.length > 1) {
-      this.nativeStack = messages.slice(1).join("\n");
-      
-      const matches = /(\w+):\d+/.exec(this.nativeStack);
-      if (matches) {
-        this.method = matches[1];
-      }
+  const messages = this.message.split("\n");
+  this.message = messages[0];
+  if (messages.length > 1) {
+    this.nativeStack = messages.slice(1).join("\n");
+
+    const matches = /(\w+):\d+/.exec(this.nativeStack);
+    if (matches) {
+      this.method = matches[1];
     }
   }
 }
+util.inherits(NativeError, Error);
 
 pkcs11.NativeError = NativeError;
 
-class Pkcs11Error extends NativeError {
-  
-  static messageReg = /(CKR_[^:]+):(\d+)/
-  
-  static isPkcs11(message) {
-    return new RegExp(Pkcs11Error.messageReg).test(message);
-  }
-  
-  constructor(message = "", code = 0, method = "") {
-    super(message, method);
-    
-    this.name = Pkcs11Error.name;
-    this.code = code;
+function Pkcs11Error(message, code, method) {
+  NativeError.call(this, message, method);
 
-    const matches = new RegExp(Pkcs11Error.messageReg).exec(message);
-    if (matches) {
-      this.message = matches[1];
-      this.code = +matches[2];
-    }
+  this.name = Pkcs11Error.name;
+  this.code = code || 0;
+
+  const matches = new RegExp(Pkcs11Error.messageReg).exec(message);
+  if (matches) {
+    this.message = matches[1];
+    this.code = +matches[2];
   }
+}
+util.inherits(Pkcs11Error, NativeError);
+
+Pkcs11Error.messageReg = /(CKR_[^:]+):(\d+)/;
+
+Pkcs11Error.isPkcs11 = function isPkcs11(message) {
+  return new RegExp(Pkcs11Error.messageReg).test(message);
 }
 
 pkcs11.Pkcs11Error = Pkcs11Error;

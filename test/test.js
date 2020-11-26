@@ -1,5 +1,6 @@
 const assert = require("assert");
 const os = require("os");
+const { NativeError } = require("..");
 const pkcs11 = require("../");
 
 const softHsmLib = "/usr/local/lib/softhsm/libsofthsm2.so";
@@ -508,6 +509,7 @@ context("PKCS11", () => {
       assert.throws(() => {
         token.C_Finalize();
       }, (e) => {
+        assert.strictEqual(e instanceof pkcs11.Pkcs11Error, true);
         assert.strictEqual(e.name, pkcs11.Pkcs11Error.name);
         assert.strictEqual(e.message, "CKR_CRYPTOKI_NOT_INITIALIZED");
         assert.strictEqual(e.method, "C_Finalize");
@@ -523,6 +525,7 @@ context("PKCS11", () => {
       assert.throws(() => {
         token.C_Initialize("wrong");
       }, (e) => {
+        assert.strictEqual(e instanceof pkcs11.NativeError, true);
         assert.strictEqual(e.name, pkcs11.NativeError.name);
         assert.strictEqual(e.message, "Parameter has wrong type. Should be empty or Object");
         assert.strictEqual(e.method, "C_Initialize");
