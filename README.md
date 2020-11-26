@@ -22,19 +22,21 @@ It has been tested with :
 
 **NOTE:** For testing purposes it may be easier to work with SoftHSM2 which is a software implementation of PKCS#11 based on OpenSSL or Botan.
 
-
 ## Installation
 
 ```
 $ npm install pkcs11js
 ```
 
+## Documentation
+
+[https://peculiarventures.github.io/pkcs11js/](https://peculiarventures.github.io/pkcs11js/)
+
 ### Install SoftHSM2
 
 - For OSX see the [instructions here](https://github.com/opendnssec/SoftHSMv2/blob/develop/OSX-NOTES.md)
 - For linux [instructions here](https://github.com/opendnssec/SoftHSMv2/blob/develop/README.md)
 - For Windows [instructions here](https://github.com/disig/SoftHSM2-for-Windows#softhsm2-installer-for-ms-windows)
-
 
 ## Examples
 

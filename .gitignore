@@ -13,3 +13,5 @@ node_modules
 # test
 .nyc_output
 coverage
+
+docs

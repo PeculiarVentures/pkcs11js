@@ -10,94 +10,265 @@
  */
 
 declare module "pkcs11js" {
-    export = Pkcs11Js;
-}
-
-declare namespace Pkcs11Js {
-
+    /**
+     * PKCS#11 handle type
+     */
     type Handle = Buffer;
 
+    /**
+     * Structure that describes the version
+     */
     interface Version {
+        /**
+         * Major version number (the integer portion of the version)
+         */
         major: number;
+        /**
+         * minor version number (the hundredths portion of the version)
+         */
         minor: number;
     }
 
+    /**
+     * Provides general information about Cryptoki
+     */
     interface ModuleInfo {
+        /**
+         * Cryptoki interface version number, for compatibility with future revisions of this interface
+         */
         cryptokiVersion: Version;
+        /**
+         * ID of the Cryptoki library manufacturer.
+         * Must be padded with the blank character (' ').
+         */
         manufacturerID: string;
+        /**
+         * Bit flags reserved for future versions. Must be zero for this version
+         */
         flags: number;
+        /**
+         * Character-string description of the library.
+         * Must be padded with the blank character (' ')
+         */
         libraryDescription: string;
+        /**
+         * Cryptoki library version number
+         */
         libraryVersion: Version;
     }
 
+    /**
+     * Provides information about a slot
+     */
     interface SlotInfo {
+        /**
+         * Character-string description of the slot.
+         * Must be padded with the blank character (' ')
+         */
         slotDescription: string;
+        /**
+         * ID of the slot manufacturer.
+         * Must be padded with the blank character (' ')
+         */
         manufacturerID: string;
+        /**
+         * Bits flags that provide capabilities of the slot
+         */
         flags: number;
+        /**
+         * Version number of the slot's hardware
+         */
         hardwareVersion: Version;
+        /**
+         * Version number of the slot's firmware
+         */
         firmwareVersion: Version;
     }
 
+    /**
+     * Provides information about a token
+     */
     interface TokenInfo {
+        /**
+         * Application-defined label, assigned during token initialization.
+         * Must be padded with the blank character (' ')
+         */
         label: string;
+        /**
+         * ID of the device manufacturer. 
+         * Must be padded with the blank character (' ')
+         */
         manufacturerID: string;
+        /**
+         * Model of the device. 
+         * Must be padded with the blank character (' ')
+         */
         model: string;
+        /**
+         * Character-string serial number of the device. 
+         * Must be padded with the blank character (' ')
+         */
         serialNumber: string;
+        /**
+         * Bit flags indicating capabilities and status of the device
+         */
         flags: number;
+        /**
+         * Maximum number of sessions that can be opened with the token at one time by a single application
+         */
         maxSessionCount: number;
+        /**
+         * Number of sessions that this application currently has open with the token
+         */
         sessionCount: number;
+        /**
+         * Maximum number of read/write sessions that can be opened with the token at one time by a single application
+         */
         maxRwSessionCount: number;
+        /**
+         * Number of read/write sessions that this application currently has open with the token
+         */
         rwSessionCount: number;
+        /**
+         * Maximum length in bytes of the PIN
+         */
         maxPinLen: number;
+        /**
+         * Minimum length in bytes of the PIN
+         */
         minPinLen: number;
+        /**
+         * version number of hardware
+         */
         hardwareVersion: Version;
+        /**
+         * Version number of firmware
+         */
         firmwareVersion: Version;
+        /**
+         * Current time as a character-string of length 16, represented in the format YYYYMMDDhhmmssxx 
+         * (4 characters for the year; 2 characters each for the month, the day, the hour, the minute, 
+         * and the second; and 2 additional reserved '0' characters). 
+         * The value of this field only makes sense for tokens equipped with a clock, 
+         * as indicated in the token information flags
+         */
         utcTime: string;
+        /**
+         * The total amount of memory on the token in bytes in which public objects may be stored
+         */
         totalPublicMemory: number;
+        /**
+         * The amount of free (unused) memory on the token in bytes for public objects
+         */
         freePublicMemory: number;
+        /**
+         * The total amount of memory on the token in bytes in which private objects may be stored
+         */
         totalPrivateMemory: number;
+        /**
+         * The amount of free (unused) memory on the token in bytes for private objects
+         */
         freePrivateMemory: number;
     }
 
+    /**
+     * Provides information about a particular mechanism
+     */
     interface MechanismInfo {
+        /**
+         * The minimum size of the key for the mechanism
+         */
         minKeySize: number;
+        /**
+         * The maximum size of the key for the mechanism
+         */
         maxKeySize: number;
+        /**
+         * Bit flags specifying mechanism capabilities
+         */
         flags: number;
     }
 
+    /**
+     * Provides information about a session
+     */
     interface SessionInfo {
+        /**
+         * ID of the slot that interfaces with the token
+         */
         slotID: Buffer;
+        /**
+         * The state of the session
+         */
         state: number;
+        /**
+         * Bit flags that define the type of session
+         */
         flags: number;
+        /**
+         * An error code defined by the cryptographic device
+         */
         deviceError: number;
     }
 
     type Template = Attribute[];
 
+    /**
+     * A structure that includes the type and value of an attribute
+     */
     interface Attribute {
+        /**
+         * The attribute type
+         */
         type: number;
+        /**
+         * The value of the attribute
+         */
         value?: number | boolean | string | Buffer;
     }
 
+    /**
+     * A structure that specifies a particular mechanism and any parameters it requires
+     */
     interface Mechanism {
+        /**
+         * The type of mechanism
+         */
         mechanism: number;
+        /**
+         * The parameter if required by the mechanism
+         */
         parameter?: Buffer | IParams;
     }
 
-    // Crypto parameters
+    //#region Crypto parameters
 
+    /**
+     * A base structure of a parameter
+     */
     interface IParams {
         /**
          * Type of crypto param. Uses constants CK_PARAMS_*
-         *
-         * @type {number}
          */
         type: number;
     }
 
+    /**
+     * A structure that provides the parameters for the {@link CKM_ECDH1_DERIVE} and {@link CKM_ECDH1_COFACTOR_DERIVE} 
+     * key derivation mechanisms, where each party contributes one key pair
+     */
     interface ECDH1 extends IParams {
+        /**
+         * Key derivation function used on the shared secret value
+         */
         kdf: number;
+        /**
+         * Some data shared between the two parties
+         */
         sharedData?: Buffer;
+        /**
+         * The other party's EC public key
+         */
         publicData: Buffer;
     }
 
@@ -133,6 +304,8 @@ declare namespace Pkcs11Js {
         saltLen: number;
     }
 
+    //#endregion
+
     interface KeyPair {
         privateKey: Handle;
         publicKey: Handle;
@@ -153,6 +326,9 @@ declare namespace Pkcs11Js {
         flags?: number;
     }
 
+    /**
+     * A Structure which contains a Cryptoki version and each function in the Cryptoki API
+     */
     export class PKCS11 {
         /**
          * Library path
@@ -161,8 +337,7 @@ declare namespace Pkcs11Js {
 
         /**
          * Loads dynamic library with PKCS#11 interface
-         *
-         * @param {string} path
+         * @param path
          */
         public load(path: string): void;
         /**
@@ -176,7 +351,6 @@ declare namespace Pkcs11Js {
         public C_Initialize(options?: InitializationOptions): void;
         /**
          * Closes dynamic library
-         *
          */
         public close(): void;
         /**
@@ -185,70 +359,61 @@ declare namespace Pkcs11Js {
         public C_Finalize(): void;
         /**
          * Returns general information about Cryptoki
-         *
-         * @returns {ModuleInfo}
+         * @returns Information about Cryptoki
          */
         public C_GetInfo(): ModuleInfo;
 
         //#region Slot and token management
 
         /**
-         * obtains a list of slots in the system
-         *
-         * @param {boolean} [tokenPresent] Only slots with tokens?
-         * @returns {Handle[]} Array of slot IDs
+         * Obtains a list of slots in the system
+         * @param [tokenPresent] Only slots with tokens?
+         * @returns Array of slot IDs
          */
         public C_GetSlotList(tokenPresent?: boolean): Handle[];
         /**
          * Obtains information about a particular slot in the system
-         *
-         * @param {Handle} slot The ID of the slot
-         * @returns {SlotInfo} Receives the slot information
+         * @param  slot The ID of the slot
+         * @returns Information about a slot
          */
         public C_GetSlotInfo(slot: Handle): SlotInfo;
         /**
          * Obtains information about a particular token in the system
-         *
-         * @param {Handle} slot ID of the token's slot
-         * @returns {TokenInfo} Receives the token information
+         * @param slot ID of the token's slot
+         * @returns Information about a token
          */
         public C_GetTokenInfo(slot: Handle): TokenInfo;
         /**
          * Initializes a token
-         *
-         * @param {Handle} slot ID of the token's slot
-         * @param {string} [pin] The SO's initial PIN
-         * @returns {string} 32-byte token label (blank padded)
+         * @param slot ID of the token's slot
+         * @param [pin] The SO's initial PIN
+         * @returns 32-byte token label (blank padded)
          */
         public C_InitToken(slot: Handle, pin?: string, label?: string): string;
         /**
          * Initializes the normal user's PIN
-         *
-         * @param {Handle} session The session's handle
-         * @param {string} [pin] The normal user's PIN
+         * @param session The session's handle
+         * @param pin The normal user's PIN
          */
         public C_InitPIN(session: Handle, pin?: string): void;
         /**
          * Modifies the PIN of the user who is logged in
-         *
-         * @param {Handle} session The session's handle
-         * @param {string} oldPin The old PIN
-         * @param {string} newPin The new PIN
+         * @param session The session's handle
+         * @param oldPin The old PIN
+         * @param newPin The new PIN
          */
         public C_SetPIN(session: Handle, oldPin: string, newPin: string): void;
         /**
          * Obtains a list of mechanism types supported by a token
-         *
-         * @param {Handle} slot ID of token's slot
-         * @returns {number[]} Gets mech. array
+         * @param slot ID of token's slot
+         * @returns A list of mechanism types
          */
         public C_GetMechanismList(slot: Handle): number[];
         /**
          * Obtains information about a particular mechanism possibly supported by a token
-         *
-         * @param {Handle} slot ID of the token's slot
-         * @param {number} mech Type of mechanism
-         * @returns {MechanismInfo} Receives mechanism info
+         * @param slot ID of the token's slot
+         * @param mech Type of mechanism
+         * @returns Information about mechanism
          */
         public C_GetMechanismInfo(slot: Handle, mech: number): MechanismInfo;
 
@@ -258,43 +423,37 @@ declare namespace Pkcs11Js {
 
         /**
          * Opens a session between an application and a token
-         *
-         * @param {Handle} slot The slot's ID
-         * @param {number} flags From CK_SESSION_INFO
-         * @returns {Handle} Gets session handle
+         * @param slot The slot's ID
+         * @param flags From CK_SESSION_INFO
+         * @returns Session handle
          */
         public C_OpenSession(slot: Handle, flags: number): Handle;
         /**
          * Closes a session between an application and a token
-         *
-         * @param {Handle} session The session's handle
+         * @param session The session's handle
          */
         public C_CloseSession(session: Handle): void;
         /**
          * Closes all sessions with a token
-         *
-         * @param {Handle} slot The token's slot
+         * @param slot The token's slot
          */
         public C_CloseAllSessions(slot: Handle): void;
         /**
          * Obtains information about the session
-         *
-         * @param {Handle} session The session's handle
-         * @returns {SessionInfo} Receives session info
+         * @param session The session's handle
+         * @returns Receives session info
          */
         public C_GetSessionInfo(session: Handle): SessionInfo;
         /**
          * Logs a user into a token
-         *
-         * @param {Handle} session The session's handle
-         * @param {number} userType The user type
-         * @param {string} [pin] The user's PIN
+         * @param session The session's handle
+         * @param userType The user type
+         * @param [pin] The user's PIN
          */
         public C_Login(session: Handle, userType: number, pin?: string): void;
         /**
          * Logs a user out from a token
-         *
-         * @param {Handle} session The session's handle
+         * @param session The session's handle
          */
         public C_Logout(session: Handle): void;
 
@@ -304,84 +463,74 @@ declare namespace Pkcs11Js {
 
         /**
          * Creates a new object
-         *
-         * @param {Handle} session The session's handle
-         * @param {Template} template The object's template
-         * @returns {Handle} Gets new object's handle
+         * @param session The session's handle
+         * @param template The object's template
+         * @returns A new object's handle
          */
         public C_CreateObject(session: Handle, template: Template): Handle;
         /**
          * Copies an object, creating a new object for the copy
-         *
-         * @param {Handle} session The session's handle
-         * @param {Handle} object The object's handle
-         * @param {Template} template Template for new object
-         * @returns {Handle} Receives handle of copy
+         * @param session The session's handle
+         * @param object The object's handle
+         * @param template Template for new object
+         * @returns A handle of copy
          */
         public C_CopyObject(session: Handle, object: Handle, template: Template): Handle;
         /**
          * Destroys an object
-         *
-         * @param {Handle} session The session's handle
-         * @param {Handle} object The object's handle
+         * @param session The session's handle
+         * @param object The object's handle
          */
         public C_DestroyObject(session: Handle, object: Handle): void;
         /**
          * Gets the size of an object in bytes
-         *
-         * @param {Handle} session The session's handle
-         * @param {Handle} object The object's handle
-         * @returns {number} Receives size of object
+         * @param session The session's handle
+         * @param object The object's handle
+         * @returns Size of an object in bytes
          */
         public C_GetObjectSize(session: Handle, object: Handle): number;
         /**
          * Initializes a search for token and session objects that match a template
-         *
-         * @param {Handle} session The session's handle
-         * @param {Template} template Attribute values to match
+         * @param session The session's handle
+         * @param template Attribute values to match
          */
         public C_FindObjectsInit(session: Handle, template: Template): void;
         /**
          * Continues a search for token and session
          * objects that match a template, obtaining additional object
          * handles
-         *
-         * @param {Handle} session Session's handle
-         * @param {number} session The maximum number of object handles to be returned
-         * @returns {Handle} gets list of Object handles
+         * @param session The session's handle
+         * @param session The maximum number of object handles to be returned
+         * @returns List of handles
          */
         public C_FindObjects(session: Handle, maxObjectCount: number): Handle[];
         /**
          * Continues a search for token and session
          * objects that match a template, obtaining additional object
          * handles
-         *
-         * @param {Handle} session Session's handle
-         * @returns {Handle} gets Object's handle. If Object is not found
-         * the result is Null
+         * @param session The session's handle
+         * @returns Object's handle. If object is not found
+         * the result is null
          */
-        public C_FindObjects(session: Handle): Handle;
+        public C_FindObjects(session: Handle): Handle | null;
         /**
          * Finishes a search for token and session objects
-         *
-         * @param {Handle} session The session's handle
+         * @param session The session's handle
          */
         public C_FindObjectsFinal(session: Handle): void;
         /**
          * Obtains the value of one or more object attributes
-         *
-         * @param {Handle} session The session's handle
-         * @param {Handle} object The object's handle
-         * @param {Template} template Specifies attrs; gets values
-         * @returns {Template} Receives attributes with values
+         * @param session The session's handle
+         * @param object The object's handle
+         * @param template Specifies attrs; gets values
+         * @returns List of Attributes with values
          */
         public C_GetAttributeValue(session: Handle, object: Handle, template: Template): Template;
         /**
          * Modifies the value of one or more object attributes
-         *
-         * @param {Handle} session The session's handle
-         * @param {Handle} object The object's handle
-         * @param {Template} template Specifies attrs and values
+         * @param session The session's handle
+         * @param object The object's handle
+         * @param template Specifies attrs and values
          */
         public C_SetAttributeValue(session: Handle, object: Handle, template: Template): void;
 
@@ -391,105 +540,94 @@ declare namespace Pkcs11Js {
 
         /**
          * Initializes an encryption operation
-         *
-         * @param {Handle} session The session's handle
-         * @param {Mechanism} mechanism The encryption mechanism
-         * @param {Handle} key Handle of encryption key
+         * @param session The session's handle
+         * @param mechanism The encryption mechanism
+         * @param key Handle of encryption key
          */
         public C_EncryptInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
          * Encrypts single-part data
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Output data
-         * @returns {Buffer}
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data with encrypted message
          */
         public C_Encrypt(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
          * Encrypts single-part data
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Output data
-         * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced output data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @param cb Async callback with sliced output data
          */
         public C_Encrypt(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
          * Encrypts single-part data
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Output data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data with encrypted message
          */
         public C_EncryptAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
          * Continues a multiple-part encryption operation
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @returns {Buffer} Sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data
          */
         public C_EncryptUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
          * Finishes a multiple-part encryption operation
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} outData Last coming data
-         * @returns {Buffer} Sliced coming data
+         * @param session The session's handle
+         * @param outData Last output data
+         * @returns Sliced output data
          */
         public C_EncryptFinal(session: Handle, outData: Buffer): Buffer;
         /**
          * Initializes a decryption operation
-         *
-         * @param {Handle} session The session's handle
-         * @param {Mechanism} mechanism The decryption mechanism
-         * @param {Handle} key Handle of decryption key
+         * @param session The session's handle
+         * @param mechanism The decryption mechanism
+         * @param key Handle of decryption key
          */
         public C_DecryptInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
          * Decrypts encrypted data in a single part
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @returns {Buffer} Sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data with decrypted message
          */
         public C_Decrypt(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
          * Decrypts encrypted data in a single part
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @param cb Async callback with sliced output data
          */
         public C_Decrypt(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
          * Decrypts encrypted data in a single part
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @returns Sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data with decrypted message
          */
         public C_DecryptAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
          * continues a multiple-part decryption operation
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @returns {Buffer} Sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data with decrypted block
          */
         public C_DecryptUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
          * Finishes a multiple-part decryption operation
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} outData Last part of coming data
-         * @returns {Buffer} Coming data
+         * @param session The session's handle
+         * @param outData Last part of output data
+         * @returns Sliced output data with decrypted final block
          */
         public C_DecryptFinal(session: Handle, outData: Buffer): Buffer;
 
@@ -497,56 +635,55 @@ declare namespace Pkcs11Js {
 
         /**
          * Initializes a message-digesting operation
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Digesting mechanism
+         * @param session The session's handle
+         * @param mechanism Digesting mechanism
          */
         public C_DigestInit(session: Handle, mechanism: Mechanism): void;
         /**
          * Digests data in a single part
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @returns {Buffer} Sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data
          */
         public C_Digest(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
          * Digests data in a single part
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @param cb Async callback with sliced output data
          */
         public C_Digest(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
          * Digests data in a single part
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @returns Sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data
          */
         public C_DigestAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
          * continues a multiple-part message-digesting operation
          * operation, by digesting the value of a secret key as part of
          * the data already digested
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
+         * @param session The session's handle
+         * @param inData Incoming data
          */
         public C_DigestUpdate(session: Handle, inData: Buffer): void;
         /**
          * Finishes a multiple-part message-digesting operation
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} outData Coming data
-         * @returns {Buffer} Sliced coming data
+         * @param session The session's handle
+         * @param outData Output data
+         * @returns Sliced output data
          */
         public C_DigestFinal(session: Handle, outData: Buffer): Buffer;
-        // C_DigestKey();
+        /**
+         * Continues a multiple-part message-digesting operation by digesting the value of a secret key
+         * @param session The session's handle
+         * @param key The handle of the secret key to be digested
+         */
+        public C_DigestKey(session: Handle, key: Handle): void;
 
         //#endregion
 
@@ -557,65 +694,72 @@ declare namespace Pkcs11Js {
          * operation, where the signature is (will be) an appendix to
          * the data, and plaintext cannot be recovered from the
          * signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Signature mechanism
-         * @param {Handle} key Handle of signature key
+         * @param session The session's handle
+         * @param mechanism Signature mechanism
+         * @param key Handle of signature key
          */
         public C_SignInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
          * Signs (encrypts with private key) data in a single
          * part, where the signature is (will be) an appendix to the
          * data, and plaintext cannot be recovered from the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @returns {Buffer} Sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data
          */
         public C_Sign(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
          * Signs (encrypts with private key) data in a single
          * part, where the signature is (will be) an appendix to the
          * data, and plaintext cannot be recovered from the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @param {(error: Error, data: Buffer) => void} cb Async callback with sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @param cb Async callback with sliced output data
          */
         public C_Sign(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
          * Signs (encrypts with private key) data in a single
          * part, where the signature is (will be) an appendix to the
          * data, and plaintext cannot be recovered from the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} outData Coming data
-         * @returns Sliced coming data
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data
          */
         public C_SignAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
          * Continues a multiple-part signature operation,
          * where the signature is (will be) an appendix to the data,
          * and plaintext cannot be recovered from the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
+         * @param session The session's handle
+         * @param inData Incoming data
          */
         public C_SignUpdate(session: Handle, inData: Buffer): void;
         /**
          * Finishes a multiple-part signature operation,
          * returning the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} outData Coming data
-         * @returns {Buffer} Sliced coming data
+         * @param session The session's handle
+         * @param outData Output data
+         * @returns Sliced output data
          */
         public C_SignFinal(session: Handle, outData: Buffer): Buffer;
-        // C_SignRecoverInit();
-        // C_SignRecover();
+        /**
+         * Initializes a signature operation, where the data can be recovered from the signature
+         * @param session The session's handle
+         * @param mechanism The structure that specifies the signature mechanism 
+         * @param key The handle of the signature key
+         */
+        public C_SignRecoverInit(session: Handle, mechanism: Mechanism, key: Handle): void;
+        /**
+         * Signs data in a single operation, where the data can be recovered from the signature
+         * @param session 
+         * @param inData Incoming data
+         * @param outData Output data
+         * @returns Sliced output data
+         */
+        public C_SignRecover(session: Handle, inData: Buffer, outData: Buffer): Buffer;
 
         //#endregion
 
@@ -625,42 +769,38 @@ declare namespace Pkcs11Js {
          * initializes a verification operation, where the
          * signature is an appendix to the data, and plaintext cannot
          * cannot be recovered from the signature (e.g. DSA)
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Verification mechanism
-         * @param {Handle} key Verification key
+         * @param session The session's handle
+         * @param mechanism Verification mechanism
+         * @param key Verification key
          */
         public C_VerifyInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
          * Verifies a signature in a single-part operation,
          * where the signature is an appendix to the data, and plaintext
          * cannot be recovered from the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} signature Signature to verify
-         * @returns {boolean} Verification result
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param signature Signature to verify
+         * @returns Verification result
          */
         public C_Verify(session: Handle, inData: Buffer, signature: Buffer): boolean;
         /**
          * Verifies a signature in a single-part operation,
          * where the signature is an appendix to the data, and plaintext
          * cannot be recovered from the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} signature Signature to verify
-         * @param {(error: Error, verify: boolean) => void} cb Async callback with verification result
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param signature Signature to verify
+         * @param cb Async callback with verification result
          */
         public C_Verify(session: Handle, inData: Buffer, signature: Buffer, cb: (error: Error, verify: boolean) => void): void;
         /**
          * Verifies a signature in a single-part operation,
          * where the signature is an appendix to the data, and plaintext
          * cannot be recovered from the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
-         * @param {Buffer} signature Signature to verify
+         * @param session The session's handle
+         * @param inData Incoming data
+         * @param signature Signature to verify
          * @returns Verification result
          */
         public C_VerifyAsync(session: Handle, inData: Buffer, signature: Buffer): Promise<boolean>;
@@ -668,22 +808,33 @@ declare namespace Pkcs11Js {
          * Continues a multiple-part verification
          * operation, where the signature is an appendix to the data,
          * and plaintext cannot be recovered from the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} inData Incoming data
+         * @param session The session's handle
+         * @param inData Incoming data
          */
         public C_VerifyUpdate(session: Handle, inData: Buffer): void;
         /**
          * Finishes a multiple-part verification
          * operation, checking the signature
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} signature Signature to verify
-         * @returns {boolean}
+         * @param session The session's handle
+         * @param signature Signature to verify
+         * @returns
          */
         public C_VerifyFinal(session: Handle, signature: Buffer): boolean;
-        // C_VerifyRecoverInit();
-        // C_VerifyRecover();
+        /**
+         * Initializes a signature verification operation, where the data is recovered from the signature
+         * @param session The session's handle
+         * @param mechanism The structure that specifies the verification mechanism
+         * @param key The handle of the verification key
+         */
+        C_VerifyRecoverInit(session: Handle, mechanism: Mechanism, key: Handle): void;
+        /**
+         * Verifies a signature in a single-part operation, where the data is recovered from the signature
+         * @param session The session's handle
+         * @param signature The signature to verify
+         * @param outData The allocated buffer for recovered data
+         * @return The sliced output data with recovered data
+         */
+        C_VerifyRecover(session: Handle, signature: Buffer, outData: Buffer): Buffer;
 
         //#endregion
 
@@ -691,174 +842,157 @@ declare namespace Pkcs11Js {
 
         /**
          * Generates a secret key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key generation mechanism
-         * @param {Template} template Template for new key
-         * @returns {Handle} Handle of new key
+         * @param session The session's handle
+         * @param mechanism Key generation mechanism
+         * @param template Template for new key
+         * @returns The handle of the new key
          */
         public C_GenerateKey(session: Handle, mechanism: Mechanism, template: Template): Handle;
         /**
          * Generates a secret key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key generation mechanism
-         * @param {Template} template Template for new key
-         * @param {(error: Error, key: Handle) => void} cb Async callback with handle of new key
+         * @param session The session's handle
+         * @param mechanism Key generation mechanism
+         * @param template Template for new key
+         * @param cb Async callback with handle of new key
          */
         public C_GenerateKey(session: Handle, mechanism: Mechanism, template: Template, cb: (error: Error, key: Handle) => void): void;
         /**
          * Generates a secret key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key generation mechanism
-         * @param {Template} template Template for new key
-         * @returns Handle of new key
+         * @param session The session's handle
+         * @param mechanism The key generation mechanism
+         * @param template The template for the new key
+         * @returns The handle of the new key
          */
         public C_GenerateKeyAsync(session: Handle, mechanism: Mechanism, template: Template): Promise<Handle>;
         /**
          * Generates a public-key/private-key pair,
          * creating new key objects
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key generation mechanism
-         * @param {Template} publicTmpl Template for public key
-         * @param {Template} privateTmpl Template for private key
-         * @returns {KeyPair} Handles for private and public keys
+         * @param session The session's handle
+         * @param mechanism Key generation mechanism
+         * @param publicTmpl Template for public key
+         * @param privateTmpl Template for private key
+         * @returns The pair of handles for private and public keys
          */
         public C_GenerateKeyPair(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template): KeyPair;
         /**
          * Generates a public-key/private-key pair,
          * creating new key objects
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key generation mechanism
-         * @param {Template} publicTmpl Template for public key
-         * @param {Template} privateTmpl Template for private key
-         * @param {(error: Error, keys: KeyPair) => void} cb Async callback with handles for private and public keys
+         * @param session The session's handle
+         * @param mechanism Key generation mechanism
+         * @param publicTmpl Template for public key
+         * @param privateTmpl Template for private key
+         * @param cb Async callback with handles for private and public keys
          */
         public C_GenerateKeyPair(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template, cb: (error: Error, keys: KeyPair) => void): void;
         /**
          * Generates a public-key/private-key pair,
          * creating new key objects
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key generation mechanism
-         * @param {Template} publicTmpl Template for public key
-         * @param {Template} privateTmpl Template for private key
+         * @param session The session's handle
+         * @param mechanism Key generation mechanism
+         * @param publicTmpl Template for public key
+         * @param privateTmpl Template for private key
          * @returns Handles for private and public keys
          */
         public C_GenerateKeyPairAsync(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template): Promise<KeyPair>;
         /**
          * Wraps (i.e., encrypts) a key
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Wrapping mechanism
-         * @param {Handle} wrappingKey Wrapping key
-         * @param {Handle} key Key to be wrapped
-         * @param {Buffer} wrappedKey Init buffer for wrapped key
-         * @returns {Buffer} Sliced wrapped key
+         * @param session The session's handle
+         * @param mechanism Wrapping mechanism
+         * @param wrappingKey Wrapping key
+         * @param key Key to be wrapped
+         * @param wrappedKey Init buffer for wrapped key
+         * @returns Sliced wrapped key
          */
         public C_WrapKey(session: Handle, mechanism: Mechanism, wrappingKey: Handle, key: Handle, wrappedKey: Buffer): Buffer;
         /**
          * Wraps (i.e., encrypts) a key
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Wrapping mechanism
-         * @param {Handle} wrappingKey Wrapping key
-         * @param {Handle} key Key to be wrapped
-         * @param {Buffer} wrappedKey Init buffer for wrapped key
-         * @param {(error: Error, wrappedKey: Buffer) => void} cb Async callback with sliced wrapped key
+         * @param session The session's handle
+         * @param mechanism Wrapping mechanism
+         * @param wrappingKey Wrapping key
+         * @param key Key to be wrapped
+         * @param wrappedKey Init buffer for wrapped key
+         * @param cb Async callback with sliced wrapped key
          */
         public C_WrapKey(session: Handle, mechanism: Mechanism, wrappingKey: Handle, key: Handle, wrappedKey: Buffer, cb: (error: Error, wrappedKey: Buffer) => void): void;
         /**
          * Wraps (i.e., encrypts) a key
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Wrapping mechanism
-         * @param {Handle} wrappingKey Wrapping key
-         * @param {Handle} key Key to be wrapped
-         * @param {Buffer} wrappedKey Init buffer for wrapped key
+         * @param session The session's handle
+         * @param mechanism Wrapping mechanism
+         * @param wrappingKey Wrapping key
+         * @param key Key to be wrapped
+         * @param wrappedKey Init buffer for wrapped key
          * @returns Sliced wrapped key
          */
         public C_WrapKeyAsync(session: Handle, mechanism: Mechanism, wrappingKey: Handle, key: Handle, wrappedKey: Buffer): Promise<Buffer>;
         /**
          * Unwraps (decrypts) a wrapped key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Unwrapping mechanism
-         * @param {Handle} unwrappingKey Unwrapping key
-         * @param {Buffer} wrappedKey Wrapped key
-         * @param {Template} template New key template
-         * @returns {Handle} A new handle
+         * @param session The session's handle
+         * @param mechanism Unwrapping mechanism
+         * @param unwrappingKey Unwrapping key
+         * @param wrappedKey Wrapped key
+         * @param template New key template
+         * @returns The unwrapped key handle
          */
         public C_UnwrapKey(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template): Handle;
         /**
          * Unwraps (decrypts) a wrapped key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Unwrapping mechanism
-         * @param {Handle} unwrappingKey Unwrapping key
-         * @param {Buffer} wrappedKey Wrapped key
-         * @param {Template} template New key template
-         * @param {(error: Error, key: Handle) => void} cb Async callback with new key handle
+         * @param session The session's handle
+         * @param mechanism Unwrapping mechanism
+         * @param unwrappingKey Unwrapping key
+         * @param wrappedKey Wrapped key
+         * @param template New key template
+         * @param cb Async callback with new key handle
          */
         public C_UnwrapKey(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template, cb: (error: Error, key: Handle) => void): void;
         /**
          * Unwraps (decrypts) a wrapped key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Unwrapping mechanism
-         * @param {Handle} unwrappingKey Unwrapping key
-         * @param {Buffer} wrappedKey Wrapped key
-         * @param {Template} template New key template
-         * @returns A new handle
+         * @param session The session's handle
+         * @param mechanism Unwrapping mechanism
+         * @param unwrappingKey Unwrapping key
+         * @param wrappedKey Wrapped key
+         * @param template New key template
+         * @returns The unwrapped key handle
          */
         public C_UnwrapKeyAsync(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template): Promise<Handle>;
         /**
          * Derives a key from a base key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key derivation mechanism
-         * @param {Handle} key Base key
-         * @param {Template} template new key template
-         * @returns {Handle} Get new key handle
+         * @param session The session's handle
+         * @param mechanism The key derivation mechanism
+         * @param key The base key
+         * @param template The template for the new key
+         * @returns The derived key handle
          */
         public C_DeriveKey(session: Handle, mechanism: Mechanism, key: Handle, template: Template): Handle;
         /**
          * Derives a key from a base key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key derivation mechanism
-         * @param {Handle} key Base key
-         * @param {Template} template new key template
-         * @param {(error: Error, hKey: Handle) => void} cb Async callback with new key handle
+         * @param session The session's handle
+         * @param mechanism The key derivation mechanism
+         * @param key The base key
+         * @param template The template for the new key
+         * @param cb Async callback with the derived key handle
          */
         public C_DeriveKey(session: Handle, mechanism: Mechanism, key: Handle, template: Template, cb: (error: Error, hKey: Handle) => void): void;
         /**
          * Derives a key from a base key, creating a new key object
-         *
-         * @param {Handle} session Session's handle
-         * @param {Mechanism} mechanism Key derivation mechanism
-         * @param {Handle} key Base key
-         * @param {Template} template new key template
-         * @returns Get new key handle
+         * @param session The session's handle
+         * @param mechanism The key derivation mechanism
+         * @param key The base key
+         * @param template The template for the new key
+         * @returns The derived key handle
          */
         public C_DeriveKeyAsync(session: Handle, mechanism: Mechanism, key: Handle, template: Template): Promise<Handle>;
         /**
          * Mixes additional seed material into the token's random number generator
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} buf The seed material
-         * @returns {Buffer} Seeded data
+         * @param session The session's handle
+         * @param buf The seed material
+         * @returns The seeded data
          */
         public C_SeedRandom(session: Handle, buf: Buffer): Buffer;
         /**
          * Generates random data
-         *
-         * @param {Handle} session Session's handle
-         * @param {Buffer} buf Init buffer
-         * @returns {Buffer} Receives the random data
+         * @param session The session's handle
+         * @param buf Init buffer
+         * @returns The random data
          */
         public C_GenerateRandom(session: Handle, buf: Buffer): Buffer;
 
@@ -1425,5 +1559,4 @@ declare namespace Pkcs11Js {
     // Initialize flags
     const CKF_LIBRARY_CANT_CREATE_OS_THREADS: number;
     const CKF_OS_LOCKING_OK: number;
-
 }

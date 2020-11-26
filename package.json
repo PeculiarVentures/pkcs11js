@@ -1,7 +1,7 @@
 {
   "name": "pkcs11js",
   "version": "1.1.1",
-  "description": "A Node.js implementation of the PKCS#11 2.3 interface",
+  "description": "A Node.js implementation of the PKCS#11 2.30 interface",
   "repository": {
     "type": "git",
     "url": "git://github.com/PeculiarVentures/pkcs11js.git"
@@ -37,6 +37,7 @@
     "build": "node-gyp configure build",
     "pub": "npm run build && npm version patch && npm publish && git push",
     "sync": "git ac && git pull --rebase && git push",
+    "docs": "typedoc --includeDeclarations --excludeExternals --mode modules index.d.ts",
     "coverage": "nyc npm test"
   },
   "author": "PeculiarVentures",
@@ -49,7 +50,9 @@
     "@types/node": "^10.17.47",
     "coveralls": "^3.1.0",
     "mocha": "^8.2.1",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "typedoc": "^0.19.2",
+    "typescript": "^4.1.2"
   },
   "bugs": {
     "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
