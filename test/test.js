@@ -501,4 +501,35 @@ context("PKCS11", () => {
       });
     });
   });
+  context("native error", () => {
+    it("with Cryptoki result value", () => {
+      const token = new pkcs11.PKCS11();
+      token.load(softHsmLib);
+      assert.throws(() => {
+        token.C_Finalize();
+      }, (e) => {
+        assert.strictEqual(e.name, pkcs11.Pkcs11Error.name);
+        assert.strictEqual(e.message, "CKR_CRYPTOKI_NOT_INITIALIZED");
+        assert.strictEqual(e.method, "C_Finalize");
+        assert.strictEqual(e.code, pkcs11.CKR_CRYPTOKI_NOT_INITIALIZED);
+        assert.match(e.nativeStack, /^    at Error \(native\) C_Finalize:\d+$/);
+        
+        return true;
+      });
+    });
+    it("without Cryptoki result value", () => {
+      const token = new pkcs11.PKCS11();
+      token.load(softHsmLib);
+      assert.throws(() => {
+        token.C_Initialize("wrong");
+      }, (e) => {
+        assert.strictEqual(e.name, pkcs11.NativeError.name);
+        assert.strictEqual(e.message, "Parameter has wrong type. Should be empty or Object");
+        assert.strictEqual(e.method, "C_Initialize");
+        assert.match(e.nativeStack, /^    at Error \(native\) C_Initialize:\d+$/);
+        
+        return true;
+      });
+    });
+  });
 });
