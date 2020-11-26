@@ -107,9 +107,8 @@ static Scoped<string> get_pkcs11_error(CK_ULONG value) {
 		CASE_PKCS11_ERROR(CKR_PIN_TOO_WEAK);
 		CASE_PKCS11_ERROR(CKR_PUBLIC_KEY_INVALID);
 		CASE_PKCS11_ERROR(CKR_FUNCTION_REJECTED);
-		CASE_PKCS11_ERROR(CKR_VENDOR_DEFINED);
 	default:
-		Scoped<string> res(new string("Unknown error"));
+		Scoped<string> res(new string("CKR_VENDOR_DEFINED"));
 		*res += ":" + to_string(value);
 		return res;
 	}
