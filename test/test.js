@@ -54,7 +54,7 @@ context("PKCS11", () => {
     });
     it("C_GetInfo", () => {
       const info = token.C_GetInfo();
-      assert.deepEqual(Object.keys(info), [
+      assert.deepStrictEqual(Object.keys(info), [
         "cryptokiVersion",
         "manufacturerID",
         "flags",
@@ -64,21 +64,21 @@ context("PKCS11", () => {
     });
     it("C_GetSlotList", () => {
       const slots = token.C_GetSlotList();
-      assert.equal(slots.length > 0, true);
+      assert.strictEqual(slots.length > 0, true);
     });
     context("Slot", () => {
       let slot;
       before(() => {
         const slots = token.C_GetSlotList();
         slot = slots[0];
-        assert.equal(!!slot, true);
+        assert.strictEqual(!!slot, true);
       });
       after(() => {
         token.C_CloseAllSessions(slot);
       });
       it("C_GetSlotInfo", () => {
         const info = token.C_GetSlotInfo(slot);
-        assert.deepEqual(Object.keys(info), [
+        assert.deepStrictEqual(Object.keys(info), [
           "slotDescription",
           "manufacturerID",
           "flags",
@@ -88,7 +88,7 @@ context("PKCS11", () => {
       });
       it("C_GetTokenInfo", () => {
         const info = token.C_GetTokenInfo(slot);
-        assert.deepEqual(Object.keys(info), [
+        assert.deepStrictEqual(Object.keys(info), [
           "label",
           "manufacturerID",
           "model",
@@ -111,12 +111,12 @@ context("PKCS11", () => {
       });
       it("C_GetMechanismList", () => {
         const mechanisms = token.C_GetMechanismList(slot);
-        assert.equal(mechanisms.length > 0, true);
+        assert.strictEqual(mechanisms.length > 0, true);
       });
       it("C_GetMechanismInfo", () => {
         const mechanisms = token.C_GetMechanismList(slot);
         const info = token.C_GetMechanismInfo(slot, mechanisms[0]);
-        assert.deepEqual(Object.keys(info), [
+        assert.deepStrictEqual(Object.keys(info), [
           "minKeySize",
           "maxKeySize",
           "flags",
@@ -132,7 +132,7 @@ context("PKCS11", () => {
         });
         it("C_GetSessionInfo", () => {
           const info = token.C_GetSessionInfo(session);
-          assert.deepEqual(Object.keys(info), [
+          assert.deepStrictEqual(Object.keys(info), [
             "slotID",
             "state",
             "flags",
@@ -142,13 +142,13 @@ context("PKCS11", () => {
         it("C_GenerateRandom", () => {
           const buf = Buffer.alloc(10);
           const buf2 = token.C_GenerateRandom(session, buf);
-          assert.equal(buf, buf2);
-          assert.notEqual(buf.toString("hex"), "00000000000000000000");
+          assert.strictEqual(buf, buf2);
+          assert.notStrictEqual(buf.toString("hex"), "00000000000000000000");
         });
         it.skip("C_SeedRandom", () => {
           const buf = Buffer.from("1234567890");
           const buf2 = token.C_SeedRandom(session, buf);
-          assert.notEqual(buf.toString(), "1234567890");
+          assert.notStrictEqual(buf.toString(), "1234567890");
         });
         context("Find", () => {
           const label = Buffer.from("Find");
@@ -182,13 +182,13 @@ context("PKCS11", () => {
               { type: pkcs11.CKA_LABEL, value: label },
             ]);
             let handle = token.C_FindObjects(session);
-            assert.equal(Buffer.isBuffer(handle), true);
+            assert.strictEqual(Buffer.isBuffer(handle), true);
             handle = token.C_FindObjects(session);
-            assert.equal(Buffer.isBuffer(handle), true);
+            assert.strictEqual(Buffer.isBuffer(handle), true);
             handle = token.C_FindObjects(session);
-            assert.equal(Buffer.isBuffer(handle), true);
+            assert.strictEqual(Buffer.isBuffer(handle), true);
             handle = token.C_FindObjects(session);
-            assert.equal(handle, null);
+            assert.strictEqual(handle, null);
             token.C_FindObjectsFinal(session);
           });
           it("Find multi objects", () => {
@@ -197,9 +197,9 @@ context("PKCS11", () => {
               { type: pkcs11.CKA_LABEL, value: label },
             ]);
             let handles = token.C_FindObjects(session, 2);
-            assert.equal(handles.length, 2);
+            assert.strictEqual(handles.length, 2);
             handles = token.C_FindObjects(session, 2);
-            assert.equal(handles.length, 1);
+            assert.strictEqual(handles.length, 1);
             token.C_FindObjectsFinal(session);
           });
         });
@@ -209,8 +209,8 @@ context("PKCS11", () => {
             const hash = Buffer.alloc(40);
             token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
             const hash2 = token.C_Digest(session, data, hash);
-            assert.equal(hash.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d0000000000000000");
-            assert.equal(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
+            assert.strictEqual(hash.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d0000000000000000");
+            assert.strictEqual(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
           });
           it("C_DigestInit, C_Digest callback", (done) => {
             const data = Buffer.from("message");
@@ -221,7 +221,7 @@ context("PKCS11", () => {
                 done(data);
               }
               else {
-                assert.equal(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
+                assert.strictEqual(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
                 done();
               }
             });
@@ -231,7 +231,7 @@ context("PKCS11", () => {
             const hash = Buffer.alloc(40);
             token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
             const hash2 = await token.C_DigestAsync(session, data, hash);
-            assert.equal(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
+            assert.strictEqual(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
           });
           it("C_DigestInit, C_DigestUpdate, C_DigestFinal", () => {
             const data = Buffer.from("message");
@@ -239,8 +239,8 @@ context("PKCS11", () => {
             token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
             token.C_DigestUpdate(session, data);
             const hash2 = token.C_DigestFinal(session, hash);
-            assert.equal(hash.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d0000000000000000");
-            assert.equal(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
+            assert.strictEqual(hash.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d0000000000000000");
+            assert.strictEqual(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
           });
         });
         // https://github.com/PeculiarVentures/pkcs11js/issues/47
@@ -278,8 +278,8 @@ context("PKCS11", () => {
               const signature = Buffer.alloc(1024);
               token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
               const signature2 = token.C_Sign(session, data, signature);
-              assert.equal(signature2.length < signature.length, true);
-              assert.equal(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
+              assert.strictEqual(signature2.length < signature.length, true);
+              assert.strictEqual(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
             });
             it("C_SignInit, C_Sign callback", (done) => {
               const signature = Buffer.alloc(1024);
@@ -289,7 +289,7 @@ context("PKCS11", () => {
                   done(error);
                 }
                 else {
-                  assert.equal(signature2.length < signature.length, true);
+                  assert.strictEqual(signature2.length < signature.length, true);
                   done();
                 }
               });
@@ -298,20 +298,20 @@ context("PKCS11", () => {
               const signature = Buffer.alloc(1024);
               token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
               const signature2 = await token.C_SignAsync(session, data, signature);
-              assert.equal(signature2.length < signature.length, true);
+              assert.strictEqual(signature2.length < signature.length, true);
             });
             it("C_SignInit, C_SignUpdate, C_SignFinal", () => {
               const signature = Buffer.alloc(1024);
               token.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
               token.C_SignUpdate(session, data);
               const signature2 = token.C_SignFinal(session, signature);
-              assert.equal(signature2.length < signature.length, true);
-              assert.equal(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
+              assert.strictEqual(signature2.length < signature.length, true);
+              assert.strictEqual(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
             });
             it("C_VerifyInit, C_Verify", () => {
               token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
               const ok = token.C_Verify(session, data, rsaPkcsSignature);
-              assert.equal(ok, true);
+              assert.strictEqual(ok, true);
             });
             it("C_VerifyInit, C_Verify callback", (done) => {
               token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
@@ -320,7 +320,7 @@ context("PKCS11", () => {
                   done(error);
                 }
                 else {
-                  assert.equal(ok, true);
+                  assert.strictEqual(ok, true);
                   done();
                 }
               });
@@ -328,13 +328,13 @@ context("PKCS11", () => {
             it("C_VerifyInit, C_Verify async", async () => {
               token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
               const ok = await token.C_VerifyAsync(session, data, rsaPkcsSignature);
-              assert.equal(ok, true);
+              assert.strictEqual(ok, true);
             });
             it("C_VerifyInit, C_VerifyUpdate, C_VerifyFinal", () => {
               token.C_VerifyInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.publicKey);
               token.C_VerifyUpdate(session, data);
               const ok = token.C_VerifyFinal(session, rsaPkcsSha256Signature);
-              assert.equal(ok, true);
+              assert.strictEqual(ok, true);
             });
           });
         // https://github.com/PeculiarVentures/pkcs11js/issues/47
@@ -376,7 +376,7 @@ context("PKCS11", () => {
 
               token.C_DecryptInit(session, mechanism, keys.privateKey);
               const dec = token.C_Decrypt(session, enc, Buffer.alloc(1024));
-              assert.equal(data.equals(dec), true);
+              assert.strictEqual(data.equals(dec), true);
             })
           });
         context("Encrypt/Decrypt (AES-CBC)", () => {
@@ -405,8 +405,8 @@ context("PKCS11", () => {
             const enc = Buffer.alloc(1024);
             token.C_EncryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             const enc2 = token.C_Encrypt(session, data, enc);
-            assert.equal(enc2.length < enc.length, true);
-            assert.equal(enc2.toString("hex"), enc.slice(0, enc2.length).toString("hex"));
+            assert.strictEqual(enc2.length < enc.length, true);
+            assert.strictEqual(enc2.toString("hex"), enc.slice(0, enc2.length).toString("hex"));
           });
           it("C_EncryptInit, C_Encrypt callback", (done) => {
             const enc = Buffer.alloc(1024);
@@ -416,7 +416,7 @@ context("PKCS11", () => {
                 done(error);
               }
               else {
-                assert.equal(enc2.length < enc.length, true);
+                assert.strictEqual(enc2.length < enc.length, true);
                 done();
               }
             });
@@ -425,20 +425,20 @@ context("PKCS11", () => {
             const enc = Buffer.alloc(1024);
             token.C_EncryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             const enc2 = await token.C_EncryptAsync(session, data, enc);
-            assert.equal(enc2.length < enc.length, true);
+            assert.strictEqual(enc2.length < enc.length, true);
           });
           it("C_EncryptInit, C_EncryptUpdate, C_EncryptFinal", () => {
             token.C_EncryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             let enc = token.C_EncryptUpdate(session, data, Buffer.alloc(128));
             enc = Buffer.concat([enc, token.C_EncryptFinal(session, Buffer.alloc(128))]);
-            assert.equal(enc.length > 0, true);
+            assert.strictEqual(enc.length > 0, true);
           });
           it("C_DecryptInit, C_Decrypt", () => {
             const dec = Buffer.alloc(1024);
             token.C_DecryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             const dec2 = token.C_Decrypt(session, encrypted, dec);
-            assert.equal(dec2.length < dec.length, true);
-            assert.equal(dec2.toString("hex"), dec.slice(0, dec2.length).toString("hex"));
+            assert.strictEqual(dec2.length < dec.length, true);
+            assert.strictEqual(dec2.toString("hex"), dec.slice(0, dec2.length).toString("hex"));
           });
           it("C_DecryptInit, C_Decrypt callback", (done) => {
             const dec = Buffer.alloc(1024);
@@ -448,7 +448,7 @@ context("PKCS11", () => {
                 done(error);
               }
               else {
-                assert.equal(dec2.length < dec.length, true);
+                assert.strictEqual(dec2.length < dec.length, true);
                 done();
               }
             });
@@ -457,13 +457,13 @@ context("PKCS11", () => {
             const dec = Buffer.alloc(1024);
             token.C_DecryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             const dec2 = await token.C_DecryptAsync(session, encrypted, dec);
-            assert.equal(dec2.toString(), data.toString());
+            assert.strictEqual(dec2.toString(), data.toString());
           });
           it("C_DecryptInit, C_DecryptUpdate, C_DecryptFinal", () => {
             token.C_DecryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             let dec = token.C_DecryptUpdate(session, encrypted, Buffer.alloc(128));
             dec = Buffer.concat([dec, token.C_DecryptFinal(session, Buffer.alloc(128))]);
-            assert.equal(dec.length > 0, true);
+            assert.strictEqual(dec.length > 0, true);
           });
         });
         (os.platform() === "linux" && +/v(\d+)/.exec(process.version)[1] > 9
@@ -495,7 +495,7 @@ context("PKCS11", () => {
                 { type: pkcs11.CKA_ENCRYPT, value: true },
                 { type: pkcs11.CKA_VALUE_LEN, value: 16 },
               ]);
-              assert.equal(!!key, true);
+              assert.strictEqual(!!key, true);
             });
           });
       });
