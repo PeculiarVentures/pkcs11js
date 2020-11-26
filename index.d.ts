@@ -315,7 +315,7 @@ declare module "pkcs11js" {
          */
         libraryParameters?: string;
         /**
-         * bit flags specifying options for `C_Initialize`
+         * bit flags specifying options for {@link C_Initialize}
          * - CKF_LIBRARY_CANT_CREATE_OS_THREADS. True if application threads which are executing calls to the library
          *   may not use native operating system calls to spawn new threads; false if they may
          * - CKF_OS_LOCKING_OK. True if the library can use the native operation system threading model for locking;
@@ -335,7 +335,9 @@ declare module "pkcs11js" {
 
         /**
          * Loads dynamic library with PKCS#11 interface
-         * @param path
+         * @param path The path to PKCS#11 library
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public load(path: string): void;
         /**
@@ -345,19 +347,27 @@ declare module "pkcs11js" {
          * - if `options` is null or empty, it calls native `C_Initialize` with `NULL`
          * - if `options` doesn't have `libraryParameters`, it uses `CK_C_INITIALIZE_ARGS` structure
          * - if `options` has `libraryParameters`, it uses extended NSS structure
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Initialize(options?: InitializationOptions): void;
         /**
          * Closes dynamic library
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public close(): void;
         /**
          * Indicates that an application is done with the Cryptoki library
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Finalize(): void;
         /**
          * Returns general information about Cryptoki
          * @returns Information about Cryptoki
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetInfo(): ModuleInfo;
 
@@ -367,18 +377,24 @@ declare module "pkcs11js" {
          * Obtains a list of slots in the system
          * @param [tokenPresent] Only slots with tokens?
          * @returns Array of slot IDs
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetSlotList(tokenPresent?: boolean): Handle[];
         /**
          * Obtains information about a particular slot in the system
          * @param  slot The ID of the slot
          * @returns Information about a slot
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetSlotInfo(slot: Handle): SlotInfo;
         /**
          * Obtains information about a particular token in the system
          * @param slot ID of the token's slot
          * @returns Information about a token
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetTokenInfo(slot: Handle): TokenInfo;
         /**
@@ -386,12 +402,16 @@ declare module "pkcs11js" {
          * @param slot ID of the token's slot
          * @param [pin] The SO's initial PIN
          * @returns 32-byte token label (blank padded)
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_InitToken(slot: Handle, pin?: string, label?: string): string;
         /**
          * Initializes the normal user's PIN
          * @param session The session's handle
          * @param pin The normal user's PIN
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_InitPIN(session: Handle, pin?: string): void;
         /**
@@ -399,12 +419,16 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param oldPin The old PIN
          * @param newPin The new PIN
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SetPIN(session: Handle, oldPin: string, newPin: string): void;
         /**
          * Obtains a list of mechanism types supported by a token
          * @param slot ID of token's slot
          * @returns A list of mechanism types
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetMechanismList(slot: Handle): number[];
         /**
@@ -412,6 +436,8 @@ declare module "pkcs11js" {
          * @param slot ID of the token's slot
          * @param mech Type of mechanism
          * @returns Information about mechanism
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetMechanismInfo(slot: Handle, mech: number): MechanismInfo;
 
@@ -424,22 +450,30 @@ declare module "pkcs11js" {
          * @param slot The slot's ID
          * @param flags From CK_SESSION_INFO
          * @returns Session handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_OpenSession(slot: Handle, flags: number): Handle;
         /**
          * Closes a session between an application and a token
          * @param session The session's handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_CloseSession(session: Handle): void;
         /**
          * Closes all sessions with a token
          * @param slot The token's slot
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_CloseAllSessions(slot: Handle): void;
         /**
          * Obtains information about the session
          * @param session The session's handle
          * @returns Receives session info
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetSessionInfo(session: Handle): SessionInfo;
         /**
@@ -447,11 +481,15 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param userType The user type
          * @param [pin] The user's PIN
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Login(session: Handle, userType: number, pin?: string): void;
         /**
          * Logs a user out from a token
          * @param session The session's handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Logout(session: Handle): void;
 
@@ -464,6 +502,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param template The object's template
          * @returns A new object's handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_CreateObject(session: Handle, template: Template): Handle;
         /**
@@ -472,12 +512,16 @@ declare module "pkcs11js" {
          * @param object The object's handle
          * @param template Template for new object
          * @returns A handle of copy
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_CopyObject(session: Handle, object: Handle, template: Template): Handle;
         /**
          * Destroys an object
          * @param session The session's handle
          * @param object The object's handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DestroyObject(session: Handle, object: Handle): void;
         /**
@@ -485,12 +529,16 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param object The object's handle
          * @returns Size of an object in bytes
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetObjectSize(session: Handle, object: Handle): number;
         /**
          * Initializes a search for token and session objects that match a template
          * @param session The session's handle
          * @param template Attribute values to match
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_FindObjectsInit(session: Handle, template: Template): void;
         /**
@@ -500,6 +548,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param session The maximum number of object handles to be returned
          * @returns List of handles
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_FindObjects(session: Handle, maxObjectCount: number): Handle[];
         /**
@@ -509,11 +559,15 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @returns Object's handle. If object is not found
          * the result is null
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_FindObjects(session: Handle): Handle | null;
         /**
          * Finishes a search for token and session objects
          * @param session The session's handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_FindObjectsFinal(session: Handle): void;
         /**
@@ -522,6 +576,8 @@ declare module "pkcs11js" {
          * @param object The object's handle
          * @param template Specifies attrs; gets values
          * @returns List of Attributes with values
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GetAttributeValue(session: Handle, object: Handle, template: Template): Template;
         /**
@@ -529,6 +585,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param object The object's handle
          * @param template Specifies attrs and values
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SetAttributeValue(session: Handle, object: Handle, template: Template): void;
 
@@ -541,6 +599,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param mechanism The encryption mechanism
          * @param key Handle of encryption key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_EncryptInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
@@ -549,6 +609,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data with encrypted message
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Encrypt(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
@@ -557,6 +619,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @param cb Async callback with sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Encrypt(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -565,6 +629,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data with encrypted message
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_EncryptAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
@@ -573,6 +639,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_EncryptUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
@@ -580,6 +648,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param outData Last output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_EncryptFinal(session: Handle, outData: Buffer): Buffer;
         /**
@@ -587,6 +657,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param mechanism The decryption mechanism
          * @param key Handle of decryption key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DecryptInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
@@ -595,6 +667,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data with decrypted message
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Decrypt(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
@@ -603,6 +677,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @param cb Async callback with sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Decrypt(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -611,6 +687,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data with decrypted message
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DecryptAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
@@ -619,6 +697,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data with decrypted block
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DecryptUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
@@ -626,6 +706,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param outData Last part of output data
          * @returns Sliced output data with decrypted final block
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DecryptFinal(session: Handle, outData: Buffer): Buffer;
 
@@ -635,6 +717,8 @@ declare module "pkcs11js" {
          * Initializes a message-digesting operation
          * @param session The session's handle
          * @param mechanism Digesting mechanism
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DigestInit(session: Handle, mechanism: Mechanism): void;
         /**
@@ -643,6 +727,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Digest(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
@@ -651,6 +737,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @param cb Async callback with sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Digest(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -659,6 +747,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DigestAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
@@ -667,6 +757,8 @@ declare module "pkcs11js" {
          * the data already digested
          * @param session The session's handle
          * @param inData Incoming data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DigestUpdate(session: Handle, inData: Buffer): void;
         /**
@@ -674,12 +766,16 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param outData Output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DigestFinal(session: Handle, outData: Buffer): Buffer;
         /**
          * Continues a multiple-part message-digesting operation by digesting the value of a secret key
          * @param session The session's handle
          * @param key The handle of the secret key to be digested
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DigestKey(session: Handle, key: Handle): void;
 
@@ -695,6 +791,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param mechanism Signature mechanism
          * @param key Handle of signature key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SignInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
@@ -705,6 +803,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Sign(session: Handle, inData: Buffer, outData: Buffer): Buffer;
         /**
@@ -715,6 +815,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @param cb Async callback with sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Sign(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
         /**
@@ -725,6 +827,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SignAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         /**
@@ -733,6 +837,8 @@ declare module "pkcs11js" {
          * and plaintext cannot be recovered from the signature
          * @param session The session's handle
          * @param inData Incoming data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SignUpdate(session: Handle, inData: Buffer): void;
         /**
@@ -741,6 +847,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param outData Output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SignFinal(session: Handle, outData: Buffer): Buffer;
         /**
@@ -748,6 +856,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param mechanism The structure that specifies the signature mechanism 
          * @param key The handle of the signature key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SignRecoverInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
@@ -756,6 +866,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param outData Output data
          * @returns Sliced output data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SignRecover(session: Handle, inData: Buffer, outData: Buffer): Buffer;
 
@@ -770,6 +882,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param mechanism Verification mechanism
          * @param key Verification key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_VerifyInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
@@ -780,6 +894,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param signature Signature to verify
          * @returns Verification result
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Verify(session: Handle, inData: Buffer, signature: Buffer): boolean;
         /**
@@ -790,6 +906,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param signature Signature to verify
          * @param cb Async callback with verification result
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_Verify(session: Handle, inData: Buffer, signature: Buffer, cb: (error: Error, verify: boolean) => void): void;
         /**
@@ -800,6 +918,8 @@ declare module "pkcs11js" {
          * @param inData Incoming data
          * @param signature Signature to verify
          * @returns Verification result
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_VerifyAsync(session: Handle, inData: Buffer, signature: Buffer): Promise<boolean>;
         /**
@@ -808,6 +928,8 @@ declare module "pkcs11js" {
          * and plaintext cannot be recovered from the signature
          * @param session The session's handle
          * @param inData Incoming data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_VerifyUpdate(session: Handle, inData: Buffer): void;
         /**
@@ -816,6 +938,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param signature Signature to verify
          * @returns
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_VerifyFinal(session: Handle, signature: Buffer): boolean;
         /**
@@ -823,6 +947,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param mechanism The structure that specifies the verification mechanism
          * @param key The handle of the verification key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         C_VerifyRecoverInit(session: Handle, mechanism: Mechanism, key: Handle): void;
         /**
@@ -831,6 +957,8 @@ declare module "pkcs11js" {
          * @param signature The signature to verify
          * @param outData The allocated buffer for recovered data
          * @return The sliced output data with recovered data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         C_VerifyRecover(session: Handle, signature: Buffer, outData: Buffer): Buffer;
 
@@ -844,6 +972,8 @@ declare module "pkcs11js" {
          * @param mechanism Key generation mechanism
          * @param template Template for new key
          * @returns The handle of the new key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GenerateKey(session: Handle, mechanism: Mechanism, template: Template): Handle;
         /**
@@ -852,6 +982,8 @@ declare module "pkcs11js" {
          * @param mechanism Key generation mechanism
          * @param template Template for new key
          * @param cb Async callback with handle of new key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GenerateKey(session: Handle, mechanism: Mechanism, template: Template, cb: (error: Error, key: Handle) => void): void;
         /**
@@ -860,6 +992,8 @@ declare module "pkcs11js" {
          * @param mechanism The key generation mechanism
          * @param template The template for the new key
          * @returns The handle of the new key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GenerateKeyAsync(session: Handle, mechanism: Mechanism, template: Template): Promise<Handle>;
         /**
@@ -870,6 +1004,8 @@ declare module "pkcs11js" {
          * @param publicTmpl Template for public key
          * @param privateTmpl Template for private key
          * @returns The pair of handles for private and public keys
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GenerateKeyPair(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template): KeyPair;
         /**
@@ -880,6 +1016,8 @@ declare module "pkcs11js" {
          * @param publicTmpl Template for public key
          * @param privateTmpl Template for private key
          * @param cb Async callback with handles for private and public keys
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GenerateKeyPair(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template, cb: (error: Error, keys: KeyPair) => void): void;
         /**
@@ -890,6 +1028,8 @@ declare module "pkcs11js" {
          * @param publicTmpl Template for public key
          * @param privateTmpl Template for private key
          * @returns Handles for private and public keys
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GenerateKeyPairAsync(session: Handle, mechanism: Mechanism, publicTmpl: Template, privateTmpl: Template): Promise<KeyPair>;
         /**
@@ -900,6 +1040,8 @@ declare module "pkcs11js" {
          * @param key Key to be wrapped
          * @param wrappedKey Init buffer for wrapped key
          * @returns Sliced wrapped key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_WrapKey(session: Handle, mechanism: Mechanism, wrappingKey: Handle, key: Handle, wrappedKey: Buffer): Buffer;
         /**
@@ -910,6 +1052,8 @@ declare module "pkcs11js" {
          * @param key Key to be wrapped
          * @param wrappedKey Init buffer for wrapped key
          * @param cb Async callback with sliced wrapped key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_WrapKey(session: Handle, mechanism: Mechanism, wrappingKey: Handle, key: Handle, wrappedKey: Buffer, cb: (error: Error, wrappedKey: Buffer) => void): void;
         /**
@@ -920,6 +1064,8 @@ declare module "pkcs11js" {
          * @param key Key to be wrapped
          * @param wrappedKey Init buffer for wrapped key
          * @returns Sliced wrapped key
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_WrapKeyAsync(session: Handle, mechanism: Mechanism, wrappingKey: Handle, key: Handle, wrappedKey: Buffer): Promise<Buffer>;
         /**
@@ -930,6 +1076,8 @@ declare module "pkcs11js" {
          * @param wrappedKey Wrapped key
          * @param template New key template
          * @returns The unwrapped key handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_UnwrapKey(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template): Handle;
         /**
@@ -940,6 +1088,8 @@ declare module "pkcs11js" {
          * @param wrappedKey Wrapped key
          * @param template New key template
          * @param cb Async callback with new key handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_UnwrapKey(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template, cb: (error: Error, key: Handle) => void): void;
         /**
@@ -950,6 +1100,8 @@ declare module "pkcs11js" {
          * @param wrappedKey Wrapped key
          * @param template New key template
          * @returns The unwrapped key handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_UnwrapKeyAsync(session: Handle, mechanism: Mechanism, unwrappingKey: Handle, wrappedKey: Buffer, template: Template): Promise<Handle>;
         /**
@@ -959,6 +1111,8 @@ declare module "pkcs11js" {
          * @param key The base key
          * @param template The template for the new key
          * @returns The derived key handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DeriveKey(session: Handle, mechanism: Mechanism, key: Handle, template: Template): Handle;
         /**
@@ -968,6 +1122,8 @@ declare module "pkcs11js" {
          * @param key The base key
          * @param template The template for the new key
          * @param cb Async callback with the derived key handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DeriveKey(session: Handle, mechanism: Mechanism, key: Handle, template: Template, cb: (error: Error, hKey: Handle) => void): void;
         /**
@@ -977,6 +1133,8 @@ declare module "pkcs11js" {
          * @param key The base key
          * @param template The template for the new key
          * @returns The derived key handle
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DeriveKeyAsync(session: Handle, mechanism: Mechanism, key: Handle, template: Template): Promise<Handle>;
         /**
@@ -984,6 +1142,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param buf The seed material
          * @returns The seeded data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SeedRandom(session: Handle, buf: Buffer): Buffer;
         /**
@@ -991,6 +1151,8 @@ declare module "pkcs11js" {
          * @param session The session's handle
          * @param buf Init buffer
          * @returns The random data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GenerateRandom(session: Handle, buf: Buffer): Buffer;
 
@@ -1557,4 +1719,135 @@ declare module "pkcs11js" {
     // Initialize flags
     const CKF_LIBRARY_CANT_CREATE_OS_THREADS: number;
     const CKF_OS_LOCKING_OK: number;
+
+    //#region Result values
+    const CKR_OK: number;
+    const CKR_CANCEL: number;
+    const CKR_HOST_MEMORY: number;
+    const CKR_SLOT_ID_INVALID: number;
+    const CKR_GENERAL_ERROR: number;
+    const CKR_FUNCTION_FAILED: number;
+    const CKR_ARGUMENTS_BAD: number;
+    const CKR_NO_EVENT: number;
+    const CKR_NEED_TO_CREATE_THREADS: number;
+    const CKR_CANT_LOCK: number;
+    const CKR_ATTRIBUTE_READ_ONLY: number;
+    const CKR_ATTRIBUTE_SENSITIVE: number;
+    const CKR_ATTRIBUTE_TYPE_INVALID: number;
+    const CKR_ATTRIBUTE_VALUE_INVALID: number;
+    const CKR_DATA_INVALID: number;
+    const CKR_DATA_LEN_RANGE: number;
+    const CKR_DEVICE_ERROR: number;
+    const CKR_DEVICE_MEMORY: number;
+    const CKR_DEVICE_REMOVED: number;
+    const CKR_ENCRYPTED_DATA_INVALID: number;
+    const CKR_ENCRYPTED_DATA_LEN_RANGE: number;
+    const CKR_FUNCTION_CANCELED: number;
+    const CKR_FUNCTION_NOT_PARALLEL: number;
+    const CKR_FUNCTION_NOT_SUPPORTED: number;
+    const CKR_KEY_HANDLE_INVALID: number;
+    const CKR_KEY_SIZE_RANGE: number;
+    const CKR_KEY_TYPE_INCONSISTENT: number;
+    const CKR_KEY_NOT_NEEDED: number;
+    const CKR_KEY_CHANGED: number;
+    const CKR_KEY_NEEDED: number;
+    const CKR_KEY_INDIGESTIBLE: number;
+    const CKR_KEY_FUNCTION_NOT_PERMITTED: number;
+    const CKR_KEY_NOT_WRAPPABLE: number;
+    const CKR_KEY_UNEXTRACTABLE: number;
+    const CKR_MECHANISM_INVALID: number;
+    const CKR_MECHANISM_PARAM_INVALID: number;
+    const CKR_OBJECT_HANDLE_INVALID: number;
+    const CKR_OPERATION_ACTIVE: number;
+    const CKR_OPERATION_NOT_INITIALIZED: number;
+    const CKR_PIN_INCORRECT: number;
+    const CKR_PIN_INVALID: number;
+    const CKR_PIN_LEN_RANGE: number;
+    const CKR_PIN_EXPIRED: number;
+    const CKR_PIN_LOCKED: number;
+    const CKR_SESSION_CLOSED: number;
+    const CKR_SESSION_COUNT: number;
+    const CKR_SESSION_HANDLE_INVALID: number;
+    const CKR_SESSION_PARALLEL_NOT_SUPPORTED: number;
+    const CKR_SESSION_READ_ONLY: number;
+    const CKR_SESSION_EXISTS: number;
+    const CKR_SESSION_READ_ONLY_EXISTS: number;
+    const CKR_SESSION_READ_WRITE_SO_EXISTS: number;
+    const CKR_SIGNATURE_INVALID: number;
+    const CKR_SIGNATURE_LEN_RANGE: number;
+    const CKR_TEMPLATE_INCOMPLETE: number;
+    const CKR_TEMPLATE_INCONSISTENT: number;
+    const CKR_TOKEN_NOT_PRESENT: number;
+    const CKR_TOKEN_NOT_RECOGNIZED: number;
+    const CKR_TOKEN_WRITE_PROTECTED: number;
+    const CKR_UNWRAPPING_KEY_HANDLE_INVALID: number;
+    const CKR_UNWRAPPING_KEY_SIZE_RANGE: number;
+    const CKR_UNWRAPPING_KEY_TYPE_INCONSISTENT: number;
+    const CKR_USER_ALREADY_LOGGED_IN: number;
+    const CKR_USER_NOT_LOGGED_IN: number;
+    const CKR_USER_PIN_NOT_INITIALIZED: number;
+    const CKR_USER_TYPE_INVALID: number;
+    const CKR_USER_ANOTHER_ALREADY_LOGGED_IN: number;
+    const CKR_USER_TOO_MANY_TYPES: number;
+    const CKR_WRAPPED_KEY_INVALID: number;
+    const CKR_WRAPPED_KEY_LEN_RANGE: number;
+    const CKR_WRAPPING_KEY_HANDLE_INVALID: number;
+    const CKR_WRAPPING_KEY_SIZE_RANGE: number;
+    const CKR_WRAPPING_KEY_TYPE_INCONSISTENT: number;
+    const CKR_RANDOM_SEED_NOT_SUPPORTED: number;
+    const CKR_RANDOM_NO_RNG: number;
+    const CKR_DOMAIN_PARAMS_INVALID: number;
+    const CKR_BUFFER_TOO_SMALL: number;
+    const CKR_SAVED_STATE_INVALID: number;
+    const CKR_INFORMATION_SENSITIVE: number;
+    const CKR_STATE_UNSAVEABLE: number;
+    const CKR_CRYPTOKI_NOT_INITIALIZED: number;
+    const CKR_CRYPTOKI_ALREADY_INITIALIZED: number;
+    const CKR_MUTEX_BAD: number;
+    const CKR_MUTEX_NOT_LOCKED: number;
+    const CKR_NEW_PIN_MODE: number;
+    const CKR_NEXT_OTP: number;
+    const CKR_EXCEEDED_MAX_ITERATIONS: number;
+    const CKR_FIPS_SELF_TEST_FAILED: number;
+    const CKR_LIBRARY_LOAD_FAILED: number;
+    const CKR_PIN_TOO_WEAK: number;
+    const CKR_PUBLIC_KEY_INVALID: number;
+    const CKR_FUNCTION_REJECTED: number;
+    //#endregion
+
+    /**
+     * Exception from native module
+     */
+    class NativeError extends Error {
+        /**
+         * Native library call stack. Default is empty string
+         */
+        public readonly nativeStack: string;
+        /**
+         * Native function name. Default is empty string
+         */
+        public readonly method: string;
+        /**
+         * Initialize new instance of NativeError
+         * @param message Error message
+         */
+        public constructor(message?: string, method?: string);
+    }
+
+    /**
+     * Exception with the name and value of PKCS#11 return value
+     */
+    class Pkcs11Error extends NativeError {
+        /**
+         * PKCS#11 result value. Default is 0
+         */
+        public readonly code: number;
+        /**
+         * Initialize new instance of Pkcs11Error
+         * @param message Error message
+         * @param code PKCS#11 result value
+         * @param method The name of PKCS#11 method
+         */
+        public constructor(message?: string, code?: number, method?: string);
+    }
 }
