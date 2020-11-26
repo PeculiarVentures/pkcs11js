@@ -37,5 +37,6 @@ void declare_kdf(Local<Object> target);
 void declare_params(Local<Object> target);
 void declare_initialize_flags(Local<Object> target);
 void declare_user_types(Local<Object> target);
+void declare_result_values(Local<Object> target);
 
 #endif // INCLUDE_H_CONST

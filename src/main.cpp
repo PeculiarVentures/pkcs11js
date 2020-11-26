@@ -21,6 +21,7 @@ NAN_MODULE_INIT(init)
 	declare_params(target);
 	declare_initialize_flags(target);
 	declare_user_types(target);
+	declare_result_values(target);
 }
 
 NODE_MODULE(pkcs11, init)
