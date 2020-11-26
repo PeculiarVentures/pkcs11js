@@ -79,6 +79,7 @@ function catchError(fn) {
           throw new NativeError(e.message);
         });
       }
+      return res;
     } catch (e) {
       if (Pkcs11Error.isPkcs11(e.message)) {
         throw new Pkcs11Error(e.message);
@@ -88,9 +89,12 @@ function catchError(fn) {
   };
 }
 
-pkcs11.PKCS11.prototype.load = catchError(pkcs11.PKCS11.prototype.load);
-pkcs11.PKCS11.prototype.close = catchError(pkcs11.PKCS11.prototype.close);
-pkcs11.PKCS11.prototype.C_Finalize = catchError(pkcs11.PKCS11.prototype.C_Finalize);
-pkcs11.PKCS11.prototype.C_Initialize = catchError(pkcs11.PKCS11.prototype.C_Initialize);
+// Customize native exceptions
+for (const key in pkcs11.PKCS11.prototype) {
+  if (pkcs11.PKCS11.prototype.hasOwnProperty(key)) {
+    pkcs11.PKCS11.prototype[key] = catchError(pkcs11.PKCS11.prototype[key]);
+  }
+}
+
 
 module.exports = pkcs11
