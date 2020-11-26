@@ -1108,7 +1108,9 @@ NAN_METHOD(WPKCS11::C_SignRecover) {
 
 		Scoped<string> res = __pkcs11->C_SignRecover(hSession, data, signature);
 
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+		v8::Local<v8::Value> v8Result = FillBuffer(info[2], res.get());
+        
+		info.GetReturnValue().Set(v8Result);
 	}
 	CATCH_V8_ERROR;
 }
@@ -1203,7 +1205,9 @@ NAN_METHOD(WPKCS11::C_VerifyRecover) {
 
 		Scoped<string> res = __pkcs11->C_VerifyRecover(hSession, signature, data);
 
-		info.GetReturnValue().Set(Nan::CopyBuffer(res->c_str(), (uint32_t)res->length()).ToLocalChecked());
+		v8::Local<v8::Value> v8Result = FillBuffer(info[2], res.get());
+        
+		info.GetReturnValue().Set(v8Result);
 	}
 	CATCH_V8_ERROR;
 }
