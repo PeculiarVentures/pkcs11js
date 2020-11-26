@@ -514,8 +514,14 @@ context("PKCS11", () => {
         assert.strictEqual(e.message, "CKR_CRYPTOKI_NOT_INITIALIZED");
         assert.strictEqual(e.method, "C_Finalize");
         assert.strictEqual(e.code, pkcs11.CKR_CRYPTOKI_NOT_INITIALIZED);
-        assert.match(e.nativeStack, /^    at Error \(native\) C_Finalize:\d+$/);
-        
+        if (assert.match) {
+          // NodeJS > 10.*
+          assert.match(e.nativeStack, /^    at Error \(native\) C_Finalize:\d+$/);
+        } else {
+          // NodeJS = 10.*
+          assert.strictEqual(/^    at Error \(native\) C_Finalize:\d+$/.test(e.nativeStack), true);
+        }
+
         return true;
       });
     });
@@ -529,8 +535,14 @@ context("PKCS11", () => {
         assert.strictEqual(e.name, pkcs11.NativeError.name);
         assert.strictEqual(e.message, "Parameter has wrong type. Should be empty or Object");
         assert.strictEqual(e.method, "C_Initialize");
-        assert.match(e.nativeStack, /^    at Error \(native\) C_Initialize:\d+$/);
-        
+        if (assert.match) {
+          // NodeJS > 10.*
+          assert.match(e.nativeStack, /^    at Error \(native\) C_Initialize:\d+$/);
+        } else {
+          // NodeJS = 10.*
+          assert.strictEqual(/^    at Error \(native\) C_Initialize:\d+$/.test(e.nativeStack), true);
+        }
+
         return true;
       });
     });
