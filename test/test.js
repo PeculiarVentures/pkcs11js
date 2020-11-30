@@ -1,6 +1,5 @@
 const assert = require("assert");
 const os = require("os");
-const { NativeError } = require("..");
 const pkcs11 = require("../");
 
 const softHsmLib = "/usr/local/lib/softhsm/libsofthsm2.so";
@@ -544,6 +543,42 @@ context("PKCS11", () => {
         }
 
         return true;
+      });
+    });
+    context("async", () => {
+      let token, session;
+
+      before(() => {
+        token = new pkcs11.PKCS11();
+        token.load(softHsmLib);
+        token.C_Initialize();
+        const slots = token.C_GetSlotList();
+        const slot = slots[0];
+        session = token.C_OpenSession(slot, pkcs11.CKF_RW_SESSION | pkcs11.CKF_SERIAL_SESSION)
+        token.C_Login(session, pkcs11.CKU_USER, pin);
+      });
+
+      after(() => {
+        if (session) {
+          token.C_Finalize();
+        }
+      });
+
+      it("Pkcs11Error", async () => {
+        await assert.rejects(token.C_GenerateKeyPairAsync(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [], []), (e) => {
+          assert.strictEqual(e instanceof pkcs11.Pkcs11Error, true);
+          assert.strictEqual(e.code, pkcs11.CKR_TEMPLATE_INCOMPLETE);
+
+          return true;
+        });
+      });
+
+      it("NativeError", async () => {
+        await assert.rejects(token.C_GenerateKeyPairAsync(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [], "wrong argument"), (e) => {
+          assert.strictEqual(e instanceof pkcs11.NativeError, true);
+
+          return true;
+        });
       });
     });
   });
