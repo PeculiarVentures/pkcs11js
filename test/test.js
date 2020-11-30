@@ -501,4 +501,85 @@ context("PKCS11", () => {
       });
     });
   });
+  context("native error", () => {
+    it("with Cryptoki result value", () => {
+      const token = new pkcs11.PKCS11();
+      token.load(softHsmLib);
+      assert.throws(() => {
+        token.C_Finalize();
+      }, (e) => {
+        assert.strictEqual(e instanceof pkcs11.Pkcs11Error, true);
+        assert.strictEqual(e.name, pkcs11.Pkcs11Error.name);
+        assert.strictEqual(e.message, "CKR_CRYPTOKI_NOT_INITIALIZED");
+        assert.strictEqual(e.method, "C_Finalize");
+        assert.strictEqual(e.code, pkcs11.CKR_CRYPTOKI_NOT_INITIALIZED);
+        if (assert.match) {
+          // NodeJS > 10.*
+          assert.match(e.nativeStack, /^    at Error \(native\) C_Finalize:\d+$/);
+        } else {
+          // NodeJS = 10.*
+          assert.strictEqual(/^    at Error \(native\) C_Finalize:\d+$/.test(e.nativeStack), true);
+        }
+
+        return true;
+      });
+    });
+    it("without Cryptoki result value", () => {
+      const token = new pkcs11.PKCS11();
+      token.load(softHsmLib);
+      assert.throws(() => {
+        token.C_Initialize("wrong");
+      }, (e) => {
+        assert.strictEqual(e instanceof pkcs11.NativeError, true);
+        assert.strictEqual(e.name, pkcs11.NativeError.name);
+        assert.strictEqual(e.message, "Parameter has wrong type. Should be empty or Object");
+        assert.strictEqual(e.method, "C_Initialize");
+        if (assert.match) {
+          // NodeJS > 10.*
+          assert.match(e.nativeStack, /^    at Error \(native\) C_Initialize:\d+$/);
+        } else {
+          // NodeJS = 10.*
+          assert.strictEqual(/^    at Error \(native\) C_Initialize:\d+$/.test(e.nativeStack), true);
+        }
+
+        return true;
+      });
+    });
+    context("async", () => {
+      let token, session;
+
+      before(() => {
+        token = new pkcs11.PKCS11();
+        token.load(softHsmLib);
+        token.C_Initialize();
+        const slots = token.C_GetSlotList();
+        const slot = slots[0];
+        session = token.C_OpenSession(slot, pkcs11.CKF_RW_SESSION | pkcs11.CKF_SERIAL_SESSION)
+        token.C_Login(session, pkcs11.CKU_USER, pin);
+      });
+
+      after(() => {
+        if (session) {
+          token.C_Finalize();
+        }
+      });
+
+      it("Pkcs11Error", async () => {
+        await assert.rejects(token.C_GenerateKeyPairAsync(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [], []), (e) => {
+          assert.strictEqual(e instanceof pkcs11.Pkcs11Error, true);
+          assert.strictEqual(e.code, pkcs11.CKR_TEMPLATE_INCOMPLETE);
+
+          return true;
+        });
+      });
+
+      it("NativeError", async () => {
+        await assert.rejects(token.C_GenerateKeyPairAsync(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [], "wrong argument"), (e) => {
+          assert.strictEqual(e instanceof pkcs11.NativeError, true);
+
+          return true;
+        });
+      });
+    });
+  });
 });

@@ -35,7 +35,7 @@
     "configure:xcode": "node-gyp configure -- -f xcode",
     "configure": "node-gyp configure",
     "build": "node-gyp configure build",
-    "pub": "npm run build && npm version patch && npm publish && git push",
+    "pub": "npm run build && npm version patch && git push --follow-tags",
     "sync": "git ac && git pull --rebase && git push",
     "docs": "typedoc --includeDeclarations --excludeExternals --mode modules index.d.ts",
     "coverage": "nyc npm test"
