@@ -7,6 +7,7 @@
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -38,8 +39,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -49,11 +50,6 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<ul class="tsd-breadcrumb">
-				<li>
-					<a href="globals.html">Globals</a>
-				</li>
-			</ul>
 			<h1>pkcs11js</h1>
 		</div>
 	</div>
@@ -84,7 +80,8 @@
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
 					<h2>Installation</h2>
 				</a>
-				<pre><code>$ npm <span class="hljs-keyword">install</span> pkcs11js</code></pre>
+				<pre><code><span style="color: #001080">$</span><span style="color: #000000"> </span><span style="color: #001080">npm</span><span style="color: #000000"> </span><span style="color: #001080">install</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span>
+</code></pre>
 				<a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
 					<h2>Documentation</h2>
 				</a>
@@ -103,293 +100,309 @@
 				<a href="#example-1" id="example-1" style="color: inherit; text-decoration: none;">
 					<h3>Example #1</h3>
 				</a>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> pkcs11js = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;pkcs11js&quot;</span>);
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;pkcs11js&quot;</span><span style="color: #000000">);</span>
 
-<span class="hljs-keyword">var</span> pkcs11 = <span class="hljs-keyword">new</span> pkcs11js.PKCS11();
-pkcs11.load(<span class="hljs-string">&quot;/usr/local/lib/softhsm/libsofthsm2.so&quot;</span>);
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #795E26">PKCS11</span><span style="color: #000000">();</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">load</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;/usr/local/lib/softhsm/libsofthsm2.so&quot;</span><span style="color: #000000">);</span>
 
-pkcs11.C_Initialize();
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_Initialize</span><span style="color: #000000">();</span>
 
-<span class="hljs-keyword">try</span> {
-    <span class="hljs-comment">// Getting info about PKCS11 Module</span>
-    <span class="hljs-keyword">var</span> module_info = pkcs11.C_GetInfo();
+<span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about PKCS11 Module</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">module_info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetInfo</span><span style="color: #000000">();</span>
 
-    <span class="hljs-comment">// Getting list of slots</span>
-    <span class="hljs-keyword">var</span> slots = pkcs11.C_GetSlotList(<span class="hljs-literal">true</span>);
-    <span class="hljs-keyword">var</span> slot = slots[<span class="hljs-number">0</span>];
+<span style="color: #000000">    </span><span style="color: #008000">// Getting list of slots</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">slots</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetSlotList</span><span style="color: #000000">(</span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">slot</span><span style="color: #000000"> = </span><span style="color: #001080">slots</span><span style="color: #000000">[</span><span style="color: #098658">0</span><span style="color: #000000">];</span>
 
-    <span class="hljs-comment">// Getting info about slot</span>
-    <span class="hljs-keyword">var</span> slot_info = pkcs11.C_GetSlotInfo(slot);
-    <span class="hljs-comment">// Getting info about token</span>
-    <span class="hljs-keyword">var</span> token_info = pkcs11.C_GetTokenInfo(slot);
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about slot</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">slot_info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetSlotInfo</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about token</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">token_info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetTokenInfo</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">);</span>
 
-    <span class="hljs-comment">// Getting info about Mechanism</span>
-    <span class="hljs-keyword">var</span> mechs = pkcs11.C_GetMechanismList(slot);
-    <span class="hljs-keyword">var</span> mech_info = pkcs11.C_GetMechanismInfo(slot, mechs[<span class="hljs-number">0</span>]);
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about Mechanism</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">mechs</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetMechanismList</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">mech_info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetMechanismInfo</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">, </span><span style="color: #001080">mechs</span><span style="color: #000000">[</span><span style="color: #098658">0</span><span style="color: #000000">]);</span>
 
-    <span class="hljs-keyword">var</span> session = pkcs11.C_OpenSession(slot, pkcs11js.CKF_RW_SESSION | pkcs11js.CKF_SERIAL_SESSION);
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">session</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_OpenSession</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">, </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKF_RW_SESSION</span><span style="color: #000000"> | </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKF_SERIAL_SESSION</span><span style="color: #000000">);</span>
 
-    <span class="hljs-comment">// Getting info about Session</span>
-    <span class="hljs-keyword">var</span> info = pkcs11.C_GetSessionInfo(session);
-    pkcs11.C_Login(session, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;password&quot;</span>);
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about Session</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetSessionInfo</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_Login</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;password&quot;</span><span style="color: #000000">);</span>
 
-    <span class="hljs-comment">/**
-     * Your app code here
-     */</span>
-
-    pkcs11.C_Logout(session);
-    pkcs11.C_CloseSession(session);
-}
-<span class="hljs-keyword">catch</span>(e){
-    <span class="hljs-built_in">console</span>.error(e);
-}
-<span class="hljs-keyword">finally</span> {
-    pkcs11.C_Finalize();
-}</code></pre>
+<span style="color: #000000">    </span><span style="color: #008000">/**</span>
+<span style="color: #008000">     * Your app code here</span>
+<span style="color: #008000">     */</span>
+<span style="color: #000000">    </span>
+<span style="color: #000000">    </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_Logout</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_CloseSession</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">);</span>
+<span style="color: #000000">}</span>
+<span style="color: #AF00DB">catch</span><span style="color: #000000">(</span><span style="color: #001080">e</span><span style="color: #000000">){</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">error</span><span style="color: #000000">(</span><span style="color: #001080">e</span><span style="color: #000000">);</span>
+<span style="color: #000000">}</span>
+<span style="color: #AF00DB">finally</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_Finalize</span><span style="color: #000000">();</span>
+<span style="color: #000000">}</span>
+</code></pre>
 				<a href="#example-2" id="example-2" style="color: inherit; text-decoration: none;">
 					<h3>Example #2</h3>
 				</a>
 				<p>Generating secret key using AES mechanism</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> template = [
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS, <span class="hljs-attr">value</span>: pkcs11js.CKO_SECRET_KEY },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN, <span class="hljs-attr">value</span>: <span class="hljs-literal">false</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;My AES Key&quot;</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_VALUE_LEN, <span class="hljs-attr">value</span>: <span class="hljs-number">256</span> / <span class="hljs-number">8</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_ENCRYPT, <span class="hljs-attr">value</span>: <span class="hljs-literal">true</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_DECRYPT, <span class="hljs-attr">value</span>: <span class="hljs-literal">true</span> },
-];
-<span class="hljs-keyword">var</span> key = pkcs11.C_GenerateKey(session, { <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_AES_KEY_GEN }, template);</code></pre>
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">template</span><span style="color: #000000"> = [</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKO_SECRET_KEY</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;My AES Key&quot;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_VALUE_LEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #098658">256</span><span style="color: #000000"> / </span><span style="color: #098658">8</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_ENCRYPT</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_DECRYPT</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000"> },</span>
+<span style="color: #000000">];</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">key</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GenerateKey</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, { </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_AES_KEY_GEN</span><span style="color: #000000"> }, </span><span style="color: #001080">template</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#example-3" id="example-3" style="color: inherit; text-decoration: none;">
 					<h3>Example #3</h3>
 				</a>
 				<p>Generating key pair using RSA-PKCS1 mechanism</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> publicKeyTemplate = [
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS, <span class="hljs-attr">value</span>: pkcs11js.CKO_PUBLIC_KEY },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN, <span class="hljs-attr">value</span>: <span class="hljs-literal">false</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;My RSA Public Key&quot;</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_PUBLIC_EXPONENT, <span class="hljs-attr">value</span>: <span class="hljs-keyword">new</span> Buffer([<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]) },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_MODULUS_BITS, <span class="hljs-attr">value</span>: <span class="hljs-number">2048</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_VERIFY, <span class="hljs-attr">value</span>: <span class="hljs-literal">true</span> }
-];
-<span class="hljs-keyword">var</span> privateKeyTemplate = [
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS, <span class="hljs-attr">value</span>: pkcs11js.CKO_PRIVATE_KEY },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN, <span class="hljs-attr">value</span>: <span class="hljs-literal">false</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;My RSA Private Key&quot;</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_SIGN, <span class="hljs-attr">value</span>: <span class="hljs-literal">true</span> },
-];
-<span class="hljs-keyword">var</span> keys = pkcs11.C_GenerateKeyPair(session, { <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_RSA_PKCS_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);</code></pre>
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">publicKeyTemplate</span><span style="color: #000000"> = [</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKO_PUBLIC_KEY</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;My RSA Public Key&quot;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_PUBLIC_EXPONENT</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">([</span><span style="color: #098658">1</span><span style="color: #000000">, </span><span style="color: #098658">0</span><span style="color: #000000">, </span><span style="color: #098658">1</span><span style="color: #000000">]) },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_MODULUS_BITS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #098658">2048</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_VERIFY</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000"> }</span>
+<span style="color: #000000">];</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">privateKeyTemplate</span><span style="color: #000000"> = [</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKO_PRIVATE_KEY</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;My RSA Private Key&quot;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_SIGN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000"> },</span>
+<span style="color: #000000">];</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">keys</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GenerateKeyPair</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, { </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_RSA_PKCS_KEY_PAIR_GEN</span><span style="color: #000000"> }, </span><span style="color: #001080">publicKeyTemplate</span><span style="color: #000000">, </span><span style="color: #001080">privateKeyTemplate</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#example-4" id="example-4" style="color: inherit; text-decoration: none;">
 					<h3>Example #4</h3>
 				</a>
 				<p>Generating key pair using ECDSA mechanism</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> publicKeyTemplate = [
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS, <span class="hljs-attr">value</span>: pkcs11js.CKO_PUBLIC_KEY },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN, <span class="hljs-attr">value</span>: <span class="hljs-literal">false</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;My EC Public Key&quot;</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_EC_PARAMS, <span class="hljs-attr">value</span>: <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;06082A8648CE3D030107&quot;</span>, <span class="hljs-string">&quot;hex&quot;</span>) }, <span class="hljs-comment">// secp256r1</span>
-];
-<span class="hljs-keyword">var</span> privateKeyTemplate = [
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS, <span class="hljs-attr">value</span>: pkcs11js.CKO_PRIVATE_KEY },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN, <span class="hljs-attr">value</span>: <span class="hljs-literal">false</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;My EC Private Key&quot;</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_DERIVE, <span class="hljs-attr">value</span>: <span class="hljs-literal">true</span> },
-];
-<span class="hljs-keyword">var</span> keys = pkcs11.C_GenerateKeyPair(session, { <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_EC_KEY_PAIR_GEN }, publicKeyTemplate, privateKeyTemplate);</code></pre>
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">publicKeyTemplate</span><span style="color: #000000"> = [</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKO_PUBLIC_KEY</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;My EC Public Key&quot;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_EC_PARAMS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;06082A8648CE3D030107&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;hex&quot;</span><span style="color: #000000">) }, </span><span style="color: #008000">// secp256r1</span>
+<span style="color: #000000">];</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">privateKeyTemplate</span><span style="color: #000000"> = [</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKO_PRIVATE_KEY</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;My EC Private Key&quot;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_DERIVE</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000"> },</span>
+<span style="color: #000000">];</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">keys</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GenerateKeyPair</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, { </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_EC_KEY_PAIR_GEN</span><span style="color: #000000"> }, </span><span style="color: #001080">publicKeyTemplate</span><span style="color: #000000">, </span><span style="color: #001080">privateKeyTemplate</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#example-4-1" id="example-4-1" style="color: inherit; text-decoration: none;">
 					<h3>Example #4</h3>
 				</a>
 				<p>Working with Object</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> nObject = pkcs11.C_CreateObject(session, [
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS, <span class="hljs-attr">value</span>: pkcs11js.CKO_DATA },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN, <span class="hljs-attr">value</span>: <span class="hljs-literal">false</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_PRIVATE, <span class="hljs-attr">value</span>: <span class="hljs-literal">false</span> },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;My custom data&quot;</span> },
-]);
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">nObject</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_CreateObject</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, [</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKO_DATA</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_PRIVATE</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;My custom data&quot;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">]);</span>
 
-<span class="hljs-comment">// Updating label of Object</span>
-pkcs11.C_SetAttributeValue(session, nObject, [{ <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;My custom data!!!&quot;</span> }]);
+<span style="color: #008000">// Updating label of Object</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_SetAttributeValue</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">nObject</span><span style="color: #000000">, [{ </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;My custom data!!!&quot;</span><span style="color: #000000"> }]);</span>
 
-<span class="hljs-comment">// Getting attribute value</span>
-<span class="hljs-keyword">var</span> label = pkcs11.C_GetAttributeValue(session, nObject, [
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL },
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN }
-]);
-<span class="hljs-built_in">console</span>.log(label[<span class="hljs-number">0</span>].value.toString()); <span class="hljs-comment">// My custom data!!!</span>
-<span class="hljs-built_in">console</span>.log(!!label[<span class="hljs-number">1</span>].value[<span class="hljs-number">0</span>]); <span class="hljs-comment">// false</span>
+<span style="color: #008000">// Getting attribute value</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">label</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetAttributeValue</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">nObject</span><span style="color: #000000">, [</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000"> }</span>
+<span style="color: #000000">]);</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">label</span><span style="color: #000000">[</span><span style="color: #098658">0</span><span style="color: #000000">].</span><span style="color: #001080">value</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">()); </span><span style="color: #008000">// My custom data!!!</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(!!</span><span style="color: #001080">label</span><span style="color: #000000">[</span><span style="color: #098658">1</span><span style="color: #000000">].</span><span style="color: #001080">value</span><span style="color: #000000">[</span><span style="color: #098658">0</span><span style="color: #000000">]); </span><span style="color: #008000">// false</span>
 
-<span class="hljs-comment">// Copying Object</span>
-<span class="hljs-keyword">var</span> cObject = pkcs11.C_CopyObject(session, nObject, [
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS},
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN},
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_PRIVATE},
-    { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL},
-]);
+<span style="color: #008000">// Copying Object</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">cObject</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_CopyObject</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">nObject</span><span style="color: #000000">, [</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">},</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000">},</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_PRIVATE</span><span style="color: #000000">},</span>
+<span style="color: #000000">    { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">},</span>
+<span style="color: #000000">]);</span>
 
-<span class="hljs-comment">// Removing Object</span>
-pkcs11.C_DestroyObject(session, cObject);</code></pre>
+<span style="color: #008000">// Removing Object</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DestroyObject</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">cObject</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#example-4-2" id="example-4-2" style="color: inherit; text-decoration: none;">
 					<h3>Example #4</h3>
 				</a>
 				<p>Searching objects</p>
 				<p><strong>NOTE:</strong> If template is not set for C_FindObjectsInit, then C_FindObjects returns all objects from slot  </p>
-				<pre><code class="language-javascript">pkcs11.C_FindObjectsInit(session, [{ <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS, <span class="hljs-attr">value</span>: pkcs11js.CKO_DATA }]);
-<span class="hljs-keyword">var</span> hObject = pkcs11.C_FindObjects(session);
-<span class="hljs-keyword">while</span> (hObject) {
-    <span class="hljs-keyword">var</span> attrs = pkcs11.C_GetAttributeValue(session, hObject, [
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS },
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN },
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL }
-    ]);
-    <span class="hljs-comment">// Output info for objects from token only</span>
-    <span class="hljs-keyword">if</span> (attrs[<span class="hljs-number">1</span>].value[<span class="hljs-number">0</span>]){
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Object #<span class="hljs-subst">${hObject}</span>: <span class="hljs-subst">${attrs[<span class="hljs-number">2</span>].value.toString()}</span>`</span>);
-    }
-    hObject = pkcs11.C_FindObjects(session);
-}
-pkcs11.C_FindObjectsFinal(session);</code></pre>
+				<pre><code class="language-javascript"><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_FindObjectsInit</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, [{ </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKO_DATA</span><span style="color: #000000"> }]);</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">hObject</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_FindObjects</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">);</span>
+<span style="color: #AF00DB">while</span><span style="color: #000000"> (</span><span style="color: #001080">hObject</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">attrs</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetAttributeValue</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">hObject</span><span style="color: #000000">, [</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000"> },</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000"> },</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000"> }</span>
+<span style="color: #000000">    ]);</span>
+<span style="color: #000000">    </span><span style="color: #008000">// Output info for objects from token only</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">attrs</span><span style="color: #000000">[</span><span style="color: #098658">1</span><span style="color: #000000">].</span><span style="color: #001080">value</span><span style="color: #000000">[</span><span style="color: #098658">0</span><span style="color: #000000">]){</span>
+<span style="color: #000000">        </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">`Object #</span><span style="color: #0000FF">${</span><span style="color: #001080">hObject</span><span style="color: #0000FF">}</span><span style="color: #A31515">: </span><span style="color: #0000FF">${</span><span style="color: #001080">attrs</span><span style="color: #000000FF">[</span><span style="color: #098658">2</span><span style="color: #000000FF">].</span><span style="color: #001080">value</span><span style="color: #000000FF">.</span><span style="color: #795E26">toString</span><span style="color: #000000FF">()</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">);</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">    </span><span style="color: #001080">hObject</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_FindObjects</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">);</span>
+<span style="color: #000000">}</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_FindObjectsFinal</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#example-5" id="example-5" style="color: inherit; text-decoration: none;">
 					<h3>Example #5</h3>
 				</a>
 				<p>Generating random values</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> random = pkcs11.C_GenerateRandom(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">20</span>));
-<span class="hljs-built_in">console</span>.log(random.toString(<span class="hljs-string">&quot;hex&quot;</span>));</code></pre>
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">random</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GenerateRandom</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">20</span><span style="color: #000000">));</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">random</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;hex&quot;</span><span style="color: #000000">));</span>
+</code></pre>
 				<p>or</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> random = <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">20</span>);
-pkcs11.C_GenerateRandom(session, random);
-<span class="hljs-built_in">console</span>.log(random.toString(<span class="hljs-string">&quot;hex&quot;</span>));</code></pre>
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">random</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">20</span><span style="color: #000000">);</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GenerateRandom</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">random</span><span style="color: #000000">);</span>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">random</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;hex&quot;</span><span style="color: #000000">));</span>
+</code></pre>
 				<a href="#example-6" id="example-6" style="color: inherit; text-decoration: none;">
 					<h3>Example #6</h3>
 				</a>
 				<p>Digest</p>
-				<pre><code class="language-javascript">pkcs11.C_DigestInit(_session, { <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_SHA256 });
+				<pre><code class="language-javascript"><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DigestInit</span><span style="color: #000000">(</span><span style="color: #001080">_session</span><span style="color: #000000">, { </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_SHA256</span><span style="color: #000000"> });</span>
 
-pkcs11.C_DigestUpdate(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;Incoming message 1&quot;</span>));
-pkcs11.C_DigestUpdate(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;Incoming message N&quot;</span>));
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DigestUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Incoming message 1&quot;</span><span style="color: #000000">));</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DigestUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Incoming message N&quot;</span><span style="color: #000000">));</span>
 
-<span class="hljs-keyword">var</span> digest = pkcs11.C_DigestFinal(_session, Buffer(<span class="hljs-number">256</span> / <span class="hljs-number">8</span>));
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">digest</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DigestFinal</span><span style="color: #000000">(</span><span style="color: #001080">_session</span><span style="color: #000000">, </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">256</span><span style="color: #000000"> / </span><span style="color: #098658">8</span><span style="color: #000000">));</span>
 
-<span class="hljs-built_in">console</span>.log(digest.toString(<span class="hljs-string">&quot;hex&quot;</span>));</code></pre>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">digest</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;hex&quot;</span><span style="color: #000000">));</span>
+</code></pre>
 				<a href="#example-7" id="example-7" style="color: inherit; text-decoration: none;">
 					<h3>Example #7</h3>
 				</a>
 				<p>Signing data</p>
-				<pre><code class="language-javascript">pkcs11.C_SignInit(session, { <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_SHA256_RSA_PKCS }, keys.privateKey);
+				<pre><code class="language-javascript"><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_SignInit</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, { </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_SHA256_RSA_PKCS</span><span style="color: #000000"> }, </span><span style="color: #001080">keys</span><span style="color: #000000">.</span><span style="color: #001080">privateKey</span><span style="color: #000000">);</span>
 
-pkcs11.C_SignUpdate(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;Incoming message 1&quot;</span>));
-pkcs11.C_SignUpdate(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;Incoming message N&quot;</span>));
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_SignUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Incoming message 1&quot;</span><span style="color: #000000">));</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_SignUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Incoming message N&quot;</span><span style="color: #000000">));</span>
 
-<span class="hljs-keyword">var</span> signature = pkcs11.C_SignFinal(session, Buffer(<span class="hljs-number">256</span>));</code></pre>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">signature</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_SignFinal</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">256</span><span style="color: #000000">));</span>
+</code></pre>
 				<p>Verifying data</p>
-				<pre><code class="language-javascript">pkcs11.C_VerifyInit(session, { <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_SHA256_RSA_PKCS }, keys.publicKey);
+				<pre><code class="language-javascript"><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_VerifyInit</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, { </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_SHA256_RSA_PKCS</span><span style="color: #000000"> }, </span><span style="color: #001080">keys</span><span style="color: #000000">.</span><span style="color: #001080">publicKey</span><span style="color: #000000">);</span>
 
-pkcs11.C_VerifyUpdate(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;Incoming message 1&quot;</span>));
-pkcs11.C_VerifyUpdate(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;Incoming message N&quot;</span>));
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_VerifyUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Incoming message 1&quot;</span><span style="color: #000000">));</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_VerifyUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Incoming message N&quot;</span><span style="color: #000000">));</span>
 
-<span class="hljs-keyword">var</span> verify = pkcs11.C_VerifyFinal(session, signature);</code></pre>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">verify</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_VerifyFinal</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">signature</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#example-8" id="example-8" style="color: inherit; text-decoration: none;">
 					<h3>Example #8</h3>
 				</a>
 				<p>Encrypting data with AES-CBC mechanism</p>
-				<pre><code class="language-javascript"><span class="hljs-keyword">var</span> cbc_param = pkcs11.C_GenerateRandom(<span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">16</span>));
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">cbc_param</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GenerateRandom</span><span style="color: #000000">(</span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">16</span><span style="color: #000000">));</span>
 
-pkcs11.C_EncryptInit(
-    session,
-    {
-        <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_AES_CBC,
-        <span class="hljs-attr">parameter</span>: cbc_param
-    },
-    secretKey
-);
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_EncryptInit</span><span style="color: #000000">(</span>
+<span style="color: #000000">    </span><span style="color: #001080">session</span><span style="color: #000000">,</span>
+<span style="color: #000000">    {</span>
+<span style="color: #000000">        </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_AES_CBC</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">parameter:</span><span style="color: #000000"> </span><span style="color: #001080">cbc_param</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #001080">secretKey</span>
+<span style="color: #000000">);</span>
 
-<span class="hljs-keyword">var</span> enc = <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">0</span>);
-enc = Buffer.concat([enc, pkcs11.C_EncryptUpdate(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;Incoming data 1&quot;</span>), <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">16</span>))]);
-enc = Buffer.concat([enc, pkcs11.C_EncryptUpdate(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">&quot;Incoming data N&quot;</span>), <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">16</span>))]);
-enc = Buffer.concat([enc, pkcs11.C_EncryptFinal(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">16</span>))]);
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">enc</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">);</span>
+<span style="color: #001080">enc</span><span style="color: #000000"> = </span><span style="color: #001080">Buffer</span><span style="color: #000000">.</span><span style="color: #795E26">concat</span><span style="color: #000000">([</span><span style="color: #001080">enc</span><span style="color: #000000">, </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_EncryptUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Incoming data 1&quot;</span><span style="color: #000000">), </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">16</span><span style="color: #000000">))]);</span>
+<span style="color: #001080">enc</span><span style="color: #000000"> = </span><span style="color: #001080">Buffer</span><span style="color: #000000">.</span><span style="color: #795E26">concat</span><span style="color: #000000">([</span><span style="color: #001080">enc</span><span style="color: #000000">, </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_EncryptUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Incoming data N&quot;</span><span style="color: #000000">), </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">16</span><span style="color: #000000">))]);</span>
+<span style="color: #001080">enc</span><span style="color: #000000"> = </span><span style="color: #001080">Buffer</span><span style="color: #000000">.</span><span style="color: #795E26">concat</span><span style="color: #000000">([</span><span style="color: #001080">enc</span><span style="color: #000000">, </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_EncryptFinal</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">16</span><span style="color: #000000">))]);</span>
 
-<span class="hljs-built_in">console</span>.log(enc.toString(<span class="hljs-string">&quot;hex&quot;</span>));</code></pre>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">enc</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;hex&quot;</span><span style="color: #000000">));</span>
+</code></pre>
 				<p>Decrypting data with AES-CBC mechanism</p>
-				<pre><code class="language-javascript">pkcs11.C_DecryptInit(
-    session,
-    {
-        <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_AES_CBC,
-        <span class="hljs-attr">parameter</span>: cbc_param
-    },
-    secretKey
-);
+				<pre><code class="language-javascript"><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DecryptInit</span><span style="color: #000000">(</span>
+<span style="color: #000000">    </span><span style="color: #001080">session</span><span style="color: #000000">,</span>
+<span style="color: #000000">    {</span>
+<span style="color: #000000">        </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_AES_CBC</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">parameter:</span><span style="color: #000000"> </span><span style="color: #001080">cbc_param</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #001080">secretKey</span>
+<span style="color: #000000">);</span>
 
-<span class="hljs-keyword">var</span> dec = <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">0</span>);
-dec = Buffer.concat([dec, pkcs11.C_DecryptUpdate(session, enc, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">32</span>))]);
-dec = Buffer.concat([dec, pkcs11.C_DecryptFinal(session, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">16</span>))]);
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">dec</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">);</span>
+<span style="color: #001080">dec</span><span style="color: #000000"> = </span><span style="color: #001080">Buffer</span><span style="color: #000000">.</span><span style="color: #795E26">concat</span><span style="color: #000000">([</span><span style="color: #001080">dec</span><span style="color: #000000">, </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DecryptUpdate</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">enc</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">32</span><span style="color: #000000">))]);</span>
+<span style="color: #001080">dec</span><span style="color: #000000"> = </span><span style="color: #001080">Buffer</span><span style="color: #000000">.</span><span style="color: #795E26">concat</span><span style="color: #000000">([</span><span style="color: #001080">dec</span><span style="color: #000000">, </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DecryptFinal</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Buffer</span><span style="color: #000000">(</span><span style="color: #098658">16</span><span style="color: #000000">))]);</span>
 
-<span class="hljs-built_in">console</span>.log(dec.toString());</code></pre>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">dec</span><span style="color: #000000">.</span><span style="color: #795E26">toString</span><span style="color: #000000">());</span>
+</code></pre>
 				<a href="#example-9" id="example-9" style="color: inherit; text-decoration: none;">
 					<h3>Example #9</h3>
 				</a>
 				<p>Deriving key with ECDH mechanism</p>
-				<pre><code class="language-javascript"><span class="hljs-comment">// Receive public data from EC public key</span>
-<span class="hljs-keyword">var</span> attrs = pkcs11.C_GetAttributeValue(session, publicKeyEC, [{ <span class="hljs-attr">type</span>: pkcs11js.CKA_EC_POINT }])
-<span class="hljs-keyword">var</span> ec = attrs[<span class="hljs-number">0</span>].value;
+				<pre><code class="language-javascript"><span style="color: #008000">// Receive public data from EC public key</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">attrs</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetAttributeValue</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">, </span><span style="color: #001080">publicKeyEC</span><span style="color: #000000">, [{ </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_EC_POINT</span><span style="color: #000000"> }])</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">ec</span><span style="color: #000000"> = </span><span style="color: #001080">attrs</span><span style="color: #000000">[</span><span style="color: #098658">0</span><span style="color: #000000">].</span><span style="color: #001080">value</span><span style="color: #000000">;</span>
 
-<span class="hljs-keyword">var</span> derivedKey = pkcs11.C_DeriveKey(
-    session,
-    {
-        <span class="hljs-attr">mechanism</span>: pkcs11js.CKM_ECDH1_DERIVE,
-        <span class="hljs-attr">parameter</span>: {
-            <span class="hljs-attr">type</span>: pkcs11js.CK_PARAMS_EC_DH,
-            <span class="hljs-attr">kdf</span>: <span class="hljs-number">2</span>,
-            <span class="hljs-attr">publicData</span>: ec
-        }
-    },
-    privateKeyEC,
-    [
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_CLASS, <span class="hljs-attr">value</span>: pkcs11js.CKO_SECRET_KEY },
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_TOKEN, <span class="hljs-attr">value</span>: <span class="hljs-literal">false</span> },
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_KEY_TYPE, <span class="hljs-attr">value</span>: pkcs11js.CKK_AES },
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_LABEL, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;Derived AES key&quot;</span> },
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_ENCRYPT, <span class="hljs-attr">value</span>: <span class="hljs-literal">true</span> },
-        { <span class="hljs-attr">type</span>: pkcs11js.CKA_VALUE_LEN, <span class="hljs-attr">value</span>: <span class="hljs-number">256</span> / <span class="hljs-number">8</span> }
-    ]
-);</code></pre>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">derivedKey</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_DeriveKey</span><span style="color: #000000">(</span>
+<span style="color: #000000">    </span><span style="color: #001080">session</span><span style="color: #000000">,</span>
+<span style="color: #000000">    {</span>
+<span style="color: #000000">        </span><span style="color: #001080">mechanism:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKM_ECDH1_DERIVE</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">parameter:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">            </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CK_PARAMS_EC_DH</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">kdf:</span><span style="color: #000000"> </span><span style="color: #098658">2</span><span style="color: #000000">,</span>
+<span style="color: #000000">            </span><span style="color: #001080">publicData:</span><span style="color: #000000"> </span><span style="color: #001080">ec</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #001080">privateKeyEC</span><span style="color: #000000">,</span>
+<span style="color: #000000">    [</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_CLASS</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKO_SECRET_KEY</span><span style="color: #000000"> },</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_TOKEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000"> },</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_KEY_TYPE</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKK_AES</span><span style="color: #000000"> },</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_LABEL</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;Derived AES key&quot;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_ENCRYPT</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000"> },</span>
+<span style="color: #000000">        { </span><span style="color: #001080">type:</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKA_VALUE_LEN</span><span style="color: #000000">, </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #098658">256</span><span style="color: #000000"> / </span><span style="color: #098658">8</span><span style="color: #000000"> }</span>
+<span style="color: #000000">    ]</span>
+<span style="color: #000000">);</span>
+</code></pre>
 				<a href="#example-10" id="example-10" style="color: inherit; text-decoration: none;">
 					<h3>Example #10</h3>
 				</a>
 				<p>Initializing NSS crypto library</p>
 				<p>Use <code>options</code> parameter for <code>C_Initialize</code> function.</p>
 				<p><strong>Type</strong></p>
-				<pre><code class="language-ts"><span class="hljs-keyword">interface</span> InitializationOptions {
-    <span class="hljs-comment">/**
-     * NSS library parameters
-     */</span>
-    libraryParameters?: <span class="hljs-built_in">string</span>;
-    <span class="hljs-comment">/**
-     * bit flags specifying options for `C_Initialize`
-     * - CKF_LIBRARY_CANT_CREATE_OS_THREADS. True if application threads which are executing calls to the library
-     *   may not use native operating system calls to spawn new threads; false if they may
-     * - CKF_OS_LOCKING_OK. True if the library can use the native operation system threading model for locking;
-     *   false otherwise
-     */</span>
-    flags?: <span class="hljs-built_in">number</span>;
-}
-<span class="hljs-comment">/**
- * Initializes the Cryptoki library
- * <span class="hljs-doctag">@param </span>options Initialization options
- * Supports implementation of standard `CK_C_INITIALIZE_ARGS` and extended NSS format.
- * - if `options` is null or empty, it calls native `C_Initialize` with `NULL`
- * - if `options` doesn&#x27;t have `libraryParameters`, it uses `CK_C_INITIALIZE_ARGS` structure
- * - if `options` has `libraryParameters`, it uses extended NSS structure
- */</span>
-C_Initialize(options?: InitializationOptions): <span class="hljs-built_in">void</span>;</code></pre>
+				<pre><code class="language-ts"><span style="color: #0000FF">interface</span><span style="color: #000000"> </span><span style="color: #267F99">InitializationOptions</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #008000">/**</span>
+<span style="color: #008000">     * NSS library parameters</span>
+<span style="color: #008000">     */</span>
+<span style="color: #000000">    </span><span style="color: #001080">libraryParameters</span><span style="color: #000000">?: </span><span style="color: #267F99">string</span><span style="color: #000000">;</span>
+<span style="color: #000000">    </span><span style="color: #008000">/**</span>
+<span style="color: #008000">     * bit flags specifying options for `C_Initialize`</span>
+<span style="color: #008000">     * - CKF_LIBRARY_CANT_CREATE_OS_THREADS. True if application threads which are executing calls to the library</span>
+<span style="color: #008000">     *   may not use native operating system calls to spawn new threads; false if they may</span>
+<span style="color: #008000">     * - CKF_OS_LOCKING_OK. True if the library can use the native operation system threading model for locking;</span>
+<span style="color: #008000">     *   false otherwise</span>
+<span style="color: #008000">     */</span>
+<span style="color: #000000">    </span><span style="color: #001080">flags</span><span style="color: #000000">?: </span><span style="color: #267F99">number</span><span style="color: #000000">;</span>
+<span style="color: #000000">}</span>
+<span style="color: #008000">/**</span>
+<span style="color: #008000"> * Initializes the Cryptoki library</span>
+<span style="color: #008000"> * </span><span style="color: #0000FF">@param</span><span style="color: #008000"> </span><span style="color: #001080">options</span><span style="color: #008000"> Initialization options</span>
+<span style="color: #008000"> * Supports implementation of standard `CK_C_INITIALIZE_ARGS` and extended NSS format.</span>
+<span style="color: #008000"> * - if `options` is null or empty, it calls native `C_Initialize` with `NULL`</span>
+<span style="color: #008000"> * - if `options` doesn&#039;t have `libraryParameters`, it uses `CK_C_INITIALIZE_ARGS` structure</span>
+<span style="color: #008000"> * - if `options` has `libraryParameters`, it uses extended NSS structure</span>
+<span style="color: #008000"> */</span>
+<span style="color: #795E26">C_Initialize</span><span style="color: #000000">(</span><span style="color: #001080">options</span><span style="color: #000000">?: </span><span style="color: #001080">InitializationOptions</span><span style="color: #000000">): </span><span style="color: #0000FF">void</span><span style="color: #000000">;</span>
+</code></pre>
 				<p><strong>Code</strong></p>
-				<pre><code class="language-js"><span class="hljs-keyword">const</span> mod = <span class="hljs-keyword">new</span> pkcs11.PKCS11();
-mod.load(<span class="hljs-string">&quot;/usr/local/opt/nss/lib/libsoftokn3.dylib&quot;</span>);
+				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">mod</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">PKCS11</span><span style="color: #000000">();</span>
+<span style="color: #001080">mod</span><span style="color: #000000">.</span><span style="color: #795E26">load</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;/usr/local/opt/nss/lib/libsoftokn3.dylib&quot;</span><span style="color: #000000">);</span>
 
-mod.C_Initialize({
-    <span class="hljs-attr">libraryParameters</span>: <span class="hljs-string">&quot;configdir=&#x27;&#x27; certPrefix=&#x27;&#x27; keyPrefix=&#x27;&#x27; secmod=&#x27;&#x27; flags=readOnly,noCertDB,noModDB,forceOpen,optimizeSpace&quot;</span>,
-});
+<span style="color: #001080">mod</span><span style="color: #000000">.</span><span style="color: #795E26">C_Initialize</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">libraryParameters:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;configdir=&#039;&#039; certPrefix=&#039;&#039; keyPrefix=&#039;&#039; secmod=&#039;&#039; flags=readOnly,noCertDB,noModDB,forceOpen,optimizeSpace&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">});</span>
 
-<span class="hljs-comment">// Your code here</span>
+<span style="color: #008000">// Your code here</span>
 
-mod.C_Finalize();</code></pre>
+<span style="color: #001080">mod</span><span style="color: #000000">.</span><span style="color: #795E26">C_Finalize</span><span style="color: #000000">();</span>
+</code></pre>
 				<p><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Reference/FC_Initialize">More</a> info about NSS params for <code>C_Initialize</code></p>
 				<a href="#suitability" id="suitability" style="color: inherit; text-decoration: none;">
 					<h2>Suitability</h2>
@@ -430,16 +443,1921 @@ mod.C_Finalize();</code></pre>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_index_d_.html">&quot;index.d&quot;</a>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="classes/nativeerror.html" class="tsd-kind-icon">Native<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/pkcs11.html" class="tsd-kind-icon">PKCS11</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/pkcs11error.html" class="tsd-kind-icon">Pkcs11<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/aescbc.html" class="tsd-kind-icon">AesCBC</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/aesccm.html" class="tsd-kind-icon">AesCCM</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/aesgcm.html" class="tsd-kind-icon">AesGCM</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/attribute.html" class="tsd-kind-icon">Attribute</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ecdh1.html" class="tsd-kind-icon">ECDH1</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iparams.html" class="tsd-kind-icon">IParams</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/initializationoptions.html" class="tsd-kind-icon">Initialization<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/keypair.html" class="tsd-kind-icon">Key<wbr>Pair</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/mechanism.html" class="tsd-kind-icon">Mechanism</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/mechanisminfo.html" class="tsd-kind-icon">Mechanism<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/moduleinfo.html" class="tsd-kind-icon">Module<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/rsaoaep.html" class="tsd-kind-icon">RsaOAEP</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/rsapss.html" class="tsd-kind-icon">RsaPSS</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/sessioninfo.html" class="tsd-kind-icon">Session<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/slotinfo.html" class="tsd-kind-icon">Slot<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/tokeninfo.html" class="tsd-kind-icon">Token<wbr>Info</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/version.html" class="tsd-kind-icon">Version</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#handle" class="tsd-kind-icon">Handle</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#template" class="tsd-kind-icon">Template</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_ac_issuer" class="tsd-kind-icon">CKA_<wbr>AC_<wbr>ISSUER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_allowed_mechanisms" class="tsd-kind-icon">CKA_<wbr>ALLOWED_<wbr>MECHANISMS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_always_authenticate" class="tsd-kind-icon">CKA_<wbr>ALWAYS_<wbr>AUTHENTICATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_always_sensitive" class="tsd-kind-icon">CKA_<wbr>ALWAYS_<wbr>SENSITIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_application" class="tsd-kind-icon">CKA_<wbr>APPLICATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_attr_types" class="tsd-kind-icon">CKA_<wbr>ATTR_<wbr>TYPES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_auth_pin_flags" class="tsd-kind-icon">CKA_<wbr>AUTH_<wbr>PIN_<wbr>FLAGS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_base" class="tsd-kind-icon">CKA_<wbr>BASE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_bits_per_pixel" class="tsd-kind-icon">CKA_<wbr>BITS_<wbr>PER_<wbr>PIXEL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_certificate_category" class="tsd-kind-icon">CKA_<wbr>CERTIFICATE_<wbr>CATEGORY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_certificate_type" class="tsd-kind-icon">CKA_<wbr>CERTIFICATE_<wbr>TYPE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_char_columns" class="tsd-kind-icon">CKA_<wbr>CHAR_<wbr>COLUMNS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_char_rows" class="tsd-kind-icon">CKA_<wbr>CHAR_<wbr>ROWS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_char_sets" class="tsd-kind-icon">CKA_<wbr>CHAR_<wbr>SETS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_check_value" class="tsd-kind-icon">CKA_<wbr>CHECK_<wbr>VALUE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_class" class="tsd-kind-icon">CKA_<wbr>CLASS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_coefficient" class="tsd-kind-icon">CKA_<wbr>COEFFICIENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_color" class="tsd-kind-icon">CKA_<wbr>COLOR</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_copyable" class="tsd-kind-icon">CKA_<wbr>COPYABLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_decrypt" class="tsd-kind-icon">CKA_<wbr>DECRYPT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_default_cms_attributes" class="tsd-kind-icon">CKA_<wbr>DEFAULT_<wbr>CMS_<wbr>ATTRIBUTES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_derive" class="tsd-kind-icon">CKA_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_derive_template" class="tsd-kind-icon">CKA_<wbr>DERIVE_<wbr>TEMPLATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_destroyable" class="tsd-kind-icon">CKA_<wbr>DESTROYABLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_ecdsa_params" class="tsd-kind-icon">CKA_<wbr>ECDSA_<wbr>PARAMS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_ec_params" class="tsd-kind-icon">CKA_<wbr>EC_<wbr>PARAMS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_ec_point" class="tsd-kind-icon">CKA_<wbr>EC_<wbr>POINT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_encoding_methods" class="tsd-kind-icon">CKA_<wbr>ENCODING_<wbr>METHODS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_encrypt" class="tsd-kind-icon">CKA_<wbr>ENCRYPT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_end_date" class="tsd-kind-icon">CKA_<wbr>END_<wbr>DATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_exponent_1" class="tsd-kind-icon">CKA_<wbr>EXPONENT_<wbr>1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_exponent_2" class="tsd-kind-icon">CKA_<wbr>EXPONENT_<wbr>2</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_extractable" class="tsd-kind-icon">CKA_<wbr>EXTRACTABLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_gost28147_params" class="tsd-kind-icon">CKA_<wbr>GOST28147_<wbr>PARAMS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_gostr3410_params" class="tsd-kind-icon">CKA_<wbr>GOSTR3410_<wbr>PARAMS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_gostr3411_params" class="tsd-kind-icon">CKA_<wbr>GOSTR3411_<wbr>PARAMS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_hash_of_issuer_public_key" class="tsd-kind-icon">CKA_<wbr>HASH_<wbr>OF_<wbr>ISSUER_<wbr>PUBLIC_<wbr>KEY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_hash_of_subject_public_key" class="tsd-kind-icon">CKA_<wbr>HASH_<wbr>OF_<wbr>SUBJECT_<wbr>PUBLIC_<wbr>KEY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_has_reset" class="tsd-kind-icon">CKA_<wbr>HAS_<wbr>RESET</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_hw_feature_type" class="tsd-kind-icon">CKA_<wbr>HW_<wbr>FEATURE_<wbr>TYPE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_id" class="tsd-kind-icon">CKA_<wbr>ID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_issuer" class="tsd-kind-icon">CKA_<wbr>ISSUER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_java_midp_security_domain" class="tsd-kind-icon">CKA_<wbr>JAVA_<wbr>MIDP_<wbr>SECURITY_<wbr>DOMAIN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_key_gen_mechanism" class="tsd-kind-icon">CKA_<wbr>KEY_<wbr>GEN_<wbr>MECHANISM</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_key_type" class="tsd-kind-icon">CKA_<wbr>KEY_<wbr>TYPE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_label" class="tsd-kind-icon">CKA_<wbr>LABEL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_local" class="tsd-kind-icon">CKA_<wbr>LOCAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_mechanism_type" class="tsd-kind-icon">CKA_<wbr>MECHANISM_<wbr>TYPE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_mime_types" class="tsd-kind-icon">CKA_<wbr>MIME_<wbr>TYPES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_modifiable" class="tsd-kind-icon">CKA_<wbr>MODIFIABLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_modulus" class="tsd-kind-icon">CKA_<wbr>MODULUS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_modulus_bits" class="tsd-kind-icon">CKA_<wbr>MODULUS_<wbr>BITS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_name_hash_algorithm" class="tsd-kind-icon">CKA_<wbr>NAME_<wbr>HASH_<wbr>ALGORITHM</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_never_extractable" class="tsd-kind-icon">CKA_<wbr>NEVER_<wbr>EXTRACTABLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_object_id" class="tsd-kind-icon">CKA_<wbr>OBJECT_<wbr>ID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_challenge_requirement" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>CHALLENGE_<wbr>REQUIREMENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_counter" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>COUNTER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_counter_requirement" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>COUNTER_<wbr>REQUIREMENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_format" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>FORMAT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_length" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>LENGTH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_pin_requirement" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>PIN_<wbr>REQUIREMENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_service_identifier" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>SERVICE_<wbr>IDENTIFIER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_service_logo" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>SERVICE_<wbr>LOGO</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_service_logo_type" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>SERVICE_<wbr>LOGO_<wbr>TYPE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_time" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>TIME</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_time_interval" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>TIME_<wbr>INTERVAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_time_requirement" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>TIME_<wbr>REQUIREMENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_user_friendly_mode" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>USER_<wbr>FRIENDLY_<wbr>MODE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_otp_user_identifier" class="tsd-kind-icon">CKA_<wbr>OTP_<wbr>USER_<wbr>IDENTIFIER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_owner" class="tsd-kind-icon">CKA_<wbr>OWNER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_pixel_x" class="tsd-kind-icon">CKA_<wbr>PIXEL_<wbr>X</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_pixel_y" class="tsd-kind-icon">CKA_<wbr>PIXEL_<wbr>Y</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_prime" class="tsd-kind-icon">CKA_<wbr>PRIME</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_prime_1" class="tsd-kind-icon">CKA_<wbr>PRIME_<wbr>1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_prime_2" class="tsd-kind-icon">CKA_<wbr>PRIME_<wbr>2</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_prime_bits" class="tsd-kind-icon">CKA_<wbr>PRIME_<wbr>BITS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_private" class="tsd-kind-icon">CKA_<wbr>PRIVATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_private_exponent" class="tsd-kind-icon">CKA_<wbr>PRIVATE_<wbr>EXPONENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_public_exponent" class="tsd-kind-icon">CKA_<wbr>PUBLIC_<wbr>EXPONENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_required_cms_attributes" class="tsd-kind-icon">CKA_<wbr>REQUIRED_<wbr>CMS_<wbr>ATTRIBUTES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_reset_on_init" class="tsd-kind-icon">CKA_<wbr>RESET_<wbr>ON_<wbr>INIT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_resolution" class="tsd-kind-icon">CKA_<wbr>RESOLUTION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_secondary_auth" class="tsd-kind-icon">CKA_<wbr>SECONDARY_<wbr>AUTH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_sensitive" class="tsd-kind-icon">CKA_<wbr>SENSITIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_serial_number" class="tsd-kind-icon">CKA_<wbr>SERIAL_<wbr>NUMBER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_sign" class="tsd-kind-icon">CKA_<wbr>SIGN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_sign_recover" class="tsd-kind-icon">CKA_<wbr>SIGN_<wbr>RECOVER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_start_date" class="tsd-kind-icon">CKA_<wbr>START_<wbr>DATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_subject" class="tsd-kind-icon">CKA_<wbr>SUBJECT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_subprime" class="tsd-kind-icon">CKA_<wbr>SUBPRIME</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_subprime_bits" class="tsd-kind-icon">CKA_<wbr>SUBPRIME_<wbr>BITS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_sub_prime_bits" class="tsd-kind-icon">CKA_<wbr>SUB_<wbr>PRIME_<wbr>BITS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_supported_cms_attributes" class="tsd-kind-icon">CKA_<wbr>SUPPORTED_<wbr>CMS_<wbr>ATTRIBUTES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_token" class="tsd-kind-icon">CKA_<wbr>TOKEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_trusted" class="tsd-kind-icon">CKA_<wbr>TRUSTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_unwrap" class="tsd-kind-icon">CKA_<wbr>UNWRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_unwrap_template" class="tsd-kind-icon">CKA_<wbr>UNWRAP_<wbr>TEMPLATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_url" class="tsd-kind-icon">CKA_<wbr>URL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_value" class="tsd-kind-icon">CKA_<wbr>VALUE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_value_bits" class="tsd-kind-icon">CKA_<wbr>VALUE_<wbr>BITS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_value_len" class="tsd-kind-icon">CKA_<wbr>VALUE_<wbr>LEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_vendor_defined" class="tsd-kind-icon">CKA_<wbr>VENDOR_<wbr>DEFINED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_verify" class="tsd-kind-icon">CKA_<wbr>VERIFY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_verify_recover" class="tsd-kind-icon">CKA_<wbr>VERIFY_<wbr>RECOVER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_wrap" class="tsd-kind-icon">CKA_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_wrap_template" class="tsd-kind-icon">CKA_<wbr>WRAP_<wbr>TEMPLATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cka_wrap_with_trusted" class="tsd-kind-icon">CKA_<wbr>WRAP_<wbr>WITH_<wbr>TRUSTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckc_wtls" class="tsd-kind-icon">CKC_<wbr>WTLS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckc_x_509" class="tsd-kind-icon">CKC_<wbr><wbr>X_509</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckc_x_509_attr_cert" class="tsd-kind-icon">CKC_<wbr><wbr>X_509_<wbr>ATTR_<wbr>CERT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_cpdiversify_kdf" class="tsd-kind-icon">CKD_<wbr>CPDIVERSIFY_<wbr>KDF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_null" class="tsd-kind-icon">CKD_<wbr>NULL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_sha1_kdf" class="tsd-kind-icon">CKD_<wbr>SHA1_<wbr>KDF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_sha1_kdf_asn1" class="tsd-kind-icon">CKD_<wbr>SHA1_<wbr>KDF_<wbr>ASN1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_sha1_kdf_concatenate" class="tsd-kind-icon">CKD_<wbr>SHA1_<wbr>KDF_<wbr>CONCATENATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_sha224_kdf" class="tsd-kind-icon">CKD_<wbr>SHA224_<wbr>KDF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_sha256_kdf" class="tsd-kind-icon">CKD_<wbr>SHA256_<wbr>KDF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_sha384_kdf" class="tsd-kind-icon">CKD_<wbr>SHA384_<wbr>KDF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckd_sha512_kdf" class="tsd-kind-icon">CKD_<wbr>SHA512_<wbr>KDF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_clock_on_token" class="tsd-kind-icon">CKF_<wbr>CLOCK_<wbr>ON_<wbr>TOKEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_decrypt" class="tsd-kind-icon">CKF_<wbr>DECRYPT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_derive" class="tsd-kind-icon">CKF_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_digest" class="tsd-kind-icon">CKF_<wbr>DIGEST</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_dual_crypto_operations" class="tsd-kind-icon">CKF_<wbr>DUAL_<wbr>CRYPTO_<wbr>OPERATIONS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_encrypt" class="tsd-kind-icon">CKF_<wbr>ENCRYPT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_error_state" class="tsd-kind-icon">CKF_<wbr>ERROR_<wbr>STATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_generate" class="tsd-kind-icon">CKF_<wbr>GENERATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_generate_key_pair" class="tsd-kind-icon">CKF_<wbr>GENERATE_<wbr>KEY_<wbr>PAIR</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_hw" class="tsd-kind-icon">CKF_<wbr>HW</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_library_cant_create_os_threads" class="tsd-kind-icon">CKF_<wbr>LIBRARY_<wbr>CANT_<wbr>CREATE_<wbr>OS_<wbr>THREADS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_login_required" class="tsd-kind-icon">CKF_<wbr>LOGIN_<wbr>REQUIRED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_os_locking_ok" class="tsd-kind-icon">CKF_<wbr>OS_<wbr>LOCKING_<wbr>OK</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_protected_authentication_path" class="tsd-kind-icon">CKF_<wbr>PROTECTED_<wbr>AUTHENTICATION_<wbr>PATH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_restore_key_not_needed" class="tsd-kind-icon">CKF_<wbr>RESTORE_<wbr>KEY_<wbr>NOT_<wbr>NEEDED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_rng" class="tsd-kind-icon">CKF_<wbr>RNG</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_rw_session" class="tsd-kind-icon">CKF_<wbr>RW_<wbr>SESSION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_secondary_authentication" class="tsd-kind-icon">CKF_<wbr>SECONDARY_<wbr>AUTHENTICATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_serial_session" class="tsd-kind-icon">CKF_<wbr>SERIAL_<wbr>SESSION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_sign" class="tsd-kind-icon">CKF_<wbr>SIGN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_sign_recover" class="tsd-kind-icon">CKF_<wbr>SIGN_<wbr>RECOVER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_so_pin_count_low" class="tsd-kind-icon">CKF_<wbr>SO_<wbr>PIN_<wbr>COUNT_<wbr>LOW</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_so_pin_final_try" class="tsd-kind-icon">CKF_<wbr>SO_<wbr>PIN_<wbr>FINAL_<wbr>TRY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_so_pin_locked" class="tsd-kind-icon">CKF_<wbr>SO_<wbr>PIN_<wbr>LOCKED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_so_pin_to_be_changed" class="tsd-kind-icon">CKF_<wbr>SO_<wbr>PIN_<wbr>TO_<wbr>BE_<wbr>CHANGED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_token_initialized" class="tsd-kind-icon">CKF_<wbr>TOKEN_<wbr>INITIALIZED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_unwrap" class="tsd-kind-icon">CKF_<wbr>UNWRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_user_pin_count_low" class="tsd-kind-icon">CKF_<wbr>USER_<wbr>PIN_<wbr>COUNT_<wbr>LOW</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_user_pin_final_try" class="tsd-kind-icon">CKF_<wbr>USER_<wbr>PIN_<wbr>FINAL_<wbr>TRY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_user_pin_initialized" class="tsd-kind-icon">CKF_<wbr>USER_<wbr>PIN_<wbr>INITIALIZED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_user_pin_locked" class="tsd-kind-icon">CKF_<wbr>USER_<wbr>PIN_<wbr>LOCKED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_user_pin_to_be_changed" class="tsd-kind-icon">CKF_<wbr>USER_<wbr>PIN_<wbr>TO_<wbr>BE_<wbr>CHANGED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_verify" class="tsd-kind-icon">CKF_<wbr>VERIFY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_verify_recover" class="tsd-kind-icon">CKF_<wbr>VERIFY_<wbr>RECOVER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_wrap" class="tsd-kind-icon">CKF_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckf_write_protected" class="tsd-kind-icon">CKF_<wbr>WRITE_<wbr>PROTECTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckg_mgf1_sha1" class="tsd-kind-icon">CKG_<wbr>MGF1_<wbr>SHA1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckg_mgf1_sha224" class="tsd-kind-icon">CKG_<wbr>MGF1_<wbr>SHA224</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckg_mgf1_sha256" class="tsd-kind-icon">CKG_<wbr>MGF1_<wbr>SHA256</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckg_mgf1_sha384" class="tsd-kind-icon">CKG_<wbr>MGF1_<wbr>SHA384</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckg_mgf1_sha512" class="tsd-kind-icon">CKG_<wbr>MGF1_<wbr>SHA512</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_acti" class="tsd-kind-icon">CKK_<wbr>ACTI</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_aes" class="tsd-kind-icon">CKK_<wbr>AES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_aria" class="tsd-kind-icon">CKK_<wbr>ARIA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_baton" class="tsd-kind-icon">CKK_<wbr>BATON</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_blowfish" class="tsd-kind-icon">CKK_<wbr>BLOWFISH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_camellia" class="tsd-kind-icon">CKK_<wbr>CAMELLIA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_cast" class="tsd-kind-icon">CKK_<wbr>CAST</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_cast128" class="tsd-kind-icon">CKK_<wbr>CAST128</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_cast3" class="tsd-kind-icon">CKK_<wbr>CAST3</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_cast5" class="tsd-kind-icon">CKK_<wbr>CAST5</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_cdmf" class="tsd-kind-icon">CKK_<wbr>CDMF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_des" class="tsd-kind-icon">CKK_<wbr>DES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_des2" class="tsd-kind-icon">CKK_<wbr>DES2</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_des3" class="tsd-kind-icon">CKK_<wbr>DES3</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_dh" class="tsd-kind-icon">CKK_<wbr>DH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_dsa" class="tsd-kind-icon">CKK_<wbr>DSA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_ec" class="tsd-kind-icon">CKK_<wbr>EC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_ecdsa" class="tsd-kind-icon">CKK_<wbr>ECDSA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_generic_secret" class="tsd-kind-icon">CKK_<wbr>GENERIC_<wbr>SECRET</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_gost28147" class="tsd-kind-icon">CKK_<wbr>GOST28147</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_gostr3410" class="tsd-kind-icon">CKK_<wbr>GOSTR3410</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_gostr3411" class="tsd-kind-icon">CKK_<wbr>GOSTR3411</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_hotp" class="tsd-kind-icon">CKK_<wbr>HOTP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_idea" class="tsd-kind-icon">CKK_<wbr>IDEA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_juniper" class="tsd-kind-icon">CKK_<wbr>JUNIPER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_kea" class="tsd-kind-icon">CKK_<wbr>KEA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_md5_hmac" class="tsd-kind-icon">CKK_<wbr>MD5_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_rc2" class="tsd-kind-icon">CKK_<wbr>RC2</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_rc4" class="tsd-kind-icon">CKK_<wbr>RC4</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_rc5" class="tsd-kind-icon">CKK_<wbr>RC5</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_ripemd128_hmac" class="tsd-kind-icon">CKK_<wbr>RIPEMD128_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_ripemd160_hmac" class="tsd-kind-icon">CKK_<wbr>RIPEMD160_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_rsa" class="tsd-kind-icon">CKK_<wbr>RSA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_securid" class="tsd-kind-icon">CKK_<wbr>SECURID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_seed" class="tsd-kind-icon">CKK_<wbr>SEED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_sha224_hmac" class="tsd-kind-icon">CKK_<wbr>SHA224_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_sha256_hmac" class="tsd-kind-icon">CKK_<wbr>SHA256_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_sha384_hmac" class="tsd-kind-icon">CKK_<wbr>SHA384_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_sha512_hmac" class="tsd-kind-icon">CKK_<wbr>SHA512_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_sha_1_hmac" class="tsd-kind-icon">CKK_<wbr>SHA_<wbr>1_HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_skipjack" class="tsd-kind-icon">CKK_<wbr>SKIPJACK</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_twofish" class="tsd-kind-icon">CKK_<wbr>TWOFISH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_vendor_defined" class="tsd-kind-icon">CKK_<wbr>VENDOR_<wbr>DEFINED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckk_x9_42_dh" class="tsd-kind-icon">CKK_<wbr><wbr>X9_<wbr>42_<wbr>DH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_acti" class="tsd-kind-icon">CKM_<wbr>ACTI</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_acti_key_gen" class="tsd-kind-icon">CKM_<wbr>ACTI_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cbc" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cbc_encrypt_data" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CBC_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cbc_pad" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_ccm" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CCM</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cfb128" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CFB128</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cfb64" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CFB64</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cfb8" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CFB8</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cmac" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cmac_general" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_ctr" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CTR</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_cts" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>CTS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_ecb" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_ecb_encrypt_data" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>ECB_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_gcm" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>GCM</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_key_gen" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_key_wrap" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>KEY_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_key_wrap_pad" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>KEY_<wbr>WRAP_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_mac" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_mac_general" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aes_ofb" class="tsd-kind-icon">CKM_<wbr>AES_<wbr>OFB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aria_cbc" class="tsd-kind-icon">CKM_<wbr>ARIA_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aria_cbc_encrypt_data" class="tsd-kind-icon">CKM_<wbr>ARIA_<wbr>CBC_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aria_cbc_pad" class="tsd-kind-icon">CKM_<wbr>ARIA_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aria_ecb" class="tsd-kind-icon">CKM_<wbr>ARIA_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aria_ecb_encrypt_data" class="tsd-kind-icon">CKM_<wbr>ARIA_<wbr>ECB_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aria_key_gen" class="tsd-kind-icon">CKM_<wbr>ARIA_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aria_mac" class="tsd-kind-icon">CKM_<wbr>ARIA_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_aria_mac_general" class="tsd-kind-icon">CKM_<wbr>ARIA_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_baton_cbc128" class="tsd-kind-icon">CKM_<wbr>BATON_<wbr>CBC128</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_baton_counter" class="tsd-kind-icon">CKM_<wbr>BATON_<wbr>COUNTER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_baton_ecb128" class="tsd-kind-icon">CKM_<wbr>BATON_<wbr>ECB128</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_baton_ecb96" class="tsd-kind-icon">CKM_<wbr>BATON_<wbr>ECB96</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_baton_key_gen" class="tsd-kind-icon">CKM_<wbr>BATON_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_baton_shuffle" class="tsd-kind-icon">CKM_<wbr>BATON_<wbr>SHUFFLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_baton_wrap" class="tsd-kind-icon">CKM_<wbr>BATON_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_blowfish_cbc" class="tsd-kind-icon">CKM_<wbr>BLOWFISH_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_blowfish_cbc_pad" class="tsd-kind-icon">CKM_<wbr>BLOWFISH_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_blowfish_key_gen" class="tsd-kind-icon">CKM_<wbr>BLOWFISH_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_cbc" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_cbc_encrypt_data" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>CBC_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_cbc_pad" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_ctr" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>CTR</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_ecb" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_ecb_encrypt_data" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>ECB_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_key_gen" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_mac" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_camellia_mac_general" class="tsd-kind-icon">CKM_<wbr>CAMELLIA_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast128_cbc" class="tsd-kind-icon">CKM_<wbr>CAST128_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast128_cbc_pad" class="tsd-kind-icon">CKM_<wbr>CAST128_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast128_ecb" class="tsd-kind-icon">CKM_<wbr>CAST128_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast128_key_gen" class="tsd-kind-icon">CKM_<wbr>CAST128_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast128_mac" class="tsd-kind-icon">CKM_<wbr>CAST128_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast128_mac_general" class="tsd-kind-icon">CKM_<wbr>CAST128_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast3_cbc" class="tsd-kind-icon">CKM_<wbr>CAST3_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast3_cbc_pad" class="tsd-kind-icon">CKM_<wbr>CAST3_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast3_ecb" class="tsd-kind-icon">CKM_<wbr>CAST3_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast3_key_gen" class="tsd-kind-icon">CKM_<wbr>CAST3_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast3_mac" class="tsd-kind-icon">CKM_<wbr>CAST3_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast3_mac_general" class="tsd-kind-icon">CKM_<wbr>CAST3_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast5_cbc" class="tsd-kind-icon">CKM_<wbr>CAST5_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast5_cbc_pad" class="tsd-kind-icon">CKM_<wbr>CAST5_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast5_ecb" class="tsd-kind-icon">CKM_<wbr>CAST5_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast5_key_gen" class="tsd-kind-icon">CKM_<wbr>CAST5_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast5_mac" class="tsd-kind-icon">CKM_<wbr>CAST5_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast5_mac_general" class="tsd-kind-icon">CKM_<wbr>CAST5_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast_cbc" class="tsd-kind-icon">CKM_<wbr>CAST_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast_cbc_pad" class="tsd-kind-icon">CKM_<wbr>CAST_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast_ecb" class="tsd-kind-icon">CKM_<wbr>CAST_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast_key_gen" class="tsd-kind-icon">CKM_<wbr>CAST_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast_mac" class="tsd-kind-icon">CKM_<wbr>CAST_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cast_mac_general" class="tsd-kind-icon">CKM_<wbr>CAST_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cdmf_cbc" class="tsd-kind-icon">CKM_<wbr>CDMF_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cdmf_cbc_pad" class="tsd-kind-icon">CKM_<wbr>CDMF_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cdmf_ecb" class="tsd-kind-icon">CKM_<wbr>CDMF_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cdmf_key_gen" class="tsd-kind-icon">CKM_<wbr>CDMF_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cdmf_mac" class="tsd-kind-icon">CKM_<wbr>CDMF_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_cdmf_mac_general" class="tsd-kind-icon">CKM_<wbr>CDMF_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_concatenate_base_and_data" class="tsd-kind-icon">CKM_<wbr>CONCATENATE_<wbr>BASE_<wbr>AND_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_concatenate_base_and_key" class="tsd-kind-icon">CKM_<wbr>CONCATENATE_<wbr>BASE_<wbr>AND_<wbr>KEY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_concatenate_data_and_base" class="tsd-kind-icon">CKM_<wbr>CONCATENATE_<wbr>DATA_<wbr>AND_<wbr>BASE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des2_key_gen" class="tsd-kind-icon">CKM_<wbr>DES2_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_cbc" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_cbc_encrypt_data" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>CBC_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_cbc_pad" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_cmac" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>CMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_cmac_general" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>CMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_ecb" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_ecb_encrypt_data" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>ECB_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_key_gen" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_mac" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des3_mac_general" class="tsd-kind-icon">CKM_<wbr>DES3_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_cbc" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_cbc_encrypt_data" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>CBC_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_cbc_pad" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_cfb64" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>CFB64</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_cfb8" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>CFB8</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_ecb" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_ecb_encrypt_data" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>ECB_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_key_gen" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_mac" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_mac_general" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_ofb64" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>OFB64</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_des_ofb8" class="tsd-kind-icon">CKM_<wbr>DES_<wbr>OFB8</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dh_pkcs_derive" class="tsd-kind-icon">CKM_<wbr>DH_<wbr>PKCS_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dh_pkcs_key_pair_gen" class="tsd-kind-icon">CKM_<wbr>DH_<wbr>PKCS_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dh_pkcs_parameter_gen" class="tsd-kind-icon">CKM_<wbr>DH_<wbr>PKCS_<wbr>PARAMETER_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dsa" class="tsd-kind-icon">CKM_<wbr>DSA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dsa_key_pair_gen" class="tsd-kind-icon">CKM_<wbr>DSA_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dsa_parameter_gen" class="tsd-kind-icon">CKM_<wbr>DSA_<wbr>PARAMETER_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dsa_sha1" class="tsd-kind-icon">CKM_<wbr>DSA_<wbr>SHA1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dsa_sha224" class="tsd-kind-icon">CKM_<wbr>DSA_<wbr>SHA224</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dsa_sha256" class="tsd-kind-icon">CKM_<wbr>DSA_<wbr>SHA256</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dsa_sha384" class="tsd-kind-icon">CKM_<wbr>DSA_<wbr>SHA384</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_dsa_sha512" class="tsd-kind-icon">CKM_<wbr>DSA_<wbr>SHA512</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdh1_cofactor_derive" class="tsd-kind-icon">CKM_<wbr>ECDH1_<wbr>COFACTOR_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdh1_derive" class="tsd-kind-icon">CKM_<wbr>ECDH1_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdsa" class="tsd-kind-icon">CKM_<wbr>ECDSA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdsa_key_pair_gen" class="tsd-kind-icon">CKM_<wbr>ECDSA_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdsa_sha1" class="tsd-kind-icon">CKM_<wbr>ECDSA_<wbr>SHA1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdsa_sha224" class="tsd-kind-icon">CKM_<wbr>ECDSA_<wbr>SHA224</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdsa_sha256" class="tsd-kind-icon">CKM_<wbr>ECDSA_<wbr>SHA256</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdsa_sha384" class="tsd-kind-icon">CKM_<wbr>ECDSA_<wbr>SHA384</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecdsa_sha512" class="tsd-kind-icon">CKM_<wbr>ECDSA_<wbr>SHA512</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ecmqv_derive" class="tsd-kind-icon">CKM_<wbr>ECMQV_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ec_key_pair_gen" class="tsd-kind-icon">CKM_<wbr>EC_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_extract_key_from_key" class="tsd-kind-icon">CKM_<wbr>EXTRACT_<wbr>KEY_<wbr>FROM_<wbr>KEY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_fasthash" class="tsd-kind-icon">CKM_<wbr>FASTHASH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_fortezza_timestamp" class="tsd-kind-icon">CKM_<wbr>FORTEZZA_<wbr>TIMESTAMP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_generic_secret_key_gen" class="tsd-kind-icon">CKM_<wbr>GENERIC_<wbr>SECRET_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gost28147" class="tsd-kind-icon">CKM_<wbr>GOST28147</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gost28147_ecb" class="tsd-kind-icon">CKM_<wbr>GOST28147_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gost28147_key_gen" class="tsd-kind-icon">CKM_<wbr>GOST28147_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gost28147_key_wrap" class="tsd-kind-icon">CKM_<wbr>GOST28147_<wbr>KEY_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gost28147_mac" class="tsd-kind-icon">CKM_<wbr>GOST28147_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gostr3410" class="tsd-kind-icon">CKM_<wbr>GOSTR3410</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gostr3410_derive" class="tsd-kind-icon">CKM_<wbr>GOSTR3410_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gostr3410_key_pair_gen" class="tsd-kind-icon">CKM_<wbr>GOSTR3410_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gostr3410_key_wrap" class="tsd-kind-icon">CKM_<wbr>GOSTR3410_<wbr>KEY_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gostr3410_with_gostr3411" class="tsd-kind-icon">CKM_<wbr>GOSTR3410_<wbr>WITH_<wbr>GOSTR3411</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gostr3411" class="tsd-kind-icon">CKM_<wbr>GOSTR3411</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_gostr3411_hmac" class="tsd-kind-icon">CKM_<wbr>GOSTR3411_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_hotp" class="tsd-kind-icon">CKM_<wbr>HOTP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_hotp_key_gen" class="tsd-kind-icon">CKM_<wbr>HOTP_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_idea_cbc" class="tsd-kind-icon">CKM_<wbr>IDEA_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_idea_cbc_pad" class="tsd-kind-icon">CKM_<wbr>IDEA_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_idea_ecb" class="tsd-kind-icon">CKM_<wbr>IDEA_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_idea_key_gen" class="tsd-kind-icon">CKM_<wbr>IDEA_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_idea_mac" class="tsd-kind-icon">CKM_<wbr>IDEA_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_idea_mac_general" class="tsd-kind-icon">CKM_<wbr>IDEA_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_juniper_cbc128" class="tsd-kind-icon">CKM_<wbr>JUNIPER_<wbr>CBC128</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_juniper_counter" class="tsd-kind-icon">CKM_<wbr>JUNIPER_<wbr>COUNTER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_juniper_ecb128" class="tsd-kind-icon">CKM_<wbr>JUNIPER_<wbr>ECB128</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_juniper_key_gen" class="tsd-kind-icon">CKM_<wbr>JUNIPER_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_juniper_shuffle" class="tsd-kind-icon">CKM_<wbr>JUNIPER_<wbr>SHUFFLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_juniper_wrap" class="tsd-kind-icon">CKM_<wbr>JUNIPER_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_kea_key_derive" class="tsd-kind-icon">CKM_<wbr>KEA_<wbr>KEY_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_kea_key_pair_gen" class="tsd-kind-icon">CKM_<wbr>KEA_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_key_wrap_lynks" class="tsd-kind-icon">CKM_<wbr>KEY_<wbr>WRAP_<wbr>LYNKS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_key_wrap_set_oaep" class="tsd-kind-icon">CKM_<wbr>KEY_<wbr>WRAP_<wbr>SET_<wbr>OAEP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md2" class="tsd-kind-icon">CKM_<wbr>MD2</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md2_hmac" class="tsd-kind-icon">CKM_<wbr>MD2_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md2_hmac_general" class="tsd-kind-icon">CKM_<wbr>MD2_<wbr>HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md2_key_derivation" class="tsd-kind-icon">CKM_<wbr>MD2_<wbr>KEY_<wbr>DERIVATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md2_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>MD2_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md5" class="tsd-kind-icon">CKM_<wbr>MD5</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md5_hmac" class="tsd-kind-icon">CKM_<wbr>MD5_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md5_hmac_general" class="tsd-kind-icon">CKM_<wbr>MD5_<wbr>HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md5_key_derivation" class="tsd-kind-icon">CKM_<wbr>MD5_<wbr>KEY_<wbr>DERIVATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_md5_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>MD5_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pba_sha1_with_sha1_hmac" class="tsd-kind-icon">CKM_<wbr>PBA_<wbr>SHA1_<wbr>WITH_<wbr>SHA1_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_md2_des_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>MD2_<wbr>DES_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_md5_cast128_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>MD5_<wbr>CAST128_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_md5_cast3_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>MD5_<wbr>CAST3_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_md5_cast5_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>MD5_<wbr>CAST5_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_md5_cast_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>MD5_<wbr>CAST_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_md5_des_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>MD5_<wbr>DES_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_sha1_cast128_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>SHA1_<wbr>CAST128_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_sha1_cast5_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>SHA1_<wbr>CAST5_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_sha1_des2_ede_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>SHA1_<wbr>DES2_<wbr>EDE_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_sha1_des3_ede_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>SHA1_<wbr>DES3_<wbr>EDE_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_sha1_rc2_128_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>SHA1_<wbr>RC2_<wbr>128_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_sha1_rc2_40_cbc" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>SHA1_<wbr>RC2_<wbr>40_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_sha1_rc4_128" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>SHA1_<wbr>RC4_<wbr>128</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pbe_sha1_rc4_40" class="tsd-kind-icon">CKM_<wbr>PBE_<wbr>SHA1_<wbr>RC4_<wbr>40</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_pkcs5_pbkd2" class="tsd-kind-icon">CKM_<wbr>PKCS5_<wbr>PBKD2</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc2_cbc" class="tsd-kind-icon">CKM_<wbr>RC2_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc2_cbc_pad" class="tsd-kind-icon">CKM_<wbr>RC2_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc2_ecb" class="tsd-kind-icon">CKM_<wbr>RC2_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc2_key_gen" class="tsd-kind-icon">CKM_<wbr>RC2_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc2_mac" class="tsd-kind-icon">CKM_<wbr>RC2_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc2_mac_general" class="tsd-kind-icon">CKM_<wbr>RC2_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc4" class="tsd-kind-icon">CKM_<wbr>RC4</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc4_key_gen" class="tsd-kind-icon">CKM_<wbr>RC4_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc5_cbc" class="tsd-kind-icon">CKM_<wbr>RC5_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc5_cbc_pad" class="tsd-kind-icon">CKM_<wbr>RC5_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc5_ecb" class="tsd-kind-icon">CKM_<wbr>RC5_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc5_key_gen" class="tsd-kind-icon">CKM_<wbr>RC5_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc5_mac" class="tsd-kind-icon">CKM_<wbr>RC5_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rc5_mac_general" class="tsd-kind-icon">CKM_<wbr>RC5_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ripemd128" class="tsd-kind-icon">CKM_<wbr>RIPEMD128</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ripemd128_hmac" class="tsd-kind-icon">CKM_<wbr>RIPEMD128_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ripemd128_hmac_general" class="tsd-kind-icon">CKM_<wbr>RIPEMD128_<wbr>HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ripemd128_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>RIPEMD128_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ripemd160" class="tsd-kind-icon">CKM_<wbr>RIPEMD160</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ripemd160_hmac" class="tsd-kind-icon">CKM_<wbr>RIPEMD160_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ripemd160_hmac_general" class="tsd-kind-icon">CKM_<wbr>RIPEMD160_<wbr>HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ripemd160_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>RIPEMD160_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_9796" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr>9796</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_pkcs_key_pair_gen" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr>PKCS_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_pkcs_oaep" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr>PKCS_<wbr>OAEP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_pkcs_oaep_tpm_1_1" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr>PKCS_<wbr>OAEP_<wbr>TPM_<wbr>1_1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_pkcs_pss" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr>PKCS_<wbr>PSS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_pkcs_tpm_1_1" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr>PKCS_<wbr>TPM_<wbr>1_1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_x9_31" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr><wbr>X9_<wbr>31</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_x9_31_key_pair_gen" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr><wbr>X9_<wbr>31_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_rsa_x_509" class="tsd-kind-icon">CKM_<wbr>RSA_<wbr><wbr>X_509</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_securid" class="tsd-kind-icon">CKM_<wbr>SECURID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_securid_key_gen" class="tsd-kind-icon">CKM_<wbr>SECURID_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_seed_cbc" class="tsd-kind-icon">CKM_<wbr>SEED_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_seed_cbc_encrypt_data" class="tsd-kind-icon">CKM_<wbr>SEED_<wbr>CBC_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_seed_cbc_pad" class="tsd-kind-icon">CKM_<wbr>SEED_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_seed_ecb" class="tsd-kind-icon">CKM_<wbr>SEED_<wbr>ECB</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_seed_ecb_encrypt_data" class="tsd-kind-icon">CKM_<wbr>SEED_<wbr>ECB_<wbr>ENCRYPT_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_seed_key_gen" class="tsd-kind-icon">CKM_<wbr>SEED_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_seed_mac" class="tsd-kind-icon">CKM_<wbr>SEED_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_seed_mac_general" class="tsd-kind-icon">CKM_<wbr>SEED_<wbr>MAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha1_key_derivation" class="tsd-kind-icon">CKM_<wbr>SHA1_<wbr>KEY_<wbr>DERIVATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha1_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>SHA1_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha1_rsa_pkcs_pss" class="tsd-kind-icon">CKM_<wbr>SHA1_<wbr>RSA_<wbr>PKCS_<wbr>PSS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha1_rsa_x9_31" class="tsd-kind-icon">CKM_<wbr>SHA1_<wbr>RSA_<wbr><wbr>X9_<wbr>31</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha224" class="tsd-kind-icon">CKM_<wbr>SHA224</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha224_hmac" class="tsd-kind-icon">CKM_<wbr>SHA224_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha224_hmac_general" class="tsd-kind-icon">CKM_<wbr>SHA224_<wbr>HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha224_key_derivation" class="tsd-kind-icon">CKM_<wbr>SHA224_<wbr>KEY_<wbr>DERIVATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha224_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>SHA224_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha224_rsa_pkcs_pss" class="tsd-kind-icon">CKM_<wbr>SHA224_<wbr>RSA_<wbr>PKCS_<wbr>PSS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha256" class="tsd-kind-icon">CKM_<wbr>SHA256</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha256_hmac" class="tsd-kind-icon">CKM_<wbr>SHA256_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha256_hmac_general" class="tsd-kind-icon">CKM_<wbr>SHA256_<wbr>HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha256_key_derivation" class="tsd-kind-icon">CKM_<wbr>SHA256_<wbr>KEY_<wbr>DERIVATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha256_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>SHA256_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha256_rsa_pkcs_pss" class="tsd-kind-icon">CKM_<wbr>SHA256_<wbr>RSA_<wbr>PKCS_<wbr>PSS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha384" class="tsd-kind-icon">CKM_<wbr>SHA384</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha384_hmac" class="tsd-kind-icon">CKM_<wbr>SHA384_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha384_hmac_general" class="tsd-kind-icon">CKM_<wbr>SHA384_<wbr>HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha384_key_derivation" class="tsd-kind-icon">CKM_<wbr>SHA384_<wbr>KEY_<wbr>DERIVATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha384_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>SHA384_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha384_rsa_pkcs_pss" class="tsd-kind-icon">CKM_<wbr>SHA384_<wbr>RSA_<wbr>PKCS_<wbr>PSS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha512" class="tsd-kind-icon">CKM_<wbr>SHA512</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha512_hmac" class="tsd-kind-icon">CKM_<wbr>SHA512_<wbr>HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha512_hmac_general" class="tsd-kind-icon">CKM_<wbr>SHA512_<wbr>HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha512_key_derivation" class="tsd-kind-icon">CKM_<wbr>SHA512_<wbr>KEY_<wbr>DERIVATION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha512_rsa_pkcs" class="tsd-kind-icon">CKM_<wbr>SHA512_<wbr>RSA_<wbr>PKCS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha512_rsa_pkcs_pss" class="tsd-kind-icon">CKM_<wbr>SHA512_<wbr>RSA_<wbr>PKCS_<wbr>PSS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha_1" class="tsd-kind-icon">CKM_<wbr>SHA_<wbr>1</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha_1_hmac" class="tsd-kind-icon">CKM_<wbr>SHA_<wbr>1_HMAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_sha_1_hmac_general" class="tsd-kind-icon">CKM_<wbr>SHA_<wbr>1_HMAC_<wbr>GENERAL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_cbc64" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>CBC64</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_cfb16" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>CFB16</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_cfb32" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>CFB32</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_cfb64" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>CFB64</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_cfb8" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>CFB8</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_ecb64" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>ECB64</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_key_gen" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_ofb64" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>OFB64</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_private_wrap" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>PRIVATE_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_relayx" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>RELAYX</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_skipjack_wrap" class="tsd-kind-icon">CKM_<wbr>SKIPJACK_<wbr>WRAP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ssl3_key_and_mac_derive" class="tsd-kind-icon">CKM_<wbr>SSL3_<wbr>KEY_<wbr>AND_<wbr>MAC_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ssl3_master_key_derive" class="tsd-kind-icon">CKM_<wbr>SSL3_<wbr>MASTER_<wbr>KEY_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ssl3_master_key_derive_dh" class="tsd-kind-icon">CKM_<wbr>SSL3_<wbr>MASTER_<wbr>KEY_<wbr>DERIVE_<wbr>DH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ssl3_md5_mac" class="tsd-kind-icon">CKM_<wbr>SSL3_<wbr>MD5_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ssl3_pre_master_key_gen" class="tsd-kind-icon">CKM_<wbr>SSL3_<wbr>PRE_<wbr>MASTER_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_ssl3_sha1_mac" class="tsd-kind-icon">CKM_<wbr>SSL3_<wbr>SHA1_<wbr>MAC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_tls_key_and_mac_derive" class="tsd-kind-icon">CKM_<wbr>TLS_<wbr>KEY_<wbr>AND_<wbr>MAC_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_tls_master_key_derive" class="tsd-kind-icon">CKM_<wbr>TLS_<wbr>MASTER_<wbr>KEY_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_tls_master_key_derive_dh" class="tsd-kind-icon">CKM_<wbr>TLS_<wbr>MASTER_<wbr>KEY_<wbr>DERIVE_<wbr>DH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_tls_pre_master_key_gen" class="tsd-kind-icon">CKM_<wbr>TLS_<wbr>PRE_<wbr>MASTER_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_tls_prf" class="tsd-kind-icon">CKM_<wbr>TLS_<wbr>PRF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_twofish_cbc" class="tsd-kind-icon">CKM_<wbr>TWOFISH_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_twofish_cbc_pad" class="tsd-kind-icon">CKM_<wbr>TWOFISH_<wbr>CBC_<wbr>PAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_twofish_key_gen" class="tsd-kind-icon">CKM_<wbr>TWOFISH_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_vendor_defined" class="tsd-kind-icon">CKM_<wbr>VENDOR_<wbr>DEFINED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_wtls_client_key_and_mac_derive" class="tsd-kind-icon">CKM_<wbr>WTLS_<wbr>CLIENT_<wbr>KEY_<wbr>AND_<wbr>MAC_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_wtls_master_key_derive" class="tsd-kind-icon">CKM_<wbr>WTLS_<wbr>MASTER_<wbr>KEY_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_wtls_master_key_derive_dh_ecc" class="tsd-kind-icon">CKM_<wbr>WTLS_<wbr>MASTER_<wbr>KEY_<wbr>DERIVE_<wbr>DH_<wbr>ECC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_wtls_pre_master_key_gen" class="tsd-kind-icon">CKM_<wbr>WTLS_<wbr>PRE_<wbr>MASTER_<wbr>KEY_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_wtls_prf" class="tsd-kind-icon">CKM_<wbr>WTLS_<wbr>PRF</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_wtls_server_key_and_mac_derive" class="tsd-kind-icon">CKM_<wbr>WTLS_<wbr>SERVER_<wbr>KEY_<wbr>AND_<wbr>MAC_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_x9_42_dh_derive" class="tsd-kind-icon">CKM_<wbr><wbr>X9_<wbr>42_<wbr>DH_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_x9_42_dh_hybrid_derive" class="tsd-kind-icon">CKM_<wbr><wbr>X9_<wbr>42_<wbr>DH_<wbr>HYBRID_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_x9_42_dh_key_pair_gen" class="tsd-kind-icon">CKM_<wbr><wbr>X9_<wbr>42_<wbr>DH_<wbr>KEY_<wbr>PAIR_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_x9_42_dh_parameter_gen" class="tsd-kind-icon">CKM_<wbr><wbr>X9_<wbr>42_<wbr>DH_<wbr>PARAMETER_<wbr>GEN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_x9_42_mqv_derive" class="tsd-kind-icon">CKM_<wbr><wbr>X9_<wbr>42_<wbr>MQV_<wbr>DERIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckm_xor_base_and_data" class="tsd-kind-icon">CKM_<wbr>XOR_<wbr>BASE_<wbr>AND_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_certificate" class="tsd-kind-icon">CKO_<wbr>CERTIFICATE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_data" class="tsd-kind-icon">CKO_<wbr>DATA</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_domain_parameters" class="tsd-kind-icon">CKO_<wbr>DOMAIN_<wbr>PARAMETERS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_hw_feature" class="tsd-kind-icon">CKO_<wbr>HW_<wbr>FEATURE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_mechanism" class="tsd-kind-icon">CKO_<wbr>MECHANISM</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_otp_key" class="tsd-kind-icon">CKO_<wbr>OTP_<wbr>KEY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_private_key" class="tsd-kind-icon">CKO_<wbr>PRIVATE_<wbr>KEY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_public_key" class="tsd-kind-icon">CKO_<wbr>PUBLIC_<wbr>KEY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_secret_key" class="tsd-kind-icon">CKO_<wbr>SECRET_<wbr>KEY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cko_vendor_defined" class="tsd-kind-icon">CKO_<wbr>VENDOR_<wbr>DEFINED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_arguments_bad" class="tsd-kind-icon">CKR_<wbr>ARGUMENTS_<wbr>BAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_attribute_read_only" class="tsd-kind-icon">CKR_<wbr>ATTRIBUTE_<wbr>READ_<wbr>ONLY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_attribute_sensitive" class="tsd-kind-icon">CKR_<wbr>ATTRIBUTE_<wbr>SENSITIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_attribute_type_invalid" class="tsd-kind-icon">CKR_<wbr>ATTRIBUTE_<wbr>TYPE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_attribute_value_invalid" class="tsd-kind-icon">CKR_<wbr>ATTRIBUTE_<wbr>VALUE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_buffer_too_small" class="tsd-kind-icon">CKR_<wbr>BUFFER_<wbr>TOO_<wbr>SMALL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_cancel" class="tsd-kind-icon">CKR_<wbr>CANCEL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_cant_lock" class="tsd-kind-icon">CKR_<wbr>CANT_<wbr>LOCK</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_cryptoki_already_initialized" class="tsd-kind-icon">CKR_<wbr>CRYPTOKI_<wbr>ALREADY_<wbr>INITIALIZED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_cryptoki_not_initialized" class="tsd-kind-icon">CKR_<wbr>CRYPTOKI_<wbr>NOT_<wbr>INITIALIZED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_data_invalid" class="tsd-kind-icon">CKR_<wbr>DATA_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_data_len_range" class="tsd-kind-icon">CKR_<wbr>DATA_<wbr>LEN_<wbr>RANGE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_device_error" class="tsd-kind-icon">CKR_<wbr>DEVICE_<wbr>ERROR</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_device_memory" class="tsd-kind-icon">CKR_<wbr>DEVICE_<wbr>MEMORY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_device_removed" class="tsd-kind-icon">CKR_<wbr>DEVICE_<wbr>REMOVED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_domain_params_invalid" class="tsd-kind-icon">CKR_<wbr>DOMAIN_<wbr>PARAMS_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_encrypted_data_invalid" class="tsd-kind-icon">CKR_<wbr>ENCRYPTED_<wbr>DATA_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_encrypted_data_len_range" class="tsd-kind-icon">CKR_<wbr>ENCRYPTED_<wbr>DATA_<wbr>LEN_<wbr>RANGE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_exceeded_max_iterations" class="tsd-kind-icon">CKR_<wbr>EXCEEDED_<wbr>MAX_<wbr>ITERATIONS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_fips_self_test_failed" class="tsd-kind-icon">CKR_<wbr>FIPS_<wbr>SELF_<wbr>TEST_<wbr>FAILED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_function_canceled" class="tsd-kind-icon">CKR_<wbr>FUNCTION_<wbr>CANCELED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_function_failed" class="tsd-kind-icon">CKR_<wbr>FUNCTION_<wbr>FAILED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_function_not_parallel" class="tsd-kind-icon">CKR_<wbr>FUNCTION_<wbr>NOT_<wbr>PARALLEL</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_function_not_supported" class="tsd-kind-icon">CKR_<wbr>FUNCTION_<wbr>NOT_<wbr>SUPPORTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_function_rejected" class="tsd-kind-icon">CKR_<wbr>FUNCTION_<wbr>REJECTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_general_error" class="tsd-kind-icon">CKR_<wbr>GENERAL_<wbr>ERROR</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_host_memory" class="tsd-kind-icon">CKR_<wbr>HOST_<wbr>MEMORY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_information_sensitive" class="tsd-kind-icon">CKR_<wbr>INFORMATION_<wbr>SENSITIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_changed" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>CHANGED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_function_not_permitted" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>FUNCTION_<wbr>NOT_<wbr>PERMITTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_handle_invalid" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>HANDLE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_indigestible" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>INDIGESTIBLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_needed" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>NEEDED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_not_needed" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>NOT_<wbr>NEEDED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_not_wrappable" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>NOT_<wbr>WRAPPABLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_size_range" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>SIZE_<wbr>RANGE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_type_inconsistent" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>TYPE_<wbr>INCONSISTENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_key_unextractable" class="tsd-kind-icon">CKR_<wbr>KEY_<wbr>UNEXTRACTABLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_library_load_failed" class="tsd-kind-icon">CKR_<wbr>LIBRARY_<wbr>LOAD_<wbr>FAILED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_mechanism_invalid" class="tsd-kind-icon">CKR_<wbr>MECHANISM_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_mechanism_param_invalid" class="tsd-kind-icon">CKR_<wbr>MECHANISM_<wbr>PARAM_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_mutex_bad" class="tsd-kind-icon">CKR_<wbr>MUTEX_<wbr>BAD</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_mutex_not_locked" class="tsd-kind-icon">CKR_<wbr>MUTEX_<wbr>NOT_<wbr>LOCKED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_need_to_create_threads" class="tsd-kind-icon">CKR_<wbr>NEED_<wbr>TO_<wbr>CREATE_<wbr>THREADS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_new_pin_mode" class="tsd-kind-icon">CKR_<wbr>NEW_<wbr>PIN_<wbr>MODE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_next_otp" class="tsd-kind-icon">CKR_<wbr>NEXT_<wbr>OTP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_no_event" class="tsd-kind-icon">CKR_<wbr>NO_<wbr>EVENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_object_handle_invalid" class="tsd-kind-icon">CKR_<wbr>OBJECT_<wbr>HANDLE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_ok" class="tsd-kind-icon">CKR_<wbr>OK</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_operation_active" class="tsd-kind-icon">CKR_<wbr>OPERATION_<wbr>ACTIVE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_operation_not_initialized" class="tsd-kind-icon">CKR_<wbr>OPERATION_<wbr>NOT_<wbr>INITIALIZED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_pin_expired" class="tsd-kind-icon">CKR_<wbr>PIN_<wbr>EXPIRED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_pin_incorrect" class="tsd-kind-icon">CKR_<wbr>PIN_<wbr>INCORRECT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_pin_invalid" class="tsd-kind-icon">CKR_<wbr>PIN_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_pin_len_range" class="tsd-kind-icon">CKR_<wbr>PIN_<wbr>LEN_<wbr>RANGE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_pin_locked" class="tsd-kind-icon">CKR_<wbr>PIN_<wbr>LOCKED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_pin_too_weak" class="tsd-kind-icon">CKR_<wbr>PIN_<wbr>TOO_<wbr>WEAK</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_public_key_invalid" class="tsd-kind-icon">CKR_<wbr>PUBLIC_<wbr>KEY_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_random_no_rng" class="tsd-kind-icon">CKR_<wbr>RANDOM_<wbr>NO_<wbr>RNG</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_random_seed_not_supported" class="tsd-kind-icon">CKR_<wbr>RANDOM_<wbr>SEED_<wbr>NOT_<wbr>SUPPORTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_saved_state_invalid" class="tsd-kind-icon">CKR_<wbr>SAVED_<wbr>STATE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_session_closed" class="tsd-kind-icon">CKR_<wbr>SESSION_<wbr>CLOSED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_session_count" class="tsd-kind-icon">CKR_<wbr>SESSION_<wbr>COUNT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_session_exists" class="tsd-kind-icon">CKR_<wbr>SESSION_<wbr>EXISTS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_session_handle_invalid" class="tsd-kind-icon">CKR_<wbr>SESSION_<wbr>HANDLE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_session_parallel_not_supported" class="tsd-kind-icon">CKR_<wbr>SESSION_<wbr>PARALLEL_<wbr>NOT_<wbr>SUPPORTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_session_read_only" class="tsd-kind-icon">CKR_<wbr>SESSION_<wbr>READ_<wbr>ONLY</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_session_read_only_exists" class="tsd-kind-icon">CKR_<wbr>SESSION_<wbr>READ_<wbr>ONLY_<wbr>EXISTS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_session_read_write_so_exists" class="tsd-kind-icon">CKR_<wbr>SESSION_<wbr>READ_<wbr>WRITE_<wbr>SO_<wbr>EXISTS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_signature_invalid" class="tsd-kind-icon">CKR_<wbr>SIGNATURE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_signature_len_range" class="tsd-kind-icon">CKR_<wbr>SIGNATURE_<wbr>LEN_<wbr>RANGE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_slot_id_invalid" class="tsd-kind-icon">CKR_<wbr>SLOT_<wbr>ID_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_state_unsaveable" class="tsd-kind-icon">CKR_<wbr>STATE_<wbr>UNSAVEABLE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_template_incomplete" class="tsd-kind-icon">CKR_<wbr>TEMPLATE_<wbr>INCOMPLETE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_template_inconsistent" class="tsd-kind-icon">CKR_<wbr>TEMPLATE_<wbr>INCONSISTENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_token_not_present" class="tsd-kind-icon">CKR_<wbr>TOKEN_<wbr>NOT_<wbr>PRESENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_token_not_recognized" class="tsd-kind-icon">CKR_<wbr>TOKEN_<wbr>NOT_<wbr>RECOGNIZED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_token_write_protected" class="tsd-kind-icon">CKR_<wbr>TOKEN_<wbr>WRITE_<wbr>PROTECTED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_unwrapping_key_handle_invalid" class="tsd-kind-icon">CKR_<wbr>UNWRAPPING_<wbr>KEY_<wbr>HANDLE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_unwrapping_key_size_range" class="tsd-kind-icon">CKR_<wbr>UNWRAPPING_<wbr>KEY_<wbr>SIZE_<wbr>RANGE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_unwrapping_key_type_inconsistent" class="tsd-kind-icon">CKR_<wbr>UNWRAPPING_<wbr>KEY_<wbr>TYPE_<wbr>INCONSISTENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_user_already_logged_in" class="tsd-kind-icon">CKR_<wbr>USER_<wbr>ALREADY_<wbr>LOGGED_<wbr>IN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_user_another_already_logged_in" class="tsd-kind-icon">CKR_<wbr>USER_<wbr>ANOTHER_<wbr>ALREADY_<wbr>LOGGED_<wbr>IN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_user_not_logged_in" class="tsd-kind-icon">CKR_<wbr>USER_<wbr>NOT_<wbr>LOGGED_<wbr>IN</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_user_pin_not_initialized" class="tsd-kind-icon">CKR_<wbr>USER_<wbr>PIN_<wbr>NOT_<wbr>INITIALIZED</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_user_too_many_types" class="tsd-kind-icon">CKR_<wbr>USER_<wbr>TOO_<wbr>MANY_<wbr>TYPES</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_user_type_invalid" class="tsd-kind-icon">CKR_<wbr>USER_<wbr>TYPE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_wrapped_key_invalid" class="tsd-kind-icon">CKR_<wbr>WRAPPED_<wbr>KEY_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_wrapped_key_len_range" class="tsd-kind-icon">CKR_<wbr>WRAPPED_<wbr>KEY_<wbr>LEN_<wbr>RANGE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_wrapping_key_handle_invalid" class="tsd-kind-icon">CKR_<wbr>WRAPPING_<wbr>KEY_<wbr>HANDLE_<wbr>INVALID</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_wrapping_key_size_range" class="tsd-kind-icon">CKR_<wbr>WRAPPING_<wbr>KEY_<wbr>SIZE_<wbr>RANGE</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ckr_wrapping_key_type_inconsistent" class="tsd-kind-icon">CKR_<wbr>WRAPPING_<wbr>KEY_<wbr>TYPE_<wbr>INCONSISTENT</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cku_context_specific" class="tsd-kind-icon">CKU_<wbr>CONTEXT_<wbr>SPECIFIC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cku_so" class="tsd-kind-icon">CKU_<wbr>SO</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#cku_user" class="tsd-kind-icon">CKU_<wbr>USER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ck_params_aes_cbc" class="tsd-kind-icon">CK_<wbr>PARAMS_<wbr>AES_<wbr>CBC</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ck_params_aes_ccm" class="tsd-kind-icon">CK_<wbr>PARAMS_<wbr>AES_<wbr>CCM</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ck_params_aes_gcm" class="tsd-kind-icon">CK_<wbr>PARAMS_<wbr>AES_<wbr>GCM</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ck_params_aes_gcm_v240" class="tsd-kind-icon">CK_<wbr>PARAMS_<wbr>AES_<wbr>GCM_<wbr>v240</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ck_params_ec_dh" class="tsd-kind-icon">CK_<wbr>PARAMS_<wbr>EC_<wbr>DH</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ck_params_rsa_oaep" class="tsd-kind-icon">CK_<wbr>PARAMS_<wbr>RSA_<wbr>OAEP</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ck_params_rsa_pss" class="tsd-kind-icon">CK_<wbr>PARAMS_<wbr>RSA_<wbr>PSS</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -449,6 +2367,18 @@ mod.C_Finalize();</code></pre>
 	<div class="container">
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
 		</div>
 	</div>
 </footer>

@@ -3,10 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ECDH1 | pkcs11js</title>
+	<title>RsaPSS | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -38,8 +39,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -51,41 +52,27 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
+					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="../modules/_index_d_.html">&quot;index.d&quot;</a>
-				</li>
-				<li>
-					<a href="../modules/_index_d_._pkcs11js_.html">&quot;pkcs11js&quot;</a>
-				</li>
-				<li>
-					<a href="_index_d_._pkcs11js_.ecdh1.html">ECDH1</a>
+					<a href="rsapss.html">RsaPSS</a>
 				</li>
 			</ul>
-			<h1>Interface ECDH1</h1>
+			<h1>Interface RsaPSS</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>A structure that provides the parameters for the <a href="../modules/_index_d_._pkcs11js_.html#ckm_ecdh1_derive">CKM_ECDH1_DERIVE</a> and <a href="../modules/_index_d_._pkcs11js_.html#ckm_ecdh1_cofactor_derive">CKM_ECDH1_COFACTOR_DERIVE</a>
-						key derivation mechanisms, where each party contributes one key pair</p>
-					</div>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="_index_d_._pkcs11js_.iparams.html" class="tsd-signature-type">IParams</a>
+						<a href="iparams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">ECDH1</span>
+								<span class="target">RsaPSS</span>
 							</li>
 						</ul>
 					</li>
@@ -98,10 +85,10 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_index_d_._pkcs11js_.ecdh1.html#kdf" class="tsd-kind-icon">kdf</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_index_d_._pkcs11js_.ecdh1.html#publicdata" class="tsd-kind-icon">public<wbr>Data</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_index_d_._pkcs11js_.ecdh1.html#shareddata" class="tsd-kind-icon">shared<wbr>Data</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_index_d_._pkcs11js_.ecdh1.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rsapss.html#hashalg" class="tsd-kind-icon">hash<wbr>Alg</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rsapss.html#mgf" class="tsd-kind-icon">mgf</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rsapss.html#saltlen" class="tsd-kind-icon">salt<wbr>Len</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="rsapss.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -110,58 +97,43 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="kdf" class="tsd-anchor"></a>
-					<h3>kdf</h3>
-					<div class="tsd-signature tsd-kind-icon">kdf<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="hashalg" class="tsd-anchor"></a>
+					<h3>hash<wbr>Alg</h3>
+					<div class="tsd-signature tsd-kind-icon">hash<wbr>Alg<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/e3da996/index.d.ts#L262">index.d.ts:262</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/04417bd/index.d.ts#L300">index.d.ts:300</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Key derivation function used on the shared secret value</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="publicdata" class="tsd-anchor"></a>
-					<h3>public<wbr>Data</h3>
-					<div class="tsd-signature tsd-kind-icon">public<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="mgf" class="tsd-anchor"></a>
+					<h3>mgf</h3>
+					<div class="tsd-signature tsd-kind-icon">mgf<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/e3da996/index.d.ts#L270">index.d.ts:270</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/04417bd/index.d.ts#L301">index.d.ts:301</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The other party&#39;s EC public key</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="shareddata" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> shared<wbr>Data</h3>
-					<div class="tsd-signature tsd-kind-icon">shared<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="saltlen" class="tsd-anchor"></a>
+					<h3>salt<wbr>Len</h3>
+					<div class="tsd-signature tsd-kind-icon">salt<wbr>Len<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/e3da996/index.d.ts#L266">index.d.ts:266</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/04417bd/index.d.ts#L302">index.d.ts:302</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Some data shared between the two parties</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="type" class="tsd-anchor"></a>
 					<h3>type</h3>
 					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="_index_d_._pkcs11js_.iparams.html">IParams</a>.<a href="_index_d_._pkcs11js_.iparams.html#type">type</a></p>
+						<p>Inherited from <a href="iparams.html">IParams</a>.<a href="iparams.html#type">type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/e3da996/index.d.ts#L251">index.d.ts:251</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/04417bd/index.d.ts#L251">index.d.ts:251</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -175,8 +147,8 @@
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
@@ -184,20 +156,20 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-module">
-						<a href="_index_d_._pkcs11js_.ecdh1.html" class="tsd-kind-icon">ECDH1</a>
+					<li class="current tsd-kind-interface">
+						<a href="rsapss.html" class="tsd-kind-icon">RsaPSS</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_index_d_._pkcs11js_.ecdh1.html#kdf" class="tsd-kind-icon">kdf</a>
+								<a href="rsapss.html#hashalg" class="tsd-kind-icon">hash<wbr>Alg</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_index_d_._pkcs11js_.ecdh1.html#publicdata" class="tsd-kind-icon">public<wbr>Data</a>
+								<a href="rsapss.html#mgf" class="tsd-kind-icon">mgf</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_index_d_._pkcs11js_.ecdh1.html#shareddata" class="tsd-kind-icon">shared<wbr>Data</a>
+								<a href="rsapss.html#saltlen" class="tsd-kind-icon">salt<wbr>Len</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="_index_d_._pkcs11js_.ecdh1.html#type" class="tsd-kind-icon">type</a>
+								<a href="rsapss.html#type" class="tsd-kind-icon">type</a>
 							</li>
 						</ul>
 					</li>
@@ -212,6 +184,15 @@
 	<div class="container">
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 			</ul>

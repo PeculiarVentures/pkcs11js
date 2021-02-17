@@ -3,10 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>InitializationOptions | pkcs11js</title>
+	<title>IParams | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -38,8 +39,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -51,30 +52,51 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
+					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="../modules/_index_d_.html">&quot;index.d&quot;</a>
-				</li>
-				<li>
-					<a href="../modules/_index_d_._pkcs11js_.html">&quot;pkcs11js&quot;</a>
-				</li>
-				<li>
-					<a href="_index_d_._pkcs11js_.initializationoptions.html">InitializationOptions</a>
+					<a href="iparams.html">IParams</a>
 				</li>
 			</ul>
-			<h1>Interface InitializationOptions</h1>
+			<h1>Interface IParams</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A base structure of a parameter</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">InitializationOptions</span>
+						<span class="target">IParams</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<a href="ecdh1.html" class="tsd-signature-type" data-tsd-kind="Interface">ECDH1</a>
+							</li>
+							<li>
+								<a href="aescbc.html" class="tsd-signature-type" data-tsd-kind="Interface">AesCBC</a>
+							</li>
+							<li>
+								<a href="aesccm.html" class="tsd-signature-type" data-tsd-kind="Interface">AesCCM</a>
+							</li>
+							<li>
+								<a href="aesgcm.html" class="tsd-signature-type" data-tsd-kind="Interface">AesGCM</a>
+							</li>
+							<li>
+								<a href="rsaoaep.html" class="tsd-signature-type" data-tsd-kind="Interface">RsaOAEP</a>
+							</li>
+							<li>
+								<a href="rsapss.html" class="tsd-signature-type" data-tsd-kind="Interface">RsaPSS</a>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -85,8 +107,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_index_d_._pkcs11js_.initializationoptions.html#flags" class="tsd-kind-icon">flags</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_index_d_._pkcs11js_.initializationoptions.html#libraryparameters" class="tsd-kind-icon">library<wbr>Parameters</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="iparams.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -95,38 +116,17 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="flags" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> flags</h3>
-					<div class="tsd-signature tsd-kind-icon">flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="type" class="tsd-anchor"></a>
+					<h3>type</h3>
+					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/e3da996/index.d.ts#L324">index.d.ts:324</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/04417bd/index.d.ts#L251">index.d.ts:251</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>bit flags specifying options for <a href="../classes/_index_d_._pkcs11js_.pkcs11.html#c_initialize">C_Initialize</a></p>
-							<ul>
-								<li>CKF_LIBRARY_CANT_CREATE_OS_THREADS. True if application threads which are executing calls to the library
-								may not use native operating system calls to spawn new threads; false if they may</li>
-								<li>CKF_OS_LOCKING_OK. True if the library can use the native operation system threading model for locking;
-								false otherwise</li>
-							</ul>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="libraryparameters" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> library<wbr>Parameters</h3>
-					<div class="tsd-signature tsd-kind-icon">library<wbr>Parameters<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/e3da996/index.d.ts#L316">index.d.ts:316</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>NSS library parameters</p>
+							<p>Type of crypto param. Uses constants CK_PARAMS_*</p>
 						</div>
 					</div>
 				</section>
@@ -135,8 +135,8 @@
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
@@ -144,14 +144,11 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-module">
-						<a href="_index_d_._pkcs11js_.initializationoptions.html" class="tsd-kind-icon">Initialization<wbr>Options</a>
+					<li class="current tsd-kind-interface">
+						<a href="iparams.html" class="tsd-kind-icon">IParams</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_index_d_._pkcs11js_.initializationoptions.html#flags" class="tsd-kind-icon">flags</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_index_d_._pkcs11js_.initializationoptions.html#libraryparameters" class="tsd-kind-icon">library<wbr>Parameters</a>
+								<a href="iparams.html#type" class="tsd-kind-icon">type</a>
 							</li>
 						</ul>
 					</li>
@@ -166,6 +163,15 @@
 	<div class="container">
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 			</ul>
