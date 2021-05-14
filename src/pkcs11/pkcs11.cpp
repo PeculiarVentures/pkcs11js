@@ -128,7 +128,7 @@ PKCS11::PKCS11()
 
 void PKCS11::Load(Scoped<string> path) {
 	try {
-		int mode = RTLD_LAZY;
+		int mode = RTLD_NOW | RTLD_LOCAL;
 
 		dlHandle = dlopen(path->c_str(), mode);
 		if (!dlHandle) {
