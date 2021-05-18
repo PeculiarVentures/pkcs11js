@@ -7,6 +7,13 @@
 #include <dlfcn.h>
 #endif // WIN32
 
+#ifndef RTLD_NOW
+#define RTLD_NOW	0x2
+#endif
+#ifndef RTLD_LOCAL
+#define RTLD_LOCAL	0x4
+#endif
+
 #include "pkcs11.h"
 
 #define CASE_PKCS11_ERROR(_value) 					\
