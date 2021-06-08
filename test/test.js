@@ -582,4 +582,10 @@ context("PKCS11", () => {
       });
     });
   });
+
+  it("call functions without loading the library", () => {
+    const mod = new pkcs11.PKCS11();
+
+    assert.throws(() => mod.C_GetInfo());
+  })
 });
