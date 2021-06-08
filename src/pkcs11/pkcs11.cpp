@@ -8,20 +8,27 @@
 #endif // WIN32
 
 #ifndef RTLD_NOW
-#define RTLD_NOW	0x2
+#define RTLD_NOW 0x2
 #endif
 #ifndef RTLD_LOCAL
-#define RTLD_LOCAL	0x4
+#define RTLD_LOCAL 0x4
 #endif
 
 #include "pkcs11.h"
 
-#define CASE_PKCS11_ERROR(_value) 					\
-	case _value: {									\
-		Scoped<string> res(new string(#_value)); *res += ":"; *res += to_string(_value); return res; }
+#define CASE_PKCS11_ERROR(_value)            \
+	case _value:                               \
+	{                                          \
+		Scoped<string> res(new string(#_value)); \
+		*res += ":";                             \
+		*res += to_string(_value);               \
+		return res;                              \
+	}
 
-static Scoped<string> get_pkcs11_error(CK_ULONG value) {
-	switch (value) {
+static Scoped<string> get_pkcs11_error(CK_ULONG value)
+{
+	switch (value)
+	{
 		CASE_PKCS11_ERROR(CKR_OK);
 		CASE_PKCS11_ERROR(CKR_CANCEL);
 		CASE_PKCS11_ERROR(CKR_HOST_MEMORY);
@@ -121,24 +128,30 @@ static Scoped<string> get_pkcs11_error(CK_ULONG value) {
 	}
 }
 
-#define CHECK_PKCS11_RV(func)								\
-{   CK_RV rv = func;										\
-    if (rv != CKR_OK) {										\
-		THROW_ERROR(get_pkcs11_error(rv)->c_str(), NULL);	\
-    }														\
-}
+#define CHECK_PKCS11_RV(func)                           \
+	{                                                     \
+		CK_RV rv = func;                                    \
+		if (rv != CKR_OK)                                   \
+		{                                                   \
+			THROW_ERROR(get_pkcs11_error(rv)->c_str(), NULL); \
+		}                                                   \
+	}
 
 PKCS11::PKCS11()
 {
-    libPath = Scoped<std::string>(new std::string(""));
+	libPath = Scoped<std::string>(new std::string(""));
+	dlHandle = NULL;
 }
 
-void PKCS11::Load(Scoped<string> path) {
-	try {
+void PKCS11::Load(Scoped<string> path)
+{
+	try
+	{
 		int mode = RTLD_NOW | RTLD_LOCAL;
 
 		dlHandle = dlopen(path->c_str(), mode);
-		if (!dlHandle) {
+		if (!dlHandle)
+		{
 			THROW_ERROR(dlerror(), NULL);
 		}
 
@@ -146,190 +159,225 @@ void PKCS11::Load(Scoped<string> path) {
 		dlerror();
 		CK_C_GetFunctionList f_C_GetFunctionList = (CK_C_GetFunctionList)dlsym(dlHandle, "C_GetFunctionList");
 		const char *dlsym_error = dlerror();
-		if (dlsym_error) {
+		if (dlsym_error)
+		{
 			dlclose(dlHandle);
 			THROW_ERROR("Cannot load symbol 'C_GetFunctionList'", NULL);
 			return;
 		}
 
 		CHECK_PKCS11_RV(f_C_GetFunctionList(&functionList));
-        
-        libPath = path;
+
+		libPath = path;
 	}
 	CATCH_ERROR;
 }
 
 void PKCS11::Close()
 {
-    try {
-        dlclose(dlHandle);
-    }
-    CATCH_ERROR;
+	try
+	{
+		dlclose(dlHandle);
+		dlHandle = NULL;
+	}
+	CATCH_ERROR;
 }
 
-void PKCS11::C_Initialize(CK_VOID_PTR args) 
+void PKCS11::assertLoaded()
 {
-	try {
+	if (!dlHandle)
+	{
+		THROW_ERROR("PKCS#11 module is not loaded. Call 'load' method first", NULL);
+	}
+}
+
+void PKCS11::C_Initialize(CK_VOID_PTR args)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_Initialize(
-			args
-		));
-
+				args));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Finalize() {
-	try {
+void PKCS11::C_Finalize()
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_Finalize(
-			NULL_PTR
-		));
-
+				NULL_PTR));
 	}
 	CATCH_ERROR;
 }
 
-Scoped<CK_INFO> PKCS11::C_GetInfo() {
-	try {
+Scoped<CK_INFO> PKCS11::C_GetInfo()
+{
+	try
+	{
+		assertLoaded();
+
 		Scoped<CK_INFO> info = make_shared<CK_INFO>();
 
 		CHECK_PKCS11_RV(functionList->C_GetInfo(
-			&*info
-		));
+				&*info));
 
 		return info;
 	}
 	CATCH_ERROR;
 }
 
-vector<CK_SLOT_ID> PKCS11::C_GetSlotList(CK_BBOOL tokenPresent) {
-	try {
+vector<CK_SLOT_ID> PKCS11::C_GetSlotList(CK_BBOOL tokenPresent)
+{
+	try
+	{
+		assertLoaded();
+
 		CK_ULONG ulCount = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GetSlotList(
-			tokenPresent,
-			NULL_PTR, &ulCount
-		));
+				tokenPresent,
+				NULL_PTR, &ulCount));
 
 		vector<CK_SLOT_ID> arSlotList(ulCount);
 
 		CHECK_PKCS11_RV(functionList->C_GetSlotList(
-			tokenPresent,
-			arSlotList.data(), &ulCount
-		));
+				tokenPresent,
+				arSlotList.data(), &ulCount));
 
 		return arSlotList;
 	}
 	CATCH_ERROR;
-
 }
 
-Scoped<CK_SLOT_INFO> PKCS11::C_GetSlotInfo(CK_SLOT_ID slotId) {
-	try {
+Scoped<CK_SLOT_INFO> PKCS11::C_GetSlotInfo(CK_SLOT_ID slotId)
+{
+	try
+	{
+		assertLoaded();
+
 		Scoped<CK_SLOT_INFO> info = make_shared<CK_SLOT_INFO>();
 
 		CHECK_PKCS11_RV(functionList->C_GetSlotInfo(
-			slotId,
-			info.get()
-		));
+				slotId,
+				info.get()));
 
 		return info;
 	}
 	CATCH_ERROR;
 }
 
-Scoped<CK_TOKEN_INFO> PKCS11::C_GetTokenInfo(CK_SLOT_ID slotId) {
-	try {
+Scoped<CK_TOKEN_INFO> PKCS11::C_GetTokenInfo(CK_SLOT_ID slotId)
+{
+	try
+	{
+		assertLoaded();
+
 		Scoped<CK_TOKEN_INFO> info = make_shared<CK_TOKEN_INFO>();
 
 		CHECK_PKCS11_RV(functionList->C_GetTokenInfo(
-			slotId,
-			info.get()
-		));
+				slotId,
+				info.get()));
 
 		return info;
 	}
 	CATCH_ERROR;
 }
 
-vector<CK_MECHANISM_TYPE> PKCS11::C_GetMechanismList(CK_SLOT_ID slotID) {
-	try {
+vector<CK_MECHANISM_TYPE> PKCS11::C_GetMechanismList(CK_SLOT_ID slotID)
+{
+	try
+	{
+		assertLoaded();
+
 		CK_ULONG ulCount = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GetMechanismList(
-			slotID,
-			NULL_PTR, &ulCount
-		));
+				slotID,
+				NULL_PTR, &ulCount));
 
 		auto pMechanismList = vector<CK_MECHANISM_TYPE>(ulCount);
 
 		CHECK_PKCS11_RV(functionList->C_GetMechanismList(
-			slotID,
-			pMechanismList.data(), &ulCount
-		));
+				slotID,
+				pMechanismList.data(), &ulCount));
 
 		return pMechanismList;
 	}
 	CATCH_ERROR;
 }
 
-Scoped<CK_MECHANISM_INFO> PKCS11::C_GetMechanismInfo(CK_SLOT_ID slotID, CK_MECHANISM_TYPE type) {
-	try {
+Scoped<CK_MECHANISM_INFO> PKCS11::C_GetMechanismInfo(CK_SLOT_ID slotID, CK_MECHANISM_TYPE type)
+{
+	try
+	{
+		assertLoaded();
+
 		Scoped<CK_MECHANISM_INFO> info = make_shared<CK_MECHANISM_INFO>();
 
 		CHECK_PKCS11_RV(functionList->C_GetMechanismInfo(
-			slotID,
-			type,
-			info.get()
-		));
+				slotID,
+				type,
+				info.get()));
 
 		return info;
 	}
 	CATCH_ERROR;
 }
 
+Scoped<string> PKCS11::C_InitToken(CK_SLOT_ID slotID, Scoped<string> pin, Scoped<string> label)
+{
+	try
+	{
+		assertLoaded();
 
-Scoped<string> PKCS11::C_InitToken(CK_SLOT_ID slotID, Scoped<string> pin,  Scoped<string> label) {
-	try {
 		CHECK_PKCS11_RV(functionList->C_InitToken(
-			slotID,
-			pin->length() ? (CK_UTF8CHAR_PTR)pin->c_str() : NULL_PTR, (CK_ULONG)pin->length(),
-			label->length() ? (CK_UTF8CHAR_PTR)label->c_str() : NULL_PTR
-		));
+				slotID,
+				pin->length() ? (CK_UTF8CHAR_PTR)pin->c_str() : NULL_PTR, (CK_ULONG)pin->length(),
+				label->length() ? (CK_UTF8CHAR_PTR)label->c_str() : NULL_PTR));
 
 		return Scoped<string>(label);
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_InitPIN(CK_SESSION_HANDLE session, Scoped<string> pin) {
-	try {
+void PKCS11::C_InitPIN(CK_SESSION_HANDLE session, Scoped<string> pin)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_InitPIN(
-			session,
-			pin->length() ? (CK_UTF8CHAR_PTR)pin->c_str() : NULL_PTR, (CK_ULONG)pin->length()
-		));
-
+				session,
+				pin->length() ? (CK_UTF8CHAR_PTR)pin->c_str() : NULL_PTR, (CK_ULONG)pin->length()));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_SetPIN(CK_SESSION_HANDLE session, Scoped<string> oldPin, Scoped<string> newPin) {
-	try {
+void PKCS11::C_SetPIN(CK_SESSION_HANDLE session, Scoped<string> oldPin, Scoped<string> newPin)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_SetPIN(
-			session,
-			oldPin->length() ? (CK_UTF8CHAR_PTR)oldPin->c_str() : NULL_PTR, (CK_ULONG)oldPin->length(),
-			newPin->length() ? (CK_UTF8CHAR_PTR)newPin->c_str() : NULL_PTR, (CK_ULONG)newPin->length()
-		));
-
+				session,
+				oldPin->length() ? (CK_UTF8CHAR_PTR)oldPin->c_str() : NULL_PTR, (CK_ULONG)oldPin->length(),
+				newPin->length() ? (CK_UTF8CHAR_PTR)newPin->c_str() : NULL_PTR, (CK_ULONG)newPin->length()));
 	}
 	CATCH_ERROR;
 }
 
-CK_SESSION_HANDLE PKCS11::C_OpenSession(CK_SLOT_ID slotID, CK_FLAGS flags) {
-	try {
+CK_SESSION_HANDLE PKCS11::C_OpenSession(CK_SLOT_ID slotID, CK_FLAGS flags)
+{
+	try
+	{
+		assertLoaded();
+
 		CK_SESSION_HANDLE hSession = 0;
 
 		CHECK_PKCS11_RV(functionList->C_OpenSession(slotID, flags, NULL_PTR, NULL_PTR, &hSession));
@@ -339,26 +387,33 @@ CK_SESSION_HANDLE PKCS11::C_OpenSession(CK_SLOT_ID slotID, CK_FLAGS flags) {
 	CATCH_ERROR;
 }
 
-void PKCS11::C_CloseSession(CK_SESSION_HANDLE session) {
-	try {
+void PKCS11::C_CloseSession(CK_SESSION_HANDLE session)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_CloseSession(session));
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_CloseAllSessions(CK_SLOT_ID slotID) {
-	try {
+void PKCS11::C_CloseAllSessions(CK_SLOT_ID slotID)
+{
+	try
+	{
 
 		CHECK_PKCS11_RV(functionList->C_CloseAllSessions(slotID));
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<CK_SESSION_INFO> PKCS11::C_GetSessionInfo(CK_SESSION_HANDLE session) {
-	try {
+Scoped<CK_SESSION_INFO> PKCS11::C_GetSessionInfo(CK_SESSION_HANDLE session)
+{
+	try
+	{
+		assertLoaded();
+
 		Scoped<CK_SESSION_INFO> info = make_shared<CK_SESSION_INFO>();
 
 		CHECK_PKCS11_RV(functionList->C_GetSessionInfo(session, info.get()));
@@ -368,183 +423,200 @@ Scoped<CK_SESSION_INFO> PKCS11::C_GetSessionInfo(CK_SESSION_HANDLE session) {
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Login(CK_SESSION_HANDLE hSession, CK_USER_TYPE userType, Scoped<string> pin) {
-	try {
+void PKCS11::C_Login(CK_SESSION_HANDLE hSession, CK_USER_TYPE userType, Scoped<string> pin)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_Login(
-			hSession,
-			userType,
-			pin->length() ? (CK_UTF8CHAR_PTR)pin->c_str() : NULL_PTR, (CK_ULONG)pin->length()
-		));
-
+				hSession,
+				userType,
+				pin->length() ? (CK_UTF8CHAR_PTR)pin->c_str() : NULL_PTR, (CK_ULONG)pin->length()));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Logout(CK_SESSION_HANDLE hSession) {
-	try {
+void PKCS11::C_Logout(CK_SESSION_HANDLE hSession)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_Logout(
-			hSession
-		));
-
+				hSession));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_FindObjectsInit(CK_SESSION_HANDLE hSession, Scoped<Attributes> attrs) {
-	try {
+void PKCS11::C_FindObjectsInit(CK_SESSION_HANDLE hSession, Scoped<Attributes> attrs)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_FindObjectsInit(
-			hSession,
-			attrs->Get()->size ? attrs->Get()->items : NULL_PTR, attrs->Get()->size
-		));
-
+				hSession,
+				attrs->Get()->size ? attrs->Get()->items : NULL_PTR, attrs->Get()->size));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_FindObjectsInit(CK_SESSION_HANDLE hSession) {
-	try {
+void PKCS11::C_FindObjectsInit(CK_SESSION_HANDLE hSession)
+{
+	try
+	{
+		assertLoaded();
 
 		C_FindObjectsInit(hSession, Scoped<Attributes>(new Attributes()));
-
 	}
 	CATCH_ERROR;
 }
 
-vector<CK_OBJECT_HANDLE> PKCS11::C_FindObjects(CK_SESSION_HANDLE session, CK_ULONG ulMaxObjectCount) {
-	try {
+vector<CK_OBJECT_HANDLE> PKCS11::C_FindObjects(CK_SESSION_HANDLE session, CK_ULONG ulMaxObjectCount)
+{
+	try
+	{
+		assertLoaded();
+
 		CK_ULONG ulObjectCount = 0;
 		vector<CK_OBJECT_HANDLE> hObjects(ulMaxObjectCount);
 
 		CHECK_PKCS11_RV(functionList->C_FindObjects(
-			session,
-			hObjects.data(),
-            ulMaxObjectCount,
-			&ulObjectCount));
-        
-        hObjects.resize(ulObjectCount);
+				session,
+				hObjects.data(),
+				ulMaxObjectCount,
+				&ulObjectCount));
+
+		hObjects.resize(ulObjectCount);
 
 		return hObjects;
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_FindObjectsFinal(CK_SESSION_HANDLE hSession) {
-	try {
+void PKCS11::C_FindObjectsFinal(CK_SESSION_HANDLE hSession)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_FindObjectsFinal(hSession));
-
 	}
 	CATCH_ERROR;
 }
 
-
-Scoped<Attributes> PKCS11::C_GetAttributeValue(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, Scoped<Attributes> tmpl) {
-	try {
+Scoped<Attributes> PKCS11::C_GetAttributeValue(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, Scoped<Attributes> tmpl)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pTemplate = tmpl->Get();
 
 		CHECK_PKCS11_RV(functionList->C_GetAttributeValue(
-			hSession,
-			hObject,
-			pTemplate->items, pTemplate->size
-		));
+				hSession,
+				hObject,
+				pTemplate->items, pTemplate->size));
 
 		// Prepare value blocks for writing
-		for (uint32_t i = 0; i < pTemplate->size; i++) {
+		for (uint32_t i = 0; i < pTemplate->size; i++)
+		{
 			pTemplate->items[i].pValue = (CK_BYTE_PTR)malloc(pTemplate->items[i].ulValueLen);
 		}
 
 		CHECK_PKCS11_RV(functionList->C_GetAttributeValue(
-			hSession,
-			hObject,
-			pTemplate->items, pTemplate->size
-		));
+				hSession,
+				hObject,
+				pTemplate->items, pTemplate->size));
 
 		return tmpl;
-
 	}
 	CATCH_ERROR;
-
 }
 
-void PKCS11::C_SetAttributeValue(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, Scoped<Attributes> tmpl) {
-	try {
+void PKCS11::C_SetAttributeValue(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, Scoped<Attributes> tmpl)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pTemplate = tmpl->Get();
 
 		CHECK_PKCS11_RV(functionList->C_SetAttributeValue(
-			hSession,
-			hObject,
-			pTemplate->items, pTemplate->size
-		));
+				hSession,
+				hObject,
+				pTemplate->items, pTemplate->size));
 	}
 	CATCH_ERROR;
 }
 
-CK_OBJECT_HANDLE PKCS11::C_CreateObject(CK_SESSION_HANDLE hSession, Scoped<Attributes> tmpl) {
-	try {
+CK_OBJECT_HANDLE PKCS11::C_CreateObject(CK_SESSION_HANDLE hSession, Scoped<Attributes> tmpl)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pTemplate = tmpl->Get();
 
 		CK_OBJECT_HANDLE hObject = 0;
 
 		CHECK_PKCS11_RV(functionList->C_CreateObject(
-			hSession,
-			pTemplate->items, pTemplate->size,
-			&hObject
-		));
+				hSession,
+				pTemplate->items, pTemplate->size,
+				&hObject));
 
 		return hObject;
-
 	}
 	CATCH_ERROR;
 }
 
-CK_OBJECT_HANDLE PKCS11::C_CopyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, Scoped<Attributes> tmpl) {
-	try {
+CK_OBJECT_HANDLE PKCS11::C_CopyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject, Scoped<Attributes> tmpl)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pTemplate = tmpl->Get();
 
 		CK_OBJECT_HANDLE hNewObject = 0;
 
 		CHECK_PKCS11_RV(functionList->C_CopyObject(
-			hSession,
-			hObject,
-			pTemplate->items, pTemplate->size,
-			&hNewObject
-		));
+				hSession,
+				hObject,
+				pTemplate->items, pTemplate->size,
+				&hNewObject));
 
 		return hNewObject;
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_DestroyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject) {
-	try {
+void PKCS11::C_DestroyObject(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_DestroyObject(
-			hSession,
-			hObject
-		));
-
+				hSession,
+				hObject));
 	}
 	CATCH_ERROR;
 }
 
+CK_ULONG PKCS11::C_GetObjectSize(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject)
+{
+	try
+	{
+		assertLoaded();
 
-CK_ULONG PKCS11::C_GetObjectSize(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject) {
-	try {
 		CK_ULONG ulSize = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GetObjectSize(
-			hSession,
-			hObject,
-			&ulSize
-		));
+				hSession,
+				hObject,
+				&ulSize));
 
 		return ulSize;
 	}
@@ -552,50 +624,49 @@ CK_ULONG PKCS11::C_GetObjectSize(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hO
 }
 
 static void crypto_init(
-	CK_ULONG fn(
-		CK_SESSION_HANDLE hSession,    /* the session's handle */
-		CK_MECHANISM_PTR  pMechanism,  /* the encryption mechanism */
-		CK_OBJECT_HANDLE  hKey         /* handle of encryption key */
-	),
-	CK_SESSION_HANDLE hSession,
-	Scoped<Mechanism> mech,
-	CK_OBJECT_HANDLE  hKey
-) {
-	try {
+		CK_ULONG fn(
+				CK_SESSION_HANDLE hSession,	 /* the session's handle */
+				CK_MECHANISM_PTR pMechanism, /* the encryption mechanism */
+				CK_OBJECT_HANDLE hKey				 /* handle of encryption key */
+				),
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		CK_OBJECT_HANDLE hKey)
+{
+	try
+	{
 
 		auto pMechanism = mech->Get();
 
 		CHECK_PKCS11_RV(fn(
-			hSession,
-			pMechanism,
-			hKey
-		));
-
+				hSession,
+				pMechanism,
+				hKey));
 	}
 	CATCH_ERROR;
 }
 
 static Scoped<string> crypto_update(
-	CK_ULONG fn(
-		CK_SESSION_HANDLE hSession,           /* session's handle */
-		CK_BYTE_PTR       pIn,              /* the plaintext data */
-		CK_ULONG          ulInLen,          /* plaintext data len */
-		CK_BYTE_PTR       pOut,     /* gets ciphertext */
-		CK_ULONG_PTR      pulOutLen /* gets c-text size */
-	),
-	CK_SESSION_HANDLE hSession,
-	Scoped<string> input,
-	Scoped<string> output
-) {
-	try {
+		CK_ULONG fn(
+				CK_SESSION_HANDLE hSession, /* session's handle */
+				CK_BYTE_PTR pIn,						/* the plaintext data */
+				CK_ULONG ulInLen,						/* plaintext data len */
+				CK_BYTE_PTR pOut,						/* gets ciphertext */
+				CK_ULONG_PTR pulOutLen			/* gets c-text size */
+				),
+		CK_SESSION_HANDLE hSession,
+		Scoped<string> input,
+		Scoped<string> output)
+{
+	try
+	{
 
 		auto outLen = output->length();
 
 		CHECK_PKCS11_RV(fn(
-			hSession,
-			(CK_BYTE_PTR)input->c_str(), (CK_ULONG)input->length(),
-			(CK_BYTE_PTR)output->c_str(), (CK_ULONG_PTR)&outLen
-		));
+				hSession,
+				(CK_BYTE_PTR)input->c_str(), (CK_ULONG)input->length(),
+				(CK_BYTE_PTR)output->c_str(), (CK_ULONG_PTR)&outLen));
 
 		return Scoped<string>(new string(output->substr(0, outLen)));
 	}
@@ -603,289 +674,338 @@ static Scoped<string> crypto_update(
 }
 
 static void crypto_update(
-	CK_ULONG fn(
-		CK_SESSION_HANDLE hSession,  /* the session's handle */
-		CK_BYTE_PTR       pPart,     /* data to be digested */
-		CK_ULONG          ulPartLen  /* bytes of data to be digested */
-	),
-	CK_SESSION_HANDLE hSession,
-	Scoped<string> part
-) {
-	try {
+		CK_ULONG fn(
+				CK_SESSION_HANDLE hSession, /* the session's handle */
+				CK_BYTE_PTR pPart,					/* data to be digested */
+				CK_ULONG ulPartLen					/* bytes of data to be digested */
+				),
+		CK_SESSION_HANDLE hSession,
+		Scoped<string> part)
+{
+	try
+	{
 
 		CHECK_PKCS11_RV(fn(
-			hSession,
-			(CK_BYTE_PTR)part->c_str(),
-			(CK_ULONG)part->length()
-		));
-
+				hSession,
+				(CK_BYTE_PTR)part->c_str(),
+				(CK_ULONG)part->length()));
 	}
 	CATCH_ERROR;
 }
 
 static Scoped<string> crypto_final(
-	CK_ULONG fn(
-		CK_SESSION_HANDLE hSession,                /* session handle */
-		CK_BYTE_PTR       pLastEncryptedPart,      /* last c-text */
-		CK_ULONG_PTR      pulLastEncryptedPartLen  /* gets last size */
-	),
-	CK_SESSION_HANDLE hSession,
-	Scoped<string> output
-) {
-	try {
+		CK_ULONG fn(
+				CK_SESSION_HANDLE hSession,					 /* session handle */
+				CK_BYTE_PTR pLastEncryptedPart,			 /* last c-text */
+				CK_ULONG_PTR pulLastEncryptedPartLen /* gets last size */
+				),
+		CK_SESSION_HANDLE hSession,
+		Scoped<string> output)
+{
+	try
+	{
 
 		auto outputLen = output->length();
 
 		CHECK_PKCS11_RV(fn(
-			hSession,
-			(CK_BYTE_PTR)output->c_str(),
-			(CK_ULONG_PTR)&outputLen
-		));
+				hSession,
+				(CK_BYTE_PTR)output->c_str(),
+				(CK_ULONG_PTR)&outputLen));
 
 		return Scoped<string>(new string(output->substr(0, outputLen)));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_EncryptInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_SESSION_HANDLE hObject) {
-	try {
+void PKCS11::C_EncryptInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_SESSION_HANDLE hObject)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_init(functionList->C_EncryptInit, hSession, mech, hObject);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_Encrypt(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> encMsg) {
-	try {
+Scoped<string> PKCS11::C_Encrypt(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> encMsg)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_update(functionList->C_Encrypt, hSession, msg, encMsg);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_EncryptUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part, Scoped<string> encPart) {
-	try {
+Scoped<string> PKCS11::C_EncryptUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part, Scoped<string> encPart)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_update(functionList->C_EncryptUpdate, hSession, part, encPart);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_EncryptFinal(CK_SESSION_HANDLE hSession, Scoped<string> encPart) {
-	try {
+Scoped<string> PKCS11::C_EncryptFinal(CK_SESSION_HANDLE hSession, Scoped<string> encPart)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_final(functionList->C_EncryptFinal, hSession, encPart);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_DecryptInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_SESSION_HANDLE hObject) {
-	try {
+void PKCS11::C_DecryptInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_SESSION_HANDLE hObject)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_init(functionList->C_DecryptInit, hSession, mech, hObject);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_Decrypt(CK_SESSION_HANDLE hSession, Scoped<string> encMsg, Scoped<string> msg) {
-	try {
+Scoped<string> PKCS11::C_Decrypt(CK_SESSION_HANDLE hSession, Scoped<string> encMsg, Scoped<string> msg)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_update(functionList->C_Decrypt, hSession, encMsg, msg);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_DecryptUpdate(CK_SESSION_HANDLE hSession, Scoped<string> encPart, Scoped<string> decPart) {
-	try {
+Scoped<string> PKCS11::C_DecryptUpdate(CK_SESSION_HANDLE hSession, Scoped<string> encPart, Scoped<string> decPart)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_update(functionList->C_DecryptUpdate, hSession, encPart, decPart);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_DecryptFinal(CK_SESSION_HANDLE hSession, Scoped<string> decPart) {
-	try {
+Scoped<string> PKCS11::C_DecryptFinal(CK_SESSION_HANDLE hSession, Scoped<string> decPart)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_final(functionList->C_DecryptFinal, hSession, decPart);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_DigestInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech) {
-	try {
+void PKCS11::C_DigestInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pMechanism = mech->Get();
 
 		CHECK_PKCS11_RV(functionList->C_DigestInit(
-			hSession,
-			pMechanism
-		));
-
+				hSession,
+				pMechanism));
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_Digest(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> output) {
-	try {
+Scoped<string> PKCS11::C_Digest(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> output)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_update(functionList->C_Digest, hSession, msg, output);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_DigestUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part) {
-	try {
+void PKCS11::C_DigestUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_update(functionList->C_DigestUpdate, hSession, part);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_DigestFinal(CK_SESSION_HANDLE hSession, Scoped<string> output) {
-	try {
+Scoped<string> PKCS11::C_DigestFinal(CK_SESSION_HANDLE hSession, Scoped<string> output)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_final(functionList->C_DigestFinal, hSession, output);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_DigestKey(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject) {
-	try {
+void PKCS11::C_DigestKey(CK_SESSION_HANDLE hSession, CK_OBJECT_HANDLE hObject)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_DigestKey(hSession, hObject));
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_SignInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey) {
-	try {
+void PKCS11::C_SignInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_init(functionList->C_SignInit, hSession, mech, hKey);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_Sign(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> output) {
-	try {
+Scoped<string> PKCS11::C_Sign(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> output)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_update(functionList->C_Sign, hSession, msg, output);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_SignUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part) {
-	try {
+void PKCS11::C_SignUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_update(functionList->C_SignUpdate, hSession, part);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_SignFinal(CK_SESSION_HANDLE hSession, Scoped<string> output) {
-	try {
+Scoped<string> PKCS11::C_SignFinal(CK_SESSION_HANDLE hSession, Scoped<string> output)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_final(functionList->C_SignFinal, hSession, output);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_SignRecoverInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey) {
-	try {
+void PKCS11::C_SignRecoverInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_init(functionList->C_SignRecoverInit, hSession, mech, hKey);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_SignRecover(CK_SESSION_HANDLE hSession, Scoped<string>data, Scoped<string> signature) {
-	try {
+Scoped<string> PKCS11::C_SignRecover(CK_SESSION_HANDLE hSession, Scoped<string> data, Scoped<string> signature)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_update(functionList->C_SignRecover, hSession, data, signature);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_VerifyInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey) {
-	try {
+void PKCS11::C_VerifyInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hKey)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_init(functionList->C_VerifyInit, hSession, mech, hKey);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_Verify(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> signature) {
-	try {
+void PKCS11::C_Verify(CK_SESSION_HANDLE hSession, Scoped<string> msg, Scoped<string> signature)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_Verify(
-			hSession,
-			(CK_BYTE_PTR)msg->c_str(), (CK_ULONG)msg->length(),
-			(CK_BYTE_PTR)signature->c_str(), (CK_ULONG)signature->length()
-		));
-
+				hSession,
+				(CK_BYTE_PTR)msg->c_str(), (CK_ULONG)msg->length(),
+				(CK_BYTE_PTR)signature->c_str(), (CK_ULONG)signature->length()));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_VerifyUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part) {
-	try {
+void PKCS11::C_VerifyUpdate(CK_SESSION_HANDLE hSession, Scoped<string> part)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_update(functionList->C_VerifyUpdate, hSession, part);
-
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_VerifyFinal(CK_SESSION_HANDLE hSession, Scoped<string> signature) {
-	try {
+void PKCS11::C_VerifyFinal(CK_SESSION_HANDLE hSession, Scoped<string> signature)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_VerifyFinal(
-			hSession,
-			(CK_BYTE_PTR)signature->c_str(), (CK_ULONG)signature->length()
-		));
-
+				hSession,
+				(CK_BYTE_PTR)signature->c_str(), (CK_ULONG)signature->length()));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_VerifyRecoverInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hObject) {
-	try {
+void PKCS11::C_VerifyRecoverInit(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, CK_OBJECT_HANDLE hObject)
+{
+	try
+	{
+		assertLoaded();
 
 		crypto_init(functionList->C_SignRecoverInit, hSession, mech, hObject);
-
 	}
 	CATCH_ERROR;
 }
 
-Scoped<string> PKCS11::C_VerifyRecover(CK_SESSION_HANDLE hSession, Scoped<string> signature, Scoped<string> data) {
-	try {
+Scoped<string> PKCS11::C_VerifyRecover(CK_SESSION_HANDLE hSession, Scoped<string> signature, Scoped<string> data)
+{
+	try
+	{
+		assertLoaded();
 
 		return crypto_update(functionList->C_VerifyRecover, hSession, signature, data);
-
 	}
 	CATCH_ERROR;
 }
 
-CK_OBJECT_HANDLE PKCS11::C_GenerateKey(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, Scoped<Attributes> tmpl) {
-	try {
+CK_OBJECT_HANDLE PKCS11::C_GenerateKey(CK_SESSION_HANDLE hSession, Scoped<Mechanism> mech, Scoped<Attributes> tmpl)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pMechanism = mech->Get();
 		auto pTemplate = tmpl->Get();
@@ -893,11 +1013,10 @@ CK_OBJECT_HANDLE PKCS11::C_GenerateKey(CK_SESSION_HANDLE hSession, Scoped<Mechan
 		CK_OBJECT_HANDLE hObject = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GenerateKey(
-			hSession,
-			pMechanism,
-			pTemplate->items, pTemplate->size,
-			&hObject
-		));
+				hSession,
+				pMechanism,
+				pTemplate->items, pTemplate->size,
+				&hObject));
 
 		return hObject;
 	}
@@ -905,12 +1024,14 @@ CK_OBJECT_HANDLE PKCS11::C_GenerateKey(CK_SESSION_HANDLE hSession, Scoped<Mechan
 }
 
 Scoped<KEY_PAIR> PKCS11::C_GenerateKeyPair(
-	CK_SESSION_HANDLE hSession,
-	Scoped<Mechanism> mech,
-	Scoped<Attributes> publicKeyTemplate,
-	Scoped<Attributes> privateKeyTemplate
-) {
-	try {
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		Scoped<Attributes> publicKeyTemplate,
+		Scoped<Attributes> privateKeyTemplate)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pMechanism = mech->Get();
 		auto pPublicKeyTemplate = publicKeyTemplate->Get();
@@ -920,13 +1041,12 @@ Scoped<KEY_PAIR> PKCS11::C_GenerateKeyPair(
 		CK_OBJECT_HANDLE hPrivateKey = 0;
 
 		CHECK_PKCS11_RV(functionList->C_GenerateKeyPair(
-			hSession,
-			pMechanism,
-			pPublicKeyTemplate->items, pPublicKeyTemplate->size,
-			pPrivateKeyTemplate->items, pPrivateKeyTemplate->size,
-			&hPublicKey,
-			&hPrivateKey
-		));
+				hSession,
+				pMechanism,
+				pPublicKeyTemplate->items, pPublicKeyTemplate->size,
+				pPrivateKeyTemplate->items, pPrivateKeyTemplate->size,
+				&hPublicKey,
+				&hPrivateKey));
 
 		Scoped<KEY_PAIR> keyPair = make_shared<KEY_PAIR>();
 		keyPair->privateKey = hPrivateKey;
@@ -938,24 +1058,25 @@ Scoped<KEY_PAIR> PKCS11::C_GenerateKeyPair(
 }
 
 Scoped<string> PKCS11::C_WrapKey(
-	CK_SESSION_HANDLE hSession,
-	Scoped<Mechanism> mech,
-	CK_OBJECT_HANDLE hWrappingKey,
-	CK_OBJECT_HANDLE hKey,
-	Scoped<string> wrappedKey
-) {
-	try {
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		CK_OBJECT_HANDLE hWrappingKey,
+		CK_OBJECT_HANDLE hKey,
+		Scoped<string> wrappedKey)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pMechanism = mech->Get();
 		auto wrappedKeyLen = wrappedKey->length();
 
 		CHECK_PKCS11_RV(functionList->C_WrapKey(
-			hSession,
-			pMechanism,
-			hWrappingKey,
-			hKey,
-			(CK_BYTE_PTR)wrappedKey->c_str(), (CK_ULONG_PTR)&wrappedKeyLen
-		));
+				hSession,
+				pMechanism,
+				hWrappingKey,
+				hKey,
+				(CK_BYTE_PTR)wrappedKey->c_str(), (CK_ULONG_PTR)&wrappedKeyLen));
 
 		return Scoped<string>(new string(wrappedKey->substr(0, wrappedKeyLen)));
 	}
@@ -963,13 +1084,15 @@ Scoped<string> PKCS11::C_WrapKey(
 }
 
 CK_OBJECT_HANDLE PKCS11::C_UnwrapKey(
-	CK_SESSION_HANDLE hSession,
-	Scoped<Mechanism> mech,
-	CK_OBJECT_HANDLE hUnwrappingKey,
-	Scoped<string> wrappedKey,
-	Scoped<Attributes> tmpl
-) {
-	try {
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		CK_OBJECT_HANDLE hUnwrappingKey,
+		Scoped<string> wrappedKey,
+		Scoped<Attributes> tmpl)
+{
+	try
+	{
+		assertLoaded();
 
 		auto pMechanism = mech->Get();
 		auto pTemplate = tmpl->Get();
@@ -977,13 +1100,12 @@ CK_OBJECT_HANDLE PKCS11::C_UnwrapKey(
 		CK_OBJECT_HANDLE hKey = 0;
 
 		CHECK_PKCS11_RV(functionList->C_UnwrapKey(
-			hSession,
-			pMechanism,
-			hUnwrappingKey,
-			(CK_BYTE_PTR)wrappedKey->c_str(), (CK_ULONG)wrappedKey->length(),
-			pTemplate->items, pTemplate->size,
-			&hKey
-		));
+				hSession,
+				pMechanism,
+				hUnwrappingKey,
+				(CK_BYTE_PTR)wrappedKey->c_str(), (CK_ULONG)wrappedKey->length(),
+				pTemplate->items, pTemplate->size,
+				&hKey));
 
 		return hKey;
 	}
@@ -991,50 +1113,54 @@ CK_OBJECT_HANDLE PKCS11::C_UnwrapKey(
 }
 
 CK_OBJECT_HANDLE PKCS11::C_DeriveKey(
-	CK_SESSION_HANDLE hSession,
-	Scoped<Mechanism> mech,
-	CK_OBJECT_HANDLE hBaseKey,
-	Scoped<Attributes> tmpl
-) {
-	try {
+		CK_SESSION_HANDLE hSession,
+		Scoped<Mechanism> mech,
+		CK_OBJECT_HANDLE hBaseKey,
+		Scoped<Attributes> tmpl)
+{
+	try
+	{
+		assertLoaded();
+
 		auto pMechanism = mech->Get();
 		auto pTemplate = tmpl->Get();
 
 		CK_OBJECT_HANDLE hDerivedKey = 0;
 
 		CHECK_PKCS11_RV(functionList->C_DeriveKey(
-			hSession,
-			pMechanism,
-			hBaseKey,
-			pTemplate->items, pTemplate->size,
-			&hDerivedKey
-		));
+				hSession,
+				pMechanism,
+				hBaseKey,
+				pTemplate->items, pTemplate->size,
+				&hDerivedKey));
 
 		return hDerivedKey;
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_SeedRandom(CK_SESSION_HANDLE hSession, char *data, size_t dataLen) {
-	try {
+void PKCS11::C_SeedRandom(CK_SESSION_HANDLE hSession, char *data, size_t dataLen)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_SeedRandom(
-			hSession,
-			(CK_BYTE_PTR)data, (CK_ULONG)dataLen
-		));
-
+				hSession,
+				(CK_BYTE_PTR)data, (CK_ULONG)dataLen));
 	}
 	CATCH_ERROR;
 }
 
-void PKCS11::C_GenerateRandom(CK_SESSION_HANDLE hSession, char *data, size_t dataLen) {
-	try {
+void PKCS11::C_GenerateRandom(CK_SESSION_HANDLE hSession, char *data, size_t dataLen)
+{
+	try
+	{
+		assertLoaded();
 
 		CHECK_PKCS11_RV(functionList->C_GenerateRandom(
-			hSession,
-			(CK_BYTE_PTR)data, (CK_ULONG)dataLen
-		));
-
+				hSession,
+				(CK_BYTE_PTR)data, (CK_ULONG)dataLen));
 	}
 	CATCH_ERROR;
 }

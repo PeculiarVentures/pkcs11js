@@ -122,6 +122,8 @@ protected:
 
 	void* dlHandle;
 	CK_FUNCTION_LIST_PTR functionList;
+
+	void assertLoaded();
 };
 
 #endif // INCLUDE_H_PKCS11
