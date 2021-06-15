@@ -41,7 +41,7 @@
 #define STR_TAG_BITS "tagBits"
 #define STR_DATA "data"
 #define STR_DATA_LEN "dataLen"
-#define STR_NONCE "dataLen"
+#define STR_NONCE "nonce"
 #define STR_AAD "aad"
 #define STR_MAC_LEN "macLen"
 #define STR_HASH_ALG "hashAlg"
