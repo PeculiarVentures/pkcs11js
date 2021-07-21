@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>AesGCM | pkcs11js</title>
+	<title>IParams | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,24 +55,46 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="aesgcm.html">AesGCM</a>
+					<a href="IParams.html">IParams</a>
 				</li>
 			</ul>
-			<h1>Interface AesGCM</h1>
+			<h1>Interface IParams</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A base structure of a parameter</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="iparams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
+						<span class="target">IParams</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">AesGCM</span>
+								<a href="ECDH1.html" class="tsd-signature-type" data-tsd-kind="Interface">ECDH1</a>
+							</li>
+							<li>
+								<a href="AesCBC.html" class="tsd-signature-type" data-tsd-kind="Interface">AesCBC</a>
+							</li>
+							<li>
+								<a href="AesCCM.html" class="tsd-signature-type" data-tsd-kind="Interface">AesCCM</a>
+							</li>
+							<li>
+								<a href="AesGCM.html" class="tsd-signature-type" data-tsd-kind="Interface">AesGCM</a>
+							</li>
+							<li>
+								<a href="RsaOAEP.html" class="tsd-signature-type" data-tsd-kind="Interface">RsaOAEP</a>
+							</li>
+							<li>
+								<a href="RsaPSS.html" class="tsd-signature-type" data-tsd-kind="Interface">RsaPSS</a>
 							</li>
 						</ul>
 					</li>
@@ -85,11 +107,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aesgcm.html#aad" class="tsd-kind-icon">aad</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aesgcm.html#iv" class="tsd-kind-icon">iv</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aesgcm.html#ivbits" class="tsd-kind-icon">iv<wbr>Bits</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aesgcm.html#tagbits" class="tsd-kind-icon">tag<wbr>Bits</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="aesgcm.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="IParams.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -98,53 +116,12 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="aad" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> aad</h3>
-					<div class="tsd-signature tsd-kind-icon">aad<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L287">index.d.ts:287</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="iv" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> iv</h3>
-					<div class="tsd-signature tsd-kind-icon">iv<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L286">index.d.ts:286</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="ivbits" class="tsd-anchor"></a>
-					<h3>iv<wbr>Bits</h3>
-					<div class="tsd-signature tsd-kind-icon">iv<wbr>Bits<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L288">index.d.ts:288</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="tagbits" class="tsd-anchor"></a>
-					<h3>tag<wbr>Bits</h3>
-					<div class="tsd-signature tsd-kind-icon">tag<wbr>Bits<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L289">index.d.ts:289</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="type" class="tsd-anchor"></a>
 					<h3>type</h3>
 					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="iparams.html">IParams</a>.<a href="iparams.html#type">type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L251">index.d.ts:251</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L251">index.d.ts:251</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -168,22 +145,10 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="aesgcm.html" class="tsd-kind-icon">AesGCM</a>
+						<a href="IParams.html" class="tsd-kind-icon">IParams</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aesgcm.html#aad" class="tsd-kind-icon">aad</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aesgcm.html#iv" class="tsd-kind-icon">iv</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aesgcm.html#ivbits" class="tsd-kind-icon">iv<wbr>Bits</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aesgcm.html#tagbits" class="tsd-kind-icon">tag<wbr>Bits</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="aesgcm.html#type" class="tsd-kind-icon">type</a>
+								<a href="IParams.html#type" class="tsd-kind-icon">type</a>
 							</li>
 						</ul>
 					</li>

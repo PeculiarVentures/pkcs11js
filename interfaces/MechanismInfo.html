@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Version | pkcs11js</title>
+	<title>MechanismInfo | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="version.html">Version</a>
+					<a href="MechanismInfo.html">MechanismInfo</a>
 				</li>
 			</ul>
-			<h1>Interface Version</h1>
+			<h1>Interface MechanismInfo</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Structure that describes the version</p>
+						<p>Provides information about a particular mechanism</p>
 					</div>
 				</div>
 			</section>
@@ -76,7 +76,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">Version</span>
+						<span class="target">MechanismInfo</span>
 					</li>
 				</ul>
 			</section>
@@ -87,8 +87,9 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="version.html#major" class="tsd-kind-icon">major</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="version.html#minor" class="tsd-kind-icon">minor</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="MechanismInfo.html#flags" class="tsd-kind-icon">flags</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="MechanismInfo.html#maxKeySize" class="tsd-kind-icon">max<wbr>Key<wbr>Size</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="MechanismInfo.html#minKeySize" class="tsd-kind-icon">min<wbr>Key<wbr>Size</a></li>
 							</ul>
 						</section>
 					</div>
@@ -97,32 +98,47 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="major" class="tsd-anchor"></a>
-					<h3>major</h3>
-					<div class="tsd-signature tsd-kind-icon">major<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="flags" class="tsd-anchor"></a>
+					<h3>flags</h3>
+					<div class="tsd-signature tsd-kind-icon">flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L23">index.d.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L187">index.d.ts:187</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Major version number (the integer portion of the version)</p>
+							<p>Bit flags specifying mechanism capabilities</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="minor" class="tsd-anchor"></a>
-					<h3>minor</h3>
-					<div class="tsd-signature tsd-kind-icon">minor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="maxKeySize" class="tsd-anchor"></a>
+					<h3>max<wbr>Key<wbr>Size</h3>
+					<div class="tsd-signature tsd-kind-icon">max<wbr>Key<wbr>Size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L27">index.d.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L183">index.d.ts:183</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>minor version number (the hundredths portion of the version)</p>
+							<p>The maximum size of the key for the mechanism</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="minKeySize" class="tsd-anchor"></a>
+					<h3>min<wbr>Key<wbr>Size</h3>
+					<div class="tsd-signature tsd-kind-icon">min<wbr>Key<wbr>Size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L179">index.d.ts:179</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The minimum size of the key for the mechanism</p>
 						</div>
 					</div>
 				</section>
@@ -141,13 +157,16 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="version.html" class="tsd-kind-icon">Version</a>
+						<a href="MechanismInfo.html" class="tsd-kind-icon">Mechanism<wbr>Info</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="version.html#major" class="tsd-kind-icon">major</a>
+								<a href="MechanismInfo.html#flags" class="tsd-kind-icon">flags</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="version.html#minor" class="tsd-kind-icon">minor</a>
+								<a href="MechanismInfo.html#maxKeySize" class="tsd-kind-icon">max<wbr>Key<wbr>Size</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="MechanismInfo.html#minKeySize" class="tsd-kind-icon">min<wbr>Key<wbr>Size</a>
 							</li>
 						</ul>
 					</li>

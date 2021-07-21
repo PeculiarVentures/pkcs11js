@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>AesCCM | pkcs11js</title>
+	<title>SlotInfo | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,26 +55,28 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="aesccm.html">AesCCM</a>
+					<a href="SlotInfo.html">SlotInfo</a>
 				</li>
 			</ul>
-			<h1>Interface AesCCM</h1>
+			<h1>Interface SlotInfo</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Provides information about a slot</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="iparams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
-						<ul class="tsd-hierarchy">
-							<li>
-								<span class="target">AesCCM</span>
-							</li>
-						</ul>
+						<span class="target">SlotInfo</span>
 					</li>
 				</ul>
 			</section>
@@ -85,11 +87,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aesccm.html#aad" class="tsd-kind-icon">aad</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aesccm.html#datalen" class="tsd-kind-icon">data<wbr>Len</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aesccm.html#maclen" class="tsd-kind-icon">mac<wbr>Len</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="aesccm.html#nonce" class="tsd-kind-icon">nonce</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="aesccm.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="SlotInfo.html#firmwareVersion" class="tsd-kind-icon">firmware<wbr>Version</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="SlotInfo.html#flags" class="tsd-kind-icon">flags</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="SlotInfo.html#hardwareVersion" class="tsd-kind-icon">hardware<wbr>Version</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="SlotInfo.html#manufacturerID" class="tsd-kind-icon">manufacturerID</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="SlotInfo.html#slotDescription" class="tsd-kind-icon">slot<wbr>Description</a></li>
 							</ul>
 						</section>
 					</div>
@@ -98,58 +100,79 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="aad" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> aad</h3>
-					<div class="tsd-signature tsd-kind-icon">aad<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="firmwareVersion" class="tsd-anchor"></a>
+					<h3>firmware<wbr>Version</h3>
+					<div class="tsd-signature tsd-kind-icon">firmware<wbr>Version<span class="tsd-signature-symbol">:</span> <a href="Version.html" class="tsd-signature-type" data-tsd-kind="Interface">Version</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L281">index.d.ts:281</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="datalen" class="tsd-anchor"></a>
-					<h3>data<wbr>Len</h3>
-					<div class="tsd-signature tsd-kind-icon">data<wbr>Len<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L279">index.d.ts:279</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="maclen" class="tsd-anchor"></a>
-					<h3>mac<wbr>Len</h3>
-					<div class="tsd-signature tsd-kind-icon">mac<wbr>Len<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L282">index.d.ts:282</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="nonce" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> nonce</h3>
-					<div class="tsd-signature tsd-kind-icon">nonce<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L280">index.d.ts:280</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="type" class="tsd-anchor"></a>
-					<h3>type</h3>
-					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from <a href="iparams.html">IParams</a>.<a href="iparams.html#type">type</a></p>
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L251">index.d.ts:251</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L83">index.d.ts:83</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Type of crypto param. Uses constants CK_PARAMS_*</p>
+							<p>Version number of the slot&#39;s firmware</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="flags" class="tsd-anchor"></a>
+					<h3>flags</h3>
+					<div class="tsd-signature tsd-kind-icon">flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L75">index.d.ts:75</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Bits flags that provide capabilities of the slot</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="hardwareVersion" class="tsd-anchor"></a>
+					<h3>hardware<wbr>Version</h3>
+					<div class="tsd-signature tsd-kind-icon">hardware<wbr>Version<span class="tsd-signature-symbol">:</span> <a href="Version.html" class="tsd-signature-type" data-tsd-kind="Interface">Version</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L79">index.d.ts:79</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Version number of the slot&#39;s hardware</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="manufacturerID" class="tsd-anchor"></a>
+					<h3>manufacturerID</h3>
+					<div class="tsd-signature tsd-kind-icon">manufacturerID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L71">index.d.ts:71</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>ID of the slot manufacturer.
+							Must be padded with the blank character (&#39; &#39;)</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="slotDescription" class="tsd-anchor"></a>
+					<h3>slot<wbr>Description</h3>
+					<div class="tsd-signature tsd-kind-icon">slot<wbr>Description<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L66">index.d.ts:66</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Character-string description of the slot.
+							Must be padded with the blank character (&#39; &#39;)</p>
 						</div>
 					</div>
 				</section>
@@ -168,22 +191,22 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="aesccm.html" class="tsd-kind-icon">AesCCM</a>
+						<a href="SlotInfo.html" class="tsd-kind-icon">Slot<wbr>Info</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aesccm.html#aad" class="tsd-kind-icon">aad</a>
+								<a href="SlotInfo.html#firmwareVersion" class="tsd-kind-icon">firmware<wbr>Version</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aesccm.html#datalen" class="tsd-kind-icon">data<wbr>Len</a>
+								<a href="SlotInfo.html#flags" class="tsd-kind-icon">flags</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aesccm.html#maclen" class="tsd-kind-icon">mac<wbr>Len</a>
+								<a href="SlotInfo.html#hardwareVersion" class="tsd-kind-icon">hardware<wbr>Version</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="aesccm.html#nonce" class="tsd-kind-icon">nonce</a>
+								<a href="SlotInfo.html#manufacturerID" class="tsd-kind-icon">manufacturerID</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="aesccm.html#type" class="tsd-kind-icon">type</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="SlotInfo.html#slotDescription" class="tsd-kind-icon">slot<wbr>Description</a>
 							</li>
 						</ul>
 					</li>

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ModuleInfo | pkcs11js</title>
+	<title>Version | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="moduleinfo.html">ModuleInfo</a>
+					<a href="Version.html">Version</a>
 				</li>
 			</ul>
-			<h1>Interface ModuleInfo</h1>
+			<h1>Interface Version</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,7 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Provides general information about Cryptoki</p>
+						<p>Structure that describes the version</p>
 					</div>
 				</div>
 			</section>
@@ -76,7 +76,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ModuleInfo</span>
+						<span class="target">Version</span>
 					</li>
 				</ul>
 			</section>
@@ -87,11 +87,8 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="moduleinfo.html#cryptokiversion" class="tsd-kind-icon">cryptoki<wbr>Version</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="moduleinfo.html#flags" class="tsd-kind-icon">flags</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="moduleinfo.html#librarydescription" class="tsd-kind-icon">library<wbr>Description</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="moduleinfo.html#libraryversion" class="tsd-kind-icon">library<wbr>Version</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="moduleinfo.html#manufacturerid" class="tsd-kind-icon">manufacturerID</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="Version.html#major" class="tsd-kind-icon">major</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="Version.html#minor" class="tsd-kind-icon">minor</a></li>
 							</ul>
 						</section>
 					</div>
@@ -100,79 +97,32 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="cryptokiversion" class="tsd-anchor"></a>
-					<h3>cryptoki<wbr>Version</h3>
-					<div class="tsd-signature tsd-kind-icon">cryptoki<wbr>Version<span class="tsd-signature-symbol">:</span> <a href="version.html" class="tsd-signature-type" data-tsd-kind="Interface">Version</a></div>
+					<a name="major" class="tsd-anchor"></a>
+					<h3>major</h3>
+					<div class="tsd-signature tsd-kind-icon">major<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L37">index.d.ts:37</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L23">index.d.ts:23</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Cryptoki interface version number, for compatibility with future revisions of this interface</p>
+							<p>Major version number (the integer portion of the version)</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="flags" class="tsd-anchor"></a>
-					<h3>flags</h3>
-					<div class="tsd-signature tsd-kind-icon">flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="minor" class="tsd-anchor"></a>
+					<h3>minor</h3>
+					<div class="tsd-signature tsd-kind-icon">minor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L46">index.d.ts:46</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L27">index.d.ts:27</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Bit flags reserved for future versions. Must be zero for this version</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="librarydescription" class="tsd-anchor"></a>
-					<h3>library<wbr>Description</h3>
-					<div class="tsd-signature tsd-kind-icon">library<wbr>Description<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L51">index.d.ts:51</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Character-string description of the library.
-							Must be padded with the blank character (&#39; &#39;)</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="libraryversion" class="tsd-anchor"></a>
-					<h3>library<wbr>Version</h3>
-					<div class="tsd-signature tsd-kind-icon">library<wbr>Version<span class="tsd-signature-symbol">:</span> <a href="version.html" class="tsd-signature-type" data-tsd-kind="Interface">Version</a></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L55">index.d.ts:55</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Cryptoki library version number</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="manufacturerid" class="tsd-anchor"></a>
-					<h3>manufacturerID</h3>
-					<div class="tsd-signature tsd-kind-icon">manufacturerID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L42">index.d.ts:42</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>ID of the Cryptoki library manufacturer.
-							Must be padded with the blank character (&#39; &#39;).</p>
+							<p>minor version number (the hundredths portion of the version)</p>
 						</div>
 					</div>
 				</section>
@@ -191,22 +141,13 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="moduleinfo.html" class="tsd-kind-icon">Module<wbr>Info</a>
+						<a href="Version.html" class="tsd-kind-icon">Version</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="moduleinfo.html#cryptokiversion" class="tsd-kind-icon">cryptoki<wbr>Version</a>
+								<a href="Version.html#major" class="tsd-kind-icon">major</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="moduleinfo.html#flags" class="tsd-kind-icon">flags</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="moduleinfo.html#librarydescription" class="tsd-kind-icon">library<wbr>Description</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="moduleinfo.html#libraryversion" class="tsd-kind-icon">library<wbr>Version</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="moduleinfo.html#manufacturerid" class="tsd-kind-icon">manufacturerID</a>
+								<a href="Version.html#minor" class="tsd-kind-icon">minor</a>
 							</li>
 						</ul>
 					</li>

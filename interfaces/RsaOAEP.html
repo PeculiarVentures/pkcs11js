@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>KeyPair | pkcs11js</title>
+	<title>RsaOAEP | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="keypair.html">KeyPair</a>
+					<a href="RsaOAEP.html">RsaOAEP</a>
 				</li>
 			</ul>
-			<h1>Interface KeyPair</h1>
+			<h1>Interface RsaOAEP</h1>
 		</div>
 	</div>
 </header>
@@ -69,7 +69,12 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">KeyPair</span>
+						<a href="IParams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">RsaOAEP</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -80,8 +85,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="keypair.html#privatekey" class="tsd-kind-icon">private<wbr>Key</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="keypair.html#publickey" class="tsd-kind-icon">public<wbr>Key</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="RsaOAEP.html#hashAlg" class="tsd-kind-icon">hash<wbr>Alg</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="RsaOAEP.html#mgf" class="tsd-kind-icon">mgf</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="RsaOAEP.html#source" class="tsd-kind-icon">source</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="RsaOAEP.html#sourceData" class="tsd-kind-icon">source<wbr>Data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="RsaOAEP.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -90,24 +98,60 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="privatekey" class="tsd-anchor"></a>
-					<h3>private<wbr>Key</h3>
-					<div class="tsd-signature tsd-kind-icon">private<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="hashAlg" class="tsd-anchor"></a>
+					<h3>hash<wbr>Alg</h3>
+					<div class="tsd-signature tsd-kind-icon">hash<wbr>Alg<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L308">index.d.ts:308</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L293">index.d.ts:293</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="publickey" class="tsd-anchor"></a>
-					<h3>public<wbr>Key</h3>
-					<div class="tsd-signature tsd-kind-icon">public<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="mgf" class="tsd-anchor"></a>
+					<h3>mgf</h3>
+					<div class="tsd-signature tsd-kind-icon">mgf<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L309">index.d.ts:309</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L294">index.d.ts:294</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="source" class="tsd-anchor"></a>
+					<h3>source</h3>
+					<div class="tsd-signature tsd-kind-icon">source<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L295">index.d.ts:295</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="sourceData" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> source<wbr>Data</h3>
+					<div class="tsd-signature tsd-kind-icon">source<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L296">index.d.ts:296</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="type" class="tsd-anchor"></a>
+					<h3>type</h3>
+					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="IParams.html">IParams</a>.<a href="IParams.html#type">type</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L251">index.d.ts:251</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Type of crypto param. Uses constants CK_PARAMS_*</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -124,13 +168,22 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="keypair.html" class="tsd-kind-icon">Key<wbr>Pair</a>
+						<a href="RsaOAEP.html" class="tsd-kind-icon">RsaOAEP</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="keypair.html#privatekey" class="tsd-kind-icon">private<wbr>Key</a>
+								<a href="RsaOAEP.html#hashAlg" class="tsd-kind-icon">hash<wbr>Alg</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="keypair.html#publickey" class="tsd-kind-icon">public<wbr>Key</a>
+								<a href="RsaOAEP.html#mgf" class="tsd-kind-icon">mgf</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="RsaOAEP.html#source" class="tsd-kind-icon">source</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="RsaOAEP.html#sourceData" class="tsd-kind-icon">source<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="RsaOAEP.html#type" class="tsd-kind-icon">type</a>
 							</li>
 						</ul>
 					</li>

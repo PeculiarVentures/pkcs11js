@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>InitializationOptions | pkcs11js</title>
+	<title>ECDH1 | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,21 +55,34 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="initializationoptions.html">InitializationOptions</a>
+					<a href="ECDH1.html">ECDH1</a>
 				</li>
 			</ul>
-			<h1>Interface InitializationOptions</h1>
+			<h1>Interface ECDH1</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>A structure that provides the parameters for the <a href="../modules.html#CKM_ECDH1_DERIVE">CKM_ECDH1_DERIVE</a> and <a href="../modules.html#CKM_ECDH1_COFACTOR_DERIVE">CKM_ECDH1_COFACTOR_DERIVE</a>
+						key derivation mechanisms, where each party contributes one key pair</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">InitializationOptions</span>
+						<a href="IParams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">ECDH1</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -80,8 +93,10 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="initializationoptions.html#flags" class="tsd-kind-icon">flags</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="initializationoptions.html#libraryparameters" class="tsd-kind-icon">library<wbr>Parameters</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ECDH1.html#kdf" class="tsd-kind-icon">kdf</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ECDH1.html#publicData" class="tsd-kind-icon">public<wbr>Data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ECDH1.html#sharedData" class="tsd-kind-icon">shared<wbr>Data</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ECDH1.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -90,38 +105,63 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="flags" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> flags</h3>
-					<div class="tsd-signature tsd-kind-icon">flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="kdf" class="tsd-anchor"></a>
+					<h3>kdf</h3>
+					<div class="tsd-signature tsd-kind-icon">kdf<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L324">index.d.ts:324</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L262">index.d.ts:262</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>bit flags specifying options for <a href="../classes/pkcs11.html#c_initialize">C_Initialize</a></p>
-							<ul>
-								<li>CKF_LIBRARY_CANT_CREATE_OS_THREADS. True if application threads which are executing calls to the library
-								may not use native operating system calls to spawn new threads; false if they may</li>
-								<li>CKF_OS_LOCKING_OK. True if the library can use the native operation system threading model for locking;
-								false otherwise</li>
-							</ul>
+							<p>Key derivation function used on the shared secret value</p>
 						</div>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="libraryparameters" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> library<wbr>Parameters</h3>
-					<div class="tsd-signature tsd-kind-icon">library<wbr>Parameters<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="publicData" class="tsd-anchor"></a>
+					<h3>public<wbr>Data</h3>
+					<div class="tsd-signature tsd-kind-icon">public<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L316">index.d.ts:316</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L270">index.d.ts:270</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>NSS library parameters</p>
+							<p>The other party&#39;s EC public key</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="sharedData" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> shared<wbr>Data</h3>
+					<div class="tsd-signature tsd-kind-icon">shared<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L266">index.d.ts:266</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Some data shared between the two parties</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="type" class="tsd-anchor"></a>
+					<h3>type</h3>
+					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="IParams.html">IParams</a>.<a href="IParams.html#type">type</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L251">index.d.ts:251</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Type of crypto param. Uses constants CK_PARAMS_*</p>
 						</div>
 					</div>
 				</section>
@@ -140,13 +180,19 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="initializationoptions.html" class="tsd-kind-icon">Initialization<wbr>Options</a>
+						<a href="ECDH1.html" class="tsd-kind-icon">ECDH1</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="initializationoptions.html#flags" class="tsd-kind-icon">flags</a>
+								<a href="ECDH1.html#kdf" class="tsd-kind-icon">kdf</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="initializationoptions.html#libraryparameters" class="tsd-kind-icon">library<wbr>Parameters</a>
+								<a href="ECDH1.html#publicData" class="tsd-kind-icon">public<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ECDH1.html#sharedData" class="tsd-kind-icon">shared<wbr>Data</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="ECDH1.html#type" class="tsd-kind-icon">type</a>
 							</li>
 						</ul>
 					</li>

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ECDH1 | pkcs11js</title>
+	<title>AesCCM | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,32 +55,24 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="ecdh1.html">ECDH1</a>
+					<a href="AesCCM.html">AesCCM</a>
 				</li>
 			</ul>
-			<h1>Interface ECDH1</h1>
+			<h1>Interface AesCCM</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>A structure that provides the parameters for the <a href="../modules.html#ckm_ecdh1_derive">CKM_ECDH1_DERIVE</a> and <a href="../modules.html#ckm_ecdh1_cofactor_derive">CKM_ECDH1_COFACTOR_DERIVE</a>
-						key derivation mechanisms, where each party contributes one key pair</p>
-					</div>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="iparams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
+						<a href="IParams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">ECDH1</span>
+								<span class="target">AesCCM</span>
 							</li>
 						</ul>
 					</li>
@@ -93,10 +85,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ecdh1.html#kdf" class="tsd-kind-icon">kdf</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ecdh1.html#publicdata" class="tsd-kind-icon">public<wbr>Data</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ecdh1.html#shareddata" class="tsd-kind-icon">shared<wbr>Data</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="ecdh1.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="AesCCM.html#aad" class="tsd-kind-icon">aad</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="AesCCM.html#dataLen" class="tsd-kind-icon">data<wbr>Len</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="AesCCM.html#macLen" class="tsd-kind-icon">mac<wbr>Len</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="AesCCM.html#nonce" class="tsd-kind-icon">nonce</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="AesCCM.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -105,58 +98,53 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="kdf" class="tsd-anchor"></a>
-					<h3>kdf</h3>
-					<div class="tsd-signature tsd-kind-icon">kdf<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="aad" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> aad</h3>
+					<div class="tsd-signature tsd-kind-icon">aad<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L262">index.d.ts:262</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L281">index.d.ts:281</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Key derivation function used on the shared secret value</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="publicdata" class="tsd-anchor"></a>
-					<h3>public<wbr>Data</h3>
-					<div class="tsd-signature tsd-kind-icon">public<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="dataLen" class="tsd-anchor"></a>
+					<h3>data<wbr>Len</h3>
+					<div class="tsd-signature tsd-kind-icon">data<wbr>Len<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L270">index.d.ts:270</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L279">index.d.ts:279</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>The other party&#39;s EC public key</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="shareddata" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> shared<wbr>Data</h3>
-					<div class="tsd-signature tsd-kind-icon">shared<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="macLen" class="tsd-anchor"></a>
+					<h3>mac<wbr>Len</h3>
+					<div class="tsd-signature tsd-kind-icon">mac<wbr>Len<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L266">index.d.ts:266</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L282">index.d.ts:282</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Some data shared between the two parties</p>
-						</div>
-					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="nonce" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> nonce</h3>
+					<div class="tsd-signature tsd-kind-icon">nonce<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L280">index.d.ts:280</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="type" class="tsd-anchor"></a>
 					<h3>type</h3>
 					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="iparams.html">IParams</a>.<a href="iparams.html#type">type</a></p>
+						<p>Inherited from <a href="IParams.html">IParams</a>.<a href="IParams.html#type">type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L251">index.d.ts:251</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L251">index.d.ts:251</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -180,19 +168,22 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="ecdh1.html" class="tsd-kind-icon">ECDH1</a>
+						<a href="AesCCM.html" class="tsd-kind-icon">AesCCM</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ecdh1.html#kdf" class="tsd-kind-icon">kdf</a>
+								<a href="AesCCM.html#aad" class="tsd-kind-icon">aad</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ecdh1.html#publicdata" class="tsd-kind-icon">public<wbr>Data</a>
+								<a href="AesCCM.html#dataLen" class="tsd-kind-icon">data<wbr>Len</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="ecdh1.html#shareddata" class="tsd-kind-icon">shared<wbr>Data</a>
+								<a href="AesCCM.html#macLen" class="tsd-kind-icon">mac<wbr>Len</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="AesCCM.html#nonce" class="tsd-kind-icon">nonce</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="ecdh1.html#type" class="tsd-kind-icon">type</a>
+								<a href="AesCCM.html#type" class="tsd-kind-icon">type</a>
 							</li>
 						</ul>
 					</li>

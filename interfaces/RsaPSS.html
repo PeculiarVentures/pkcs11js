@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>SessionInfo | pkcs11js</title>
+	<title>RsaPSS | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,28 +55,26 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="sessioninfo.html">SessionInfo</a>
+					<a href="RsaPSS.html">RsaPSS</a>
 				</li>
 			</ul>
-			<h1>Interface SessionInfo</h1>
+			<h1>Interface RsaPSS</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
-					<div class="lead">
-						<p>Provides information about a session</p>
-					</div>
-				</div>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">SessionInfo</span>
+						<a href="IParams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">RsaPSS</span>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -87,10 +85,10 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="sessioninfo.html#deviceerror" class="tsd-kind-icon">device<wbr>Error</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="sessioninfo.html#flags" class="tsd-kind-icon">flags</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="sessioninfo.html#slotid" class="tsd-kind-icon">slotID</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="sessioninfo.html#state" class="tsd-kind-icon">state</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="RsaPSS.html#hashAlg" class="tsd-kind-icon">hash<wbr>Alg</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="RsaPSS.html#mgf" class="tsd-kind-icon">mgf</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="RsaPSS.html#saltLen" class="tsd-kind-icon">salt<wbr>Len</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="RsaPSS.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
 					</div>
@@ -99,62 +97,48 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="deviceerror" class="tsd-anchor"></a>
-					<h3>device<wbr>Error</h3>
-					<div class="tsd-signature tsd-kind-icon">device<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="hashAlg" class="tsd-anchor"></a>
+					<h3>hash<wbr>Alg</h3>
+					<div class="tsd-signature tsd-kind-icon">hash<wbr>Alg<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L209">index.d.ts:209</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L300">index.d.ts:300</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>An error code defined by the cryptographic device</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="flags" class="tsd-anchor"></a>
-					<h3>flags</h3>
-					<div class="tsd-signature tsd-kind-icon">flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="mgf" class="tsd-anchor"></a>
+					<h3>mgf</h3>
+					<div class="tsd-signature tsd-kind-icon">mgf<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L205">index.d.ts:205</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L301">index.d.ts:301</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Bit flags that define the type of session</p>
-						</div>
-					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="slotid" class="tsd-anchor"></a>
-					<h3>slotID</h3>
-					<div class="tsd-signature tsd-kind-icon">slotID<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
+					<a name="saltLen" class="tsd-anchor"></a>
+					<h3>salt<wbr>Len</h3>
+					<div class="tsd-signature tsd-kind-icon">salt<wbr>Len<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L197">index.d.ts:197</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L302">index.d.ts:302</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>ID of the slot that interfaces with the token</p>
-						</div>
-					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="state" class="tsd-anchor"></a>
-					<h3>state</h3>
-					<div class="tsd-signature tsd-kind-icon">state<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="type" class="tsd-anchor"></a>
+					<h3>type</h3>
+					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
+						<p>Inherited from <a href="IParams.html">IParams</a>.<a href="IParams.html#type">type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L201">index.d.ts:201</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L251">index.d.ts:251</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>The state of the session</p>
+							<p>Type of crypto param. Uses constants CK_PARAMS_*</p>
 						</div>
 					</div>
 				</section>
@@ -173,19 +157,19 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="sessioninfo.html" class="tsd-kind-icon">Session<wbr>Info</a>
+						<a href="RsaPSS.html" class="tsd-kind-icon">RsaPSS</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="sessioninfo.html#deviceerror" class="tsd-kind-icon">device<wbr>Error</a>
+								<a href="RsaPSS.html#hashAlg" class="tsd-kind-icon">hash<wbr>Alg</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="sessioninfo.html#flags" class="tsd-kind-icon">flags</a>
+								<a href="RsaPSS.html#mgf" class="tsd-kind-icon">mgf</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="sessioninfo.html#slotid" class="tsd-kind-icon">slotID</a>
+								<a href="RsaPSS.html#saltLen" class="tsd-kind-icon">salt<wbr>Len</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="sessioninfo.html#state" class="tsd-kind-icon">state</a>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="RsaPSS.html#type" class="tsd-kind-icon">type</a>
 							</li>
 						</ul>
 					</li>

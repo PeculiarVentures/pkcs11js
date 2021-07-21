@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RsaOAEP | pkcs11js</title>
+	<title>InitializationOptions | pkcs11js</title>
 	<meta name="description" content="Documentation for pkcs11js">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">pkcs11js</a>
 				</li>
 				<li>
-					<a href="rsaoaep.html">RsaOAEP</a>
+					<a href="InitializationOptions.html">InitializationOptions</a>
 				</li>
 			</ul>
-			<h1>Interface RsaOAEP</h1>
+			<h1>Interface InitializationOptions</h1>
 		</div>
 	</div>
 </header>
@@ -69,12 +69,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="iparams.html" class="tsd-signature-type" data-tsd-kind="Interface">IParams</a>
-						<ul class="tsd-hierarchy">
-							<li>
-								<span class="target">RsaOAEP</span>
-							</li>
-						</ul>
+						<span class="target">InitializationOptions</span>
 					</li>
 				</ul>
 			</section>
@@ -85,11 +80,8 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rsaoaep.html#hashalg" class="tsd-kind-icon">hash<wbr>Alg</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rsaoaep.html#mgf" class="tsd-kind-icon">mgf</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rsaoaep.html#source" class="tsd-kind-icon">source</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="rsaoaep.html#sourcedata" class="tsd-kind-icon">source<wbr>Data</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="rsaoaep.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="InitializationOptions.html#flags" class="tsd-kind-icon">flags</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="InitializationOptions.html#libraryParameters" class="tsd-kind-icon">library<wbr>Parameters</a></li>
 							</ul>
 						</section>
 					</div>
@@ -98,58 +90,38 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="hashalg" class="tsd-anchor"></a>
-					<h3>hash<wbr>Alg</h3>
-					<div class="tsd-signature tsd-kind-icon">hash<wbr>Alg<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="flags" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> flags</h3>
+					<div class="tsd-signature tsd-kind-icon">flags<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L293">index.d.ts:293</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="mgf" class="tsd-anchor"></a>
-					<h3>mgf</h3>
-					<div class="tsd-signature tsd-kind-icon">mgf<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L294">index.d.ts:294</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="source" class="tsd-anchor"></a>
-					<h3>source</h3>
-					<div class="tsd-signature tsd-kind-icon">source<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L295">index.d.ts:295</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="sourcedata" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> source<wbr>Data</h3>
-					<div class="tsd-signature tsd-kind-icon">source<wbr>Data<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Buffer</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L296">index.d.ts:296</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="type" class="tsd-anchor"></a>
-					<h3>type</h3>
-					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from <a href="iparams.html">IParams</a>.<a href="iparams.html#type">type</a></p>
-						<ul>
-							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/f38c64d/index.d.ts#L251">index.d.ts:251</a></li>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L324">index.d.ts:324</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
-							<p>Type of crypto param. Uses constants CK_PARAMS_*</p>
+							<p>bit flags specifying options for <a href="../classes/PKCS11.html#C_Initialize">C_Initialize</a></p>
+							<ul>
+								<li>CKF_LIBRARY_CANT_CREATE_OS_THREADS. True if application threads which are executing calls to the library
+								may not use native operating system calls to spawn new threads; false if they may</li>
+								<li>CKF_OS_LOCKING_OK. True if the library can use the native operation system threading model for locking;
+								false otherwise</li>
+							</ul>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="libraryParameters" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> library<wbr>Parameters</h3>
+					<div class="tsd-signature tsd-kind-icon">library<wbr>Parameters<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/PeculiarVentures/pkcs11js/blob/d0de460/index.d.ts#L316">index.d.ts:316</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>NSS library parameters</p>
 						</div>
 					</div>
 				</section>
@@ -168,22 +140,13 @@
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="rsaoaep.html" class="tsd-kind-icon">RsaOAEP</a>
+						<a href="InitializationOptions.html" class="tsd-kind-icon">Initialization<wbr>Options</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="rsaoaep.html#hashalg" class="tsd-kind-icon">hash<wbr>Alg</a>
+								<a href="InitializationOptions.html#flags" class="tsd-kind-icon">flags</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="rsaoaep.html#mgf" class="tsd-kind-icon">mgf</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="rsaoaep.html#source" class="tsd-kind-icon">source</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="rsaoaep.html#sourcedata" class="tsd-kind-icon">source<wbr>Data</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="rsaoaep.html#type" class="tsd-kind-icon">type</a>
+								<a href="InitializationOptions.html#libraryParameters" class="tsd-kind-icon">library<wbr>Parameters</a>
 							</li>
 						</ul>
 					</li>
