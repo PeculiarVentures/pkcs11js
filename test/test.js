@@ -468,7 +468,7 @@ context("PKCS11", () => {
         });
         (os.platform() === "linux" && +/v(\d+)/.exec(process.version)[1] > 9
           ? context.skip
-          : context)("Derive (ECDH P-256)", () => {
+          : context)("Derive (ECDH secp256k1)", () => {
             let keys;
             before(() => {
               token.C_Login(session, pkcs11.CKU_USER, pin);
