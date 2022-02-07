@@ -229,6 +229,7 @@ NAN_MODULE_INIT(WPKCS11::Init) {
 	SET_PKCS11_METHOD(C_DeriveKey);
 	SET_PKCS11_METHOD(C_SeedRandom);
 	SET_PKCS11_METHOD(C_GenerateRandom);
+	SET_PKCS11_METHOD(C_WaitForSlotEvent);
 
 	constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
 
@@ -1366,6 +1367,25 @@ NAN_METHOD(WPKCS11::C_GenerateRandom) {
 		__pkcs11->C_GenerateRandom(hSession, buffer, bufferLen);
 
 		info.GetReturnValue().Set(info[1]);
+	}
+	CATCH_V8_ERROR;
+}
+
+NAN_METHOD(WPKCS11::C_WaitForSlotEvent)
+{
+	try
+	{
+		GET_SLOT_ID_HANDLE(slotID, 1);
+
+		CHECK_REQUIRED(0);
+		CHECK_TYPE(0, Number);
+		CK_FLAGS flags = Nan::To<uint32_t>(info[0]).FromJust();
+
+		UNWRAP_PKCS11;
+
+		CK_RV rv = __pkcs11->C_WaitForSlotEvent(flags, &slotID);
+
+		info.GetReturnValue().Set(handle_to_v8(rv));
 	}
 	CATCH_V8_ERROR;
 }

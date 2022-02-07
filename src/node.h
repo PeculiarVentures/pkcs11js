@@ -114,6 +114,9 @@ public:
 	static NAN_METHOD(C_SeedRandom);
 	static NAN_METHOD(C_GenerateRandom);
 
+	/* Event slot function */
+	static NAN_METHOD(C_WaitForSlotEvent);
+
 	Scoped<PKCS11> pkcs11;
 
 protected:

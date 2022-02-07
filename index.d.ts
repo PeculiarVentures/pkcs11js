@@ -1155,7 +1155,17 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_GenerateRandom(session: Handle, buf: Buffer): Buffer;
+        //#endregion
 
+        //#region Event management
+        /**
+         * Waits for a slot event, such as token insertion or token removal, to occur.
+         * @param flags Determines whether or not the C_WaitForSlotEvent call blocks (i.e., waits for a slot event to occur); use CKF_DONT_BLOCK for no blocking call
+         * @param slotID The ID of the slot
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         */
+        public C_WaitForSlotEvent(flags: number, slotID: Handle): void;
         //#endregion
 
     }
@@ -1672,6 +1682,10 @@ declare module "pkcs11js" {
     const CKF_SO_PIN_LOCKED: number;
     const CKF_SO_PIN_TO_BE_CHANGED: number;
     const CKF_ERROR_STATE: number;
+    //#endregion
+
+    //#region Event Flags
+    const CKF_DONT_BLOCK: number;
     //#endregion
 
     //#region Certificates

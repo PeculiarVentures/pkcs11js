@@ -1164,3 +1164,16 @@ void PKCS11::C_GenerateRandom(CK_SESSION_HANDLE hSession, char *data, size_t dat
 	}
 	CATCH_ERROR;
 }
+
+CK_RV PKCS11::C_WaitForSlotEvent(CK_FLAGS flags, CK_SLOT_ID_PTR slotID)
+{
+	try
+	{
+		assertLoaded();
+
+		CK_RV rv = functionList->C_WaitForSlotEvent(flags, slotID, NULL_PTR);
+
+		return rv;
+	}
+	CATCH_ERROR;
+}
