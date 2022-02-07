@@ -152,6 +152,8 @@ void declare_flags(Local<Object> target) {
 	SET_CONST(target, CKF_SO_PIN_TO_BE_CHANGED);
 	SET_CONST(target, CKF_ERROR_STATE);
 
+	// Event flags
+	SET_CONST(target, CKF_DONT_BLOCK);
 }
 
 void declare_objects(Local<Object> target) {

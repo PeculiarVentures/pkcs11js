@@ -118,6 +118,9 @@ public:
 	void C_SeedRandom(CK_SESSION_HANDLE hSession, char *data, size_t dataLen);
 	void C_GenerateRandom(CK_SESSION_HANDLE hSession, char *data, size_t dataLen);
 
+	/* Event slot function */
+	CK_RV C_WaitForSlotEvent(CK_FLAGS flags, CK_SLOT_ID_PTR slotID);
+
 protected:
 
 	void* dlHandle;

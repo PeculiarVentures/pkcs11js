@@ -383,6 +383,87 @@ mod.C_Finalize();
 
 [More](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Reference/FC_Initialize) info about NSS params for `C_Initialize`
 
+### Example #11
+
+Detect if smartcard is removed with C_WaitForSlotEvent function
+
+```javascript
+var pkcs11js = require("./index");
+var pkcs11 = new pkcs11js.PKCS11();
+// Need a compliant Cryptoki Version 2.01 or later
+pkcs11.load("/usr/local/lib/softhsm/libsofthsm2.so");
+
+pkcs11.C_Initialize();
+
+var session;
+var intervalId;
+
+try {
+    // Getting info about PKCS11 Module
+    var module_info = pkcs11.C_GetInfo();
+
+    // Getting list of slots
+    var slots = pkcs11.C_GetSlotList(true);
+    var slot = slots[0];
+    console.log(slot);
+
+    // Getting info about slot
+    var slot_info = pkcs11.C_GetSlotInfo(slot);
+    // Getting info about token
+    var token_info = pkcs11.C_GetTokenInfo(slot);
+    console.log(slot_info);
+
+    // Getting info about Mechanism
+    var mechs = pkcs11.C_GetMechanismList(slot);
+    var mech_info = pkcs11.C_GetMechanismInfo(slot, mechs[0]);
+
+    session = pkcs11.C_OpenSession(slot, pkcs11js.CKF_RW_SESSION | pkcs11js.CKF_SERIAL_SESSION);
+
+    // Getting info about Session
+    var info = pkcs11.C_GetSessionInfo(session);
+    // pkcs11.C_Login(session, 1234, "password");
+
+    intervalId = setInterval(() => {
+        const rv = pkcs11.C_WaitForSlotEvent(pkcs11js.CKF_DONT_BLOCK, slot);
+        console.log('C_WaitForSlotEvent value : ' + rv.readUInt8(0));
+
+        if (rv.readUInt8(0) !== pkcs11js.CKR_NO_EVENT) {
+            /**
+             * Your code here to handle token removal for example
+             */
+        }
+    }, 1000);
+
+    /**
+     * Your app code here
+     */
+    
+    // pkcs11.C_Logout(session);
+}
+catch(e){
+    console.error(e);
+    process.exit(1);
+}
+finally {
+}
+
+function myCleanup() {
+    console.log('App specific cleanup code...');
+    clearInterval(intervalId);
+    try {
+        if (session) {
+            pkcs11.C_CloseSession(session);
+            pkcs11.C_Finalize();
+        }
+    }
+    catch(e){
+    }
+    console.log('Bye !');
+};
+
+process.on('SIGINT', myCleanup);
+```
+
 ## Suitability
 At this time this solution should be considered suitable for research and experimentation, further code and security review is needed before utilization in a production application.
 
