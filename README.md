@@ -388,7 +388,7 @@ mod.C_Finalize();
 Detect if smartcard is removed with C_WaitForSlotEvent function
 
 ```javascript
-var pkcs11js = require("./index");
+var pkcs11js = require("pkcs11js");
 var pkcs11 = new pkcs11js.PKCS11();
 // Need a compliant Cryptoki Version 2.01 or later
 pkcs11.load("/usr/local/lib/softhsm/libsofthsm2.so");
