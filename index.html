@@ -404,6 +404,85 @@
 <span style="color: #001080">mod</span><span style="color: #000000">.</span><span style="color: #795E26">C_Finalize</span><span style="color: #000000">();</span>
 </code></pre>
 				<p><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Reference/FC_Initialize">More</a> info about NSS params for <code>C_Initialize</code></p>
+				<a href="#example-11" id="example-11" style="color: inherit; text-decoration: none;">
+					<h3>Example #11</h3>
+				</a>
+				<p>Detect if smartcard is removed with C_WaitForSlotEvent function</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;./index&quot;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #795E26">PKCS11</span><span style="color: #000000">();</span>
+<span style="color: #008000">// Need a compliant Cryptoki Version 2.01 or later</span>
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">load</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;/usr/local/lib/softhsm/libsofthsm2.so&quot;</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_Initialize</span><span style="color: #000000">();</span>
+
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">session</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">intervalId</span><span style="color: #000000">;</span>
+
+<span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about PKCS11 Module</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">module_info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetInfo</span><span style="color: #000000">();</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// Getting list of slots</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">slots</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetSlotList</span><span style="color: #000000">(</span><span style="color: #0000FF">true</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">slot</span><span style="color: #000000"> = </span><span style="color: #001080">slots</span><span style="color: #000000">[</span><span style="color: #098658">0</span><span style="color: #000000">];</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about slot</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">slot_info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetSlotInfo</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about token</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">token_info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetTokenInfo</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">slot_info</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about Mechanism</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">mechs</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetMechanismList</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">mech_info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetMechanismInfo</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">, </span><span style="color: #001080">mechs</span><span style="color: #000000">[</span><span style="color: #098658">0</span><span style="color: #000000">]);</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">session</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_OpenSession</span><span style="color: #000000">(</span><span style="color: #001080">slot</span><span style="color: #000000">, </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKF_RW_SESSION</span><span style="color: #000000"> | </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKF_SERIAL_SESSION</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">// Getting info about Session</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">var</span><span style="color: #000000"> </span><span style="color: #001080">info</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_GetSessionInfo</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #008000">// pkcs11.C_Login(session, 1234, &quot;password&quot;);</span>
+
+<span style="color: #000000">    </span><span style="color: #001080">intervalId</span><span style="color: #000000"> = </span><span style="color: #795E26">setInterval</span><span style="color: #000000">(() </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">rv</span><span style="color: #000000"> = </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_WaitForSlotEvent</span><span style="color: #000000">(</span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKF_DONT_BLOCK</span><span style="color: #000000">, </span><span style="color: #001080">slot</span><span style="color: #000000">);</span>
+<span style="color: #000000">        </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;C_WaitForSlotEvent value : &#039;</span><span style="color: #000000"> + </span><span style="color: #001080">rv</span><span style="color: #000000">.</span><span style="color: #795E26">readUInt8</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">));</span>
+
+<span style="color: #000000">        </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">rv</span><span style="color: #000000">.</span><span style="color: #795E26">readUInt8</span><span style="color: #000000">(</span><span style="color: #098658">0</span><span style="color: #000000">) !== </span><span style="color: #001080">pkcs11js</span><span style="color: #000000">.</span><span style="color: #0070C1">CKR_NO_EVENT</span><span style="color: #000000">) {</span>
+<span style="color: #000000">            </span><span style="color: #008000">/**</span>
+<span style="color: #008000">             * Your code here to handle token removal for example</span>
+<span style="color: #008000">             */</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    }, </span><span style="color: #098658">1000</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">    </span><span style="color: #008000">/**</span>
+<span style="color: #008000">     * Your app code here</span>
+<span style="color: #008000">     */</span>
+<span style="color: #000000">    </span>
+<span style="color: #000000">    </span><span style="color: #008000">// pkcs11.C_Logout(session);</span>
+<span style="color: #000000">}</span>
+<span style="color: #AF00DB">catch</span><span style="color: #000000">(</span><span style="color: #001080">e</span><span style="color: #000000">){</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">error</span><span style="color: #000000">(</span><span style="color: #001080">e</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">exit</span><span style="color: #000000">(</span><span style="color: #098658">1</span><span style="color: #000000">);</span>
+<span style="color: #000000">}</span>
+<span style="color: #AF00DB">finally</span><span style="color: #000000"> {</span>
+<span style="color: #000000">}</span>
+
+<span style="color: #0000FF">function</span><span style="color: #000000"> </span><span style="color: #795E26">myCleanup</span><span style="color: #000000">() {</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;App specific cleanup code...&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #795E26">clearInterval</span><span style="color: #000000">(</span><span style="color: #001080">intervalId</span><span style="color: #000000">);</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">try</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">session</span><span style="color: #000000">) {</span>
+<span style="color: #000000">            </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_CloseSession</span><span style="color: #000000">(</span><span style="color: #001080">session</span><span style="color: #000000">);</span>
+<span style="color: #000000">            </span><span style="color: #001080">pkcs11</span><span style="color: #000000">.</span><span style="color: #795E26">C_Finalize</span><span style="color: #000000">();</span>
+<span style="color: #000000">        }</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">catch</span><span style="color: #000000">(</span><span style="color: #001080">e</span><span style="color: #000000">){</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Bye !&#039;</span><span style="color: #000000">);</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, </span><span style="color: #001080">myCleanup</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#suitability" id="suitability" style="color: inherit; text-decoration: none;">
 					<h2>Suitability</h2>
 				</a>
@@ -884,6 +963,9 @@
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="modules.html#CKF_DIGEST" class="tsd-kind-icon">CKF_<wbr>DIGEST</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#CKF_DONT_BLOCK" class="tsd-kind-icon">CKF_<wbr>DONT_<wbr>BLOCK</a>
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="modules.html#CKF_DUAL_CRYPTO_OPERATIONS" class="tsd-kind-icon">CKF_<wbr>DUAL_<wbr>CRYPTO_<wbr>OPERATIONS</a>
