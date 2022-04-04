@@ -68,5 +68,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+      
       - name: Install dependencies
         run: npm install
