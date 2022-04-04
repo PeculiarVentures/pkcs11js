@@ -67,9 +67,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Add msbuild to PATH
+      - name: Install Windows build tools
         if: ${{ matrix.os == 'windows-2019' || matrix.os == 'windows-latest' }}
-        uses: microsoft/setup-msbuild@v1.1
+        uses: npm i -g windows-build-tools
       
       - name: Install dependencies
         run: npm install
