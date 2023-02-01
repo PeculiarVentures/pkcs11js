@@ -254,6 +254,43 @@ CK_PKCS11_FUNCTION_INFO(C_Logout)
 #endif
 
 
+/* nShield-specific PKCS #11 API extensions */
+
+/* C_LoginBegin - See Integration_Guide_nShield_Cryptographic_API 3.8.1 */
+CK_PKCS11_FUNCTION_INFO(C_LoginBegin)
+#ifdef CK_NEED_ARG_LIST
+(
+  CK_SESSION_HANDLE hSession,  /* the session's handle */
+  CK_USER_TYPE      userType,  /* the user type */
+  CK_ULONG_PTR      pulK,      /* cards required to load logical token - return value!*/
+  CK_ULONG_PTR      pulN       /* number of cards in set - return value! */
+);
+#endif
+
+
+/* C_LoginNext See Integration_Guide_nShield_Cryptographic_API 3.8.2 */
+CK_PKCS11_FUNCTION_INFO(C_LoginNext)
+#ifdef CK_NEED_ARG_LIST
+(
+  CK_SESSION_HANDLE hSession,      /* the session's handle */
+  CK_USER_TYPE      userType,      /* the user type */
+  CK_CHAR_PTR       pPin,          /* the user's PIN */
+  CK_ULONG          ulPinLen,      /* the length of the PIN */
+  CK_ULONG_PTR      pulSharesLeft  /* number of shared still needed - return value! */
+);
+#endif
+
+
+/* C_LoginEnd See Integration_Guide_nShield_Cryptographic_API 3.8.3 */
+CK_PKCS11_FUNCTION_INFO(C_LoginEnd)
+#ifdef CK_NEED_ARG_LIST
+(
+  CK_SESSION_HANDLE hSession,      /* the session's handle */
+  CK_USER_TYPE      userType      /* the user type */
+);
+#endif
+
+
 
 /* Object management */
 
