@@ -44,6 +44,12 @@ public:
 	// C_SetOperationState);
 	void C_Login(CK_SESSION_HANDLE session, CK_USER_TYPE userType, Scoped<string> pin);
 	void C_Logout(CK_SESSION_HANDLE session);
+
+	// nSheild API extensions
+	Scoped<CK_LOGIN_BEGIN_RESPONSE> C_LoginBegin(CK_SESSION_HANDLE session, CK_USER_TYPE userType);
+	Scoped<CK_LOGIN_NEXT_RESPONSE> C_LoginNext(CK_SESSION_HANDLE session, CK_USER_TYPE userType, Scoped<string> pin);
+	void C_LoginEnd(CK_SESSION_HANDLE session, CK_USER_TYPE userType);
+
 	//
 	///* Object management */
 	CK_OBJECT_HANDLE C_CreateObject(CK_SESSION_HANDLE session, Scoped<Attributes> tmpl);
