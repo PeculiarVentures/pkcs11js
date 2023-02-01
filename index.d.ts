@@ -522,13 +522,16 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_LoginBegin(session: Handle, userType: number): LoginBeginResponse;
+
         /**
          * @param session The session's handle
          * @param userType The user type
+         * @param [pin] The user's PIN
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
-        public C_LoginNext(session: Handle, userType: number): LoginNextResponse;
+        public C_LoginNext(session: Handle, userType: number, pin?: string): LoginNextResponse;
+
         /**
          * @param session The session's handle
          * @param userType The user type
