@@ -59,6 +59,11 @@ public:
 	static NAN_METHOD(C_Login);
 	static NAN_METHOD(C_Logout);
 	
+	// nShield API extensions
+	static NAN_METHOD(C_LoginBegin);
+	static NAN_METHOD(C_LoginNext);
+	static NAN_METHOD(C_LoginEnd);
+	
 	///* Object management */
 	static NAN_METHOD(C_CreateObject);
 	static NAN_METHOD(C_CopyObject);
