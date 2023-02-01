@@ -297,6 +297,20 @@ typedef struct CK_SESSION_INFO {
 
 typedef CK_SESSION_INFO CK_PTR CK_SESSION_INFO_PTR;
 
+/* CK_LOGIN_BEGIN_RESPONSE - nShield API extension response */
+typedef struct CK_LOGIN_BEGIN_RESPONSE {
+  CK_ULONG pulK; /* cards required to load logical token */
+  CK_ULONG pulN; /* number of cards in set */
+} CK_LOGIN_BEGIN_RESPONSE;
+
+typedef CK_LOGIN_BEGIN_RESPONSE CK_PTR CK_LOGIN_BEGIN_RESPONSE_PTR;
+
+/* CK_LOGIN_NEXT_RESPONSE - nShield API extension response */
+typedef struct CK_LOGIN_NEXT_RESPONSE {
+  CK_ULONG pulSharesLeft; /* number of shares still needed */
+} CK_LOGIN_NEXT_RESPONSE;
+
+typedef CK_LOGIN_NEXT_RESPONSE CK_PTR CK_LOGIN_NEXT_RESPONSE_PTR;
 
 /* CK_OBJECT_HANDLE is a token-specific identifier for an
  * object  */
