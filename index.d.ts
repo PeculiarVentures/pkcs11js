@@ -209,6 +209,24 @@ declare module "pkcs11js" {
         deviceError: number;
     }
 
+    interface LoginBeginResponse {
+        /**
+         * cards required to load logical token
+         */
+        pulK: number;
+        /**
+         * number of cards in set
+         */
+        pulN: number;
+    }
+
+    interface LoginNextResponse {
+        /**
+         * number of shares still needed
+         */
+        pulSharesLeft: number;
+    }
+
     type Template = Attribute[];
 
     /**
@@ -494,6 +512,32 @@ declare module "pkcs11js" {
         public C_Logout(session: Handle): void;
 
         //#endregion
+
+        //#region nShield specific API extensions
+
+        /**
+         * @param session The session's handle
+         * @param userType The user type
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         */
+        public C_LoginBegin(session: Handle, userType: number): LoginBeginResponse;
+        /**
+         * @param session The session's handle
+         * @param userType The user type
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         */
+        public C_LoginNext(session: Handle, userType: number): LoginNextResponse;
+        /**
+         * @param session The session's handle
+         * @param userType The user type
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         */
+        public C_LoginEnd(session: Handle, userType: number): void;
+
+        //#endregion nShield specific API extensions
 
         //#region Object management
 
