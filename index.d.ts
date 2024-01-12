@@ -211,6 +211,13 @@ declare module "pkcs11js" {
 
     type Template = Attribute[];
 
+    interface AttributeResult {
+        type: number;
+        value: Buffer;
+    }
+
+    type TemplateResult = AttributeResult[];
+
     /**
      * A structure that includes the type and value of an attribute
      */
@@ -546,7 +553,7 @@ declare module "pkcs11js" {
          * objects that match a template, obtaining additional object
          * handles
          * @param session The session's handle
-         * @param session The maximum number of object handles to be returned
+         * @param maxObjectCount The maximum number of object handles to be returned. Default value is 1.
          * @returns List of handles
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
@@ -579,7 +586,7 @@ declare module "pkcs11js" {
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
-        public C_GetAttributeValue(session: Handle, object: Handle, template: Template): Template;
+        public C_GetAttributeValue(session: Handle, object: Handle, template: Template): TemplateResult;
         /**
          * Modifies the value of one or more object attributes
          * @param session The session's handle
@@ -1141,11 +1148,10 @@ declare module "pkcs11js" {
          * Mixes additional seed material into the token's random number generator
          * @param session The session's handle
          * @param buf The seed material
-         * @returns The seeded data
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
-        public C_SeedRandom(session: Handle, buf: Buffer): Buffer;
+        public C_SeedRandom(session: Handle, buf: Buffer): void;
         /**
          * Generates random data
          * @param session The session's handle

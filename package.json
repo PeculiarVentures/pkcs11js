@@ -42,9 +42,6 @@
   },
   "author": "PeculiarVentures",
   "license": "MIT",
-  "dependencies": {
-    "nan": "^2.15.0"
-  },
   "devDependencies": {
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.15",
