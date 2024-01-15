@@ -862,7 +862,7 @@ context("PKCS11", () => {
             token.C_DecryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             const dec2 = token.C_Decrypt(session, encrypted, dec);
             assert.strictEqual(dec2.length < dec.length, true);
-            assert.strictEqual(dec2.toString("hex"), dec.slice(0, dec2.length).toString("hex"));
+            assert.strictEqual(dec2.toString("hex"), dec.subarray(0, dec2.length).toString("hex"));
           });
           it("C_DecryptInit, C_Decrypt callback", (done) => {
             const dec = Buffer.alloc(1024);
@@ -1083,6 +1083,33 @@ context("PKCS11", () => {
         assert.strictEqual(e.message, "Argument 0 has wrong type. Should be an Object");
 
         return true;
+      });
+    });
+    context("callback", () => {
+      let token, session;
+
+      before(() => {
+        token = new pkcs11.PKCS11();
+        token.load(softHsmLib);
+        token.C_Initialize();
+        const slots = token.C_GetSlotList();
+        const slot = slots[0];
+        session = token.C_OpenSession(slot, pkcs11.CKF_RW_SESSION | pkcs11.CKF_SERIAL_SESSION)
+        token.C_Login(session, pkcs11.CKU_USER, pin);
+      });
+
+      after(() => {
+        if (session) {
+          token.C_Finalize();
+        }
+      });
+
+      it("Pkcs11Error", (done) => {
+        token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [], [], (error) => {
+          assert.strictEqual(error instanceof pkcs11.Pkcs11Error, true);
+          assert.strictEqual(error.code, pkcs11.CKR_TEMPLATE_INCOMPLETE);
+          done();
+        });
       });
     });
     context("async", () => {
