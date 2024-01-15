@@ -60,7 +60,7 @@ jobs:
           - ubuntu-latest
           - macos-latest
         node-version:
-          - lts
+          - 20.x # lts
 
     steps:
       - uses: actions/checkout@v2
