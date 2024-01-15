@@ -65,6 +65,10 @@ context("PKCS11", () => {
       token.C_Finalize();
       token.close();
     });
+    it("C_WaitForSlotEvent", () => {
+      const slotId = token.C_WaitForSlotEvent(pkcs11.CKF_DONT_BLOCK);
+      assert.strictEqual(slotId, null);
+    });
     it("C_GetInfo", () => {
       const infoKeys = token.C_GetInfo();
       assert.deepStrictEqual(Object.keys(infoKeys), [

@@ -1243,11 +1243,11 @@ declare module "pkcs11js" {
         /**
          * Waits for a slot event, such as token insertion or token removal, to occur.
          * @param flags Determines whether or not the C_WaitForSlotEvent call blocks (i.e., waits for a slot event to occur); use CKF_DONT_BLOCK for no blocking call
-         * @param slotID The ID of the slot
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         * @returns The slot ID where the event occurred, if successful; null otherwise
          */
-        public C_WaitForSlotEvent(flags: number, slotID: Handle): void;
+        public C_WaitForSlotEvent(flags: number): Handle | null;
         //#endregion
 
     }

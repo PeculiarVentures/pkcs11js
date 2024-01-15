@@ -89,6 +89,7 @@ napi_value Init(napi_env env, napi_value exports)
       DEFINE_PKCS11_METHOD(C_SignRecover),
       DEFINE_PKCS11_METHOD(C_VerifyRecoverInit),
       DEFINE_PKCS11_METHOD(C_VerifyRecover),
+      DEFINE_PKCS11_METHOD(C_WaitForSlotEvent),
   };
   napi_value constructor;
   napi_define_class(env, "PKCS11", NAPI_AUTO_LENGTH, Pkcs11::Constructor, nullptr, sizeof(instance_properties) / sizeof(*instance_properties), instance_properties, &constructor);

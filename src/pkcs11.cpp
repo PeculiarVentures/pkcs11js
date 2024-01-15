@@ -2512,4 +2512,33 @@ public:
 
     return result;
   }
+
+  static napi_value C_WaitForSlotEvent(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_ULONG(0, flags)
+
+    // Call PKCS11 function
+    CK_SLOT_ID slotId;
+    CK_RV rv = pkcs11->functionList->C_WaitForSlotEvent(flags, &slotId, nullptr);
+    if (rv != CKR_NO_EVENT)
+    {
+      ASSERT_RV(rv);
+    }
+
+    // Create result
+    napi_value result;
+    if (rv == CKR_NO_EVENT)
+    {
+      napi_get_null(env, &result);
+    }
+    else
+    {
+      napi_create_buffer_copy(env, sizeof(CK_SLOT_ID), &slotId, nullptr, &result);
+    }
+    return result;
+  }
 };
