@@ -1,5 +1,20 @@
 #include "common.h"
 
+#define DEFINE_EXECUTE_WORKER(WorkerType)       \
+  static void Execute(napi_env env, void *data) \
+  {                                             \
+    static_cast<WorkerType *>(data)->Execute(); \
+  }
+
+#define DEFINE_COMPLETE_WORKER(WorkerType)                               \
+  static void CompleteWork(napi_env env, napi_status status, void *data) \
+  {                                                                      \
+    WorkerType *work = static_cast<WorkerType *>(data);                  \
+    work->Complete(env);                                                 \
+    napi_delete_async_work(env, work->work);                             \
+    delete work;                                                         \
+  }
+
 class BaseWorker
 {
 public:
@@ -104,18 +119,8 @@ public:
     return outLength;
   }
 
-  static void Execute(napi_env env, void *data)
-  {
-    static_cast<Worker *>(data)->Execute();
-  }
-
-  static void CompleteWork(napi_env env, napi_status status, void *data)
-  {
-    Worker *work = static_cast<Worker *>(data);
-    work->Complete(env);
-    napi_delete_async_work(env, work->work);
-    delete work;
-  }
+  DEFINE_EXECUTE_WORKER(Worker)
+  DEFINE_COMPLETE_WORKER(Worker)
 };
 
 class Worker2 : public BaseWorker
@@ -149,18 +154,8 @@ public:
     return outLength;
   }
 
-  static void Execute(napi_env env, void *data)
-  {
-    static_cast<Worker2 *>(data)->Execute();
-  }
-
-  static void CompleteWork(napi_env env, napi_status status, void *data)
-  {
-    Worker2 *work = static_cast<Worker2 *>(data);
-    work->Complete(env);
-    napi_delete_async_work(env, work->work);
-    delete work;
-  }
+  DEFINE_EXECUTE_WORKER(Worker2)
+  DEFINE_COMPLETE_WORKER(Worker2)
 };
 
 class WorkerVerify : public BaseWorker
@@ -197,18 +192,8 @@ public:
     return result;
   }
 
-  static void Execute(napi_env env, void *data)
-  {
-    static_cast<WorkerVerify *>(data)->Execute();
-  }
-
-  static void CompleteWork(napi_env env, napi_status status, void *data)
-  {
-    WorkerVerify *work = static_cast<WorkerVerify *>(data);
-    work->Complete(env);
-    napi_delete_async_work(env, work->work);
-    delete work;
-  }
+  DEFINE_EXECUTE_WORKER(WorkerVerify)
+  DEFINE_COMPLETE_WORKER(WorkerVerify)
 };
 
 class WorkerVerifyFinal : public BaseWorker
@@ -242,111 +227,54 @@ public:
     return result;
   }
 
-  static void Execute(napi_env env, void *data)
-  {
-    static_cast<WorkerVerifyFinal *>(data)->Execute();
-  }
-
-  static void CompleteWork(napi_env env, napi_status status, void *data)
-  {
-    WorkerVerifyFinal *work = static_cast<WorkerVerifyFinal *>(data);
-    work->Complete(env);
-    napi_delete_async_work(env, work->work);
-    delete work;
-  }
+  DEFINE_EXECUTE_WORKER(WorkerVerifyFinal)
+  DEFINE_COMPLETE_WORKER(WorkerVerifyFinal)
 };
 
-struct WorkerGenerateKey
+class WorkerGenerateKey : public BaseWorker
 {
-  napi_async_work work;
-  napi_deferred deferred;
-  napi_ref callback;
-  CK_C_GenerateKey function;
-  CK_RV rv;
-  CK_SESSION_HANDLE sessionHandle;
+public:
+  const CK_C_GenerateKey function;
+  const CK_SESSION_HANDLE sessionHandle;
   CK_MECHANISM_PTR mechanism;
   CK_ATTRIBUTE_PTR attributes;
   CK_ULONG attributesLength;
   CK_OBJECT_HANDLE keyHandle;
-};
 
-void WorkerGenerateKeyExecute(napi_env env, void *data)
-{
-  WorkerGenerateKey *work = static_cast<WorkerGenerateKey *>(data);
+  WorkerGenerateKey(
+      napi_env env,
+      napi_value callback,
+      CK_C_GenerateKey function,
+      CK_SESSION_HANDLE sessionHandle,
+      CK_MECHANISM_PTR mechanism,
+      CK_ATTRIBUTE_PTR attributes,
+      CK_ULONG attributesLength)
+      : BaseWorker(env, callback), function(function), sessionHandle(sessionHandle), mechanism(mechanism), attributes(attributes), attributesLength(attributesLength)
+  {
+    CreateAndQueue(env, "WorkerGenerateKey", WorkerGenerateKey::Execute, WorkerGenerateKey::CompleteWork);
+  }
 
-  work->rv = work->function(work->sessionHandle, work->mechanism, work->attributes, work->attributesLength, &work->keyHandle);
-}
+  void Execute() override
+  {
+    this->rv = this->function(this->sessionHandle, this->mechanism, this->attributes, this->attributesLength, &this->keyHandle);
+  }
 
-void WorkerGenerateKeyComplete(napi_env env, napi_status status, void *data)
-{
-  WorkerGenerateKey *work = static_cast<WorkerGenerateKey *>(data);
-  MechanismWrapper mechanism(work->mechanism, true);
-  AttributesWrapper attributes(work->attributes, work->attributesLength, true);
-
-  napi_value callback;
-  napi_get_reference_value(env, work->callback, &callback);
-  napi_value global;
-  napi_get_global(env, &global);
-  napi_value argv[2];
-  napi_value nullValue;
-  napi_get_null(env, &nullValue);
-
-  if (work->rv == CKR_OK)
+  napi_value CreateResult(napi_env env) override
   {
     napi_value keyHandle;
-    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &work->keyHandle, nullptr, &keyHandle);
-
-    argv[0] = nullValue;
-    argv[1] = keyHandle;
-  }
-  else
-  {
-    const char *error_name = get_error_name(work->rv);
-    char error_message[100];
-    snprintf(error_message, sizeof(error_message), "%s:%lu", error_name, work->rv);
-    napi_value errorMessage;
-    napi_create_string_utf8(env, error_message, NAPI_AUTO_LENGTH, &errorMessage);
-    napi_value error;
-    napi_create_error(env, nullptr, errorMessage, &error);
-
-    argv[0] = error;
-    argv[1] = nullValue;
+    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &this->keyHandle, nullptr, &keyHandle);
+    return keyHandle;
   }
 
-  napi_call_function(env, global, callback, 2, argv, nullptr);
-  napi_delete_reference(env, work->callback);
+  DEFINE_EXECUTE_WORKER(WorkerGenerateKey)
+  DEFINE_COMPLETE_WORKER(WorkerGenerateKey)
+};
 
-  napi_delete_async_work(env, work->work);
-  delete work;
-}
-
-WorkerGenerateKey *newWorkerGenerateKey(napi_env env, CK_C_GenerateKey function, napi_value callback, CK_SESSION_HANDLE sessionHandle, CK_MECHANISM_PTR mechanism, CK_ATTRIBUTE_PTR attributes, CK_ULONG attributesLength)
+class WorkerGenerateKeyPair : public BaseWorker
 {
-  WorkerGenerateKey *work = new WorkerGenerateKey;
-  work->function = function;
-  work->rv = CKR_OK;
-  work->sessionHandle = sessionHandle;
-  work->mechanism = mechanism;
-  work->attributes = attributes;
-  work->attributesLength = attributesLength;
-  napi_create_reference(env, callback, 1, &work->callback);
-
-  napi_value resource_name;
-  napi_create_string_utf8(env, "WorkerGenerateKey", NAPI_AUTO_LENGTH, &resource_name);
-  napi_create_async_work(env, nullptr, resource_name, WorkerGenerateKeyExecute, WorkerGenerateKeyComplete, work, &work->work);
-  napi_queue_async_work(env, work->work);
-
-  return work;
-}
-
-struct WorkerGenerateKeyPair
-{
-  napi_async_work work;
-  napi_deferred deferred;
-  napi_ref callback;
-  CK_C_GenerateKeyPair function;
-  CK_RV rv;
-  CK_SESSION_HANDLE sessionHandle;
+public:
+  const CK_C_GenerateKeyPair function;
+  const CK_SESSION_HANDLE sessionHandle;
   CK_MECHANISM_PTR mechanism;
   CK_ATTRIBUTE_PTR publicKeyAttributes;
   CK_ULONG publicKeyAttributesLength;
@@ -354,300 +282,152 @@ struct WorkerGenerateKeyPair
   CK_ULONG privateKeyAttributesLength;
   CK_OBJECT_HANDLE publicKeyHandle;
   CK_OBJECT_HANDLE privateKeyHandle;
-};
 
-void WorkerGenerateKeyPairExecute(napi_env env, void *data)
-{
-  WorkerGenerateKeyPair *work = static_cast<WorkerGenerateKeyPair *>(data);
+  WorkerGenerateKeyPair(
+      napi_env env,
+      napi_value callback,
+      CK_C_GenerateKeyPair function,
+      CK_SESSION_HANDLE sessionHandle,
+      CK_MECHANISM_PTR mechanism,
+      CK_ATTRIBUTE_PTR publicKeyAttributes,
+      CK_ULONG publicKeyAttributesLength,
+      CK_ATTRIBUTE_PTR privateKeyAttributes,
+      CK_ULONG privateKeyAttributesLength)
+      : BaseWorker(env, callback), function(function), sessionHandle(sessionHandle), mechanism(mechanism), publicKeyAttributes(publicKeyAttributes), publicKeyAttributesLength(publicKeyAttributesLength), privateKeyAttributes(privateKeyAttributes), privateKeyAttributesLength(privateKeyAttributesLength)
+  {
+    CreateAndQueue(env, "WorkerGenerateKeyPair", WorkerGenerateKeyPair::Execute, WorkerGenerateKeyPair::CompleteWork);
+  }
 
-  work->rv = work->function(
-      work->sessionHandle,
-      work->mechanism,
-      work->publicKeyAttributes, work->publicKeyAttributesLength,
-      work->privateKeyAttributes, work->privateKeyAttributesLength,
-      &work->publicKeyHandle,
-      &work->privateKeyHandle);
-}
+  void Execute() override
+  {
+    this->rv = this->function(
+        this->sessionHandle,
+        this->mechanism,
+        this->publicKeyAttributes, this->publicKeyAttributesLength,
+        this->privateKeyAttributes, this->privateKeyAttributesLength,
+        &this->publicKeyHandle,
+        &this->privateKeyHandle);
+  }
 
-void WorkerGenerateKeyPairComplete(napi_env env, napi_status status, void *data)
-{
-  WorkerGenerateKeyPair *work = static_cast<WorkerGenerateKeyPair *>(data);
-  MechanismWrapper mechanism(work->mechanism, true);
-  AttributesWrapper publicKeyAttributes(work->publicKeyAttributes, work->publicKeyAttributesLength, true);
-  AttributesWrapper privateKeyAttributes(work->privateKeyAttributes, work->privateKeyAttributesLength, true);
-
-  napi_value callback;
-  napi_get_reference_value(env, work->callback, &callback);
-  napi_value global;
-  napi_get_global(env, &global);
-  napi_value argv[2];
-  napi_value nullValue;
-  napi_get_null(env, &nullValue);
-
-  if (work->rv == CKR_OK)
+  napi_value CreateResult(napi_env env) override
   {
     napi_value result;
     napi_create_object(env, &result);
 
     napi_value publicKeyHandle;
-    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &work->publicKeyHandle, nullptr, &publicKeyHandle);
+    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &this->publicKeyHandle, nullptr, &publicKeyHandle);
     napi_set_named_property(env, result, "publicKey", publicKeyHandle);
 
     napi_value privateKeyHandle;
-    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &work->privateKeyHandle, nullptr, &privateKeyHandle);
+    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &this->privateKeyHandle, nullptr, &privateKeyHandle);
     napi_set_named_property(env, result, "privateKey", privateKeyHandle);
 
-    argv[0] = nullValue;
-    argv[1] = result;
-  }
-  else
-  {
-    const char *error_name = get_error_name(work->rv);
-    char error_message[100];
-    snprintf(error_message, sizeof(error_message), "%s:%lu", error_name, work->rv);
-    napi_value errorMessage;
-    napi_create_string_utf8(env, error_message, NAPI_AUTO_LENGTH, &errorMessage);
-    napi_value error;
-    napi_create_error(env, nullptr, errorMessage, &error);
-
-    argv[0] = error;
-    argv[1] = nullValue;
+    return result;
   }
 
-  napi_call_function(env, global, callback, 2, argv, nullptr);
-  napi_delete_reference(env, work->callback);
+  DEFINE_EXECUTE_WORKER(WorkerGenerateKeyPair)
+  DEFINE_COMPLETE_WORKER(WorkerGenerateKeyPair)
+};
 
-  napi_delete_async_work(env, work->work);
-  delete work;
-}
-
-WorkerGenerateKeyPair *newWorkerGenerateKeyPair(napi_env env, CK_C_GenerateKeyPair function, napi_value callback, CK_SESSION_HANDLE sessionHandle, CK_MECHANISM_PTR mechanism, CK_ATTRIBUTE_PTR publicKeyAttributes, CK_ULONG publicKeyAttributesLength, CK_ATTRIBUTE_PTR privateKeyAttributes, CK_ULONG privateKeyAttributesLength)
+class WorkerDeriveKey : public BaseWorker
 {
-  WorkerGenerateKeyPair *work = new WorkerGenerateKeyPair;
-  work->function = function;
-  work->rv = CKR_OK;
-  work->sessionHandle = sessionHandle;
-  work->mechanism = mechanism;
-  work->publicKeyAttributes = publicKeyAttributes;
-  work->publicKeyAttributesLength = publicKeyAttributesLength;
-  work->privateKeyAttributes = privateKeyAttributes;
-  work->privateKeyAttributesLength = privateKeyAttributesLength;
-  napi_create_reference(env, callback, 1, &work->callback);
-
-  napi_value resource_name;
-  napi_create_string_utf8(env, "WorkerGenerateKeyPair", NAPI_AUTO_LENGTH, &resource_name);
-  napi_create_async_work(env, nullptr, resource_name, WorkerGenerateKeyPairExecute, WorkerGenerateKeyPairComplete, work, &work->work);
-  napi_queue_async_work(env, work->work);
-
-  return work;
-}
-
-struct WorkerDeriveKey
-{
-  napi_async_work work;
-  napi_deferred deferred;
-  napi_ref callback;
-  CK_C_DeriveKey function;
-  CK_RV rv;
-  CK_SESSION_HANDLE sessionHandle;
+public:
+  const CK_C_DeriveKey function;
+  const CK_SESSION_HANDLE sessionHandle;
   CK_MECHANISM_PTR mechanism;
   CK_OBJECT_HANDLE baseKeyHandle;
   CK_ATTRIBUTE_PTR attributes;
   CK_ULONG attributesLength;
   CK_OBJECT_HANDLE keyHandle;
-};
 
-void WorkerDeriveKeyExecute(napi_env env, void *data)
-{
-  WorkerDeriveKey *work = static_cast<WorkerDeriveKey *>(data);
+  WorkerDeriveKey(
+      napi_env env,
+      napi_value callback,
+      CK_C_DeriveKey function,
+      CK_SESSION_HANDLE sessionHandle,
+      CK_MECHANISM_PTR mechanism,
+      CK_OBJECT_HANDLE baseKeyHandle,
+      CK_ATTRIBUTE_PTR attributes,
+      CK_ULONG attributesLength)
+      : BaseWorker(env, callback), function(function), sessionHandle(sessionHandle), mechanism(mechanism), baseKeyHandle(baseKeyHandle), attributes(attributes), attributesLength(attributesLength)
+  {
+    CreateAndQueue(env, "WorkerDeriveKey", WorkerDeriveKey::Execute, WorkerDeriveKey::CompleteWork);
+  }
 
-  work->rv = work->function(
-      work->sessionHandle,
-      work->mechanism,
-      work->baseKeyHandle,
-      work->attributes, work->attributesLength,
-      &work->keyHandle);
-}
+  void Execute() override
+  {
+    this->rv = this->function(
+        this->sessionHandle,
+        this->mechanism,
+        this->baseKeyHandle,
+        this->attributes, this->attributesLength,
+        &this->keyHandle);
+  }
 
-void WorkerDeriveKeyComplete(napi_env env, napi_status status, void *data)
-{
-  WorkerDeriveKey *work = static_cast<WorkerDeriveKey *>(data);
-  MechanismWrapper mechanism(work->mechanism, true);
-  AttributesWrapper attributes(work->attributes, work->attributesLength, true);
-
-  napi_value callback;
-  napi_get_reference_value(env, work->callback, &callback);
-  napi_value global;
-  napi_get_global(env, &global);
-  napi_value argv[2];
-  napi_value nullValue;
-  napi_get_null(env, &nullValue);
-
-  if (work->rv == CKR_OK)
+  napi_value CreateResult(napi_env env) override
   {
     napi_value keyHandle;
-    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &work->keyHandle, nullptr, &keyHandle);
-
-    argv[0] = nullValue;
-    argv[1] = keyHandle;
-  }
-  else
-  {
-    const char *error_name = get_error_name(work->rv);
-    char error_message[100];
-    snprintf(error_message, sizeof(error_message), "%s:%lu", error_name, work->rv);
-    napi_value errorMessage;
-    napi_create_string_utf8(env, error_message, NAPI_AUTO_LENGTH, &errorMessage);
-    napi_value error;
-    napi_create_error(env, nullptr, errorMessage, &error);
-
-    argv[0] = error;
-    argv[1] = nullValue;
+    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &this->keyHandle, nullptr, &keyHandle);
+    return keyHandle;
   }
 
-  napi_call_function(env, global, callback, 2, argv, nullptr);
-  napi_delete_reference(env, work->callback);
+  DEFINE_EXECUTE_WORKER(WorkerDeriveKey)
+  DEFINE_COMPLETE_WORKER(WorkerDeriveKey)
+};
 
-  napi_delete_async_work(env, work->work);
-  delete work;
-}
-
-WorkerDeriveKey *newWorkerDeriveKey(
-    napi_env env,
-    CK_C_DeriveKey function,
-    napi_value callback,
-    CK_SESSION_HANDLE sessionHandle,
-    CK_MECHANISM_PTR mechanism,
-    CK_OBJECT_HANDLE baseKeyHandle,
-    CK_ATTRIBUTE_PTR attributes,
-    CK_ULONG attributesLength)
+class WorkerWrapKey : public BaseWorker
 {
-  WorkerDeriveKey *work = new WorkerDeriveKey;
-  work->function = function;
-  work->rv = CKR_OK;
-  work->sessionHandle = sessionHandle;
-  work->mechanism = mechanism;
-  work->baseKeyHandle = baseKeyHandle;
-  work->attributes = attributes;
-  work->attributesLength = attributesLength;
-  napi_create_reference(env, callback, 1, &work->callback);
-
-  napi_value resource_name;
-  napi_create_string_utf8(env, "WorkerDeriveKey", NAPI_AUTO_LENGTH, &resource_name);
-  napi_create_async_work(env, nullptr, resource_name, WorkerDeriveKeyExecute, WorkerDeriveKeyComplete, work, &work->work);
-  napi_queue_async_work(env, work->work);
-
-  return work;
-}
-
-struct WorkerWrapKey
-{
-  napi_async_work work;
-  napi_deferred deferred;
-  napi_ref callback;
-  CK_C_WrapKey function;
-  CK_RV rv;
-  CK_SESSION_HANDLE sessionHandle;
+public:
+  const CK_C_WrapKey function;
+  const CK_SESSION_HANDLE sessionHandle;
   CK_MECHANISM_PTR mechanism;
   CK_OBJECT_HANDLE wrappingKeyHandle;
   CK_OBJECT_HANDLE keyHandle;
   CK_BYTE_PTR wrappedKey;
   CK_ULONG wrappedKeyLength;
+
+  WorkerWrapKey(
+      napi_env env,
+      napi_value callback,
+      CK_C_WrapKey function,
+      CK_SESSION_HANDLE sessionHandle,
+      CK_MECHANISM_PTR mechanism,
+      CK_OBJECT_HANDLE wrappingKeyHandle,
+      CK_OBJECT_HANDLE keyHandle,
+      CK_BYTE_PTR wrappedKey,
+      CK_ULONG wrappedKeyLength)
+      : BaseWorker(env, callback), function(function), sessionHandle(sessionHandle), mechanism(mechanism), wrappingKeyHandle(wrappingKeyHandle), keyHandle(keyHandle), wrappedKey(wrappedKey), wrappedKeyLength(wrappedKeyLength)
+  {
+    CreateAndQueue(env, "WorkerWrapKey", WorkerWrapKey::Execute, WorkerWrapKey::CompleteWork);
+  }
+
+  void Execute() override
+  {
+    this->rv = this->function(
+        this->sessionHandle,
+        this->mechanism,
+        this->wrappingKeyHandle,
+        this->keyHandle,
+        this->wrappedKey,
+        &this->wrappedKeyLength);
+  }
+
+  napi_value CreateResult(napi_env env) override
+  {
+    napi_value wrappedKeyLength;
+    napi_create_uint32(env, this->wrappedKeyLength, &wrappedKeyLength);
+    return wrappedKeyLength;
+  }
+
+  DEFINE_EXECUTE_WORKER(WorkerWrapKey)
+  DEFINE_COMPLETE_WORKER(WorkerWrapKey)
 };
 
-void WorkerWrapKeyExecute(napi_env env, void *data)
+class WorkerUnwrapKey : public BaseWorker
 {
-  WorkerWrapKey *work = static_cast<WorkerWrapKey *>(data);
-
-  work->rv = work->function(
-      work->sessionHandle,
-      work->mechanism,
-      work->wrappingKeyHandle,
-      work->keyHandle,
-      work->wrappedKey,
-      &work->wrappedKeyLength);
-}
-
-void WorkerWrapKeyComplete(napi_env env, napi_status status, void *data)
-{
-  WorkerWrapKey *work = static_cast<WorkerWrapKey *>(data);
-  MechanismWrapper mechanism(work->mechanism, true);
-
-  napi_value callback;
-  napi_get_reference_value(env, work->callback, &callback);
-  napi_value global;
-  napi_get_global(env, &global);
-  napi_value argv[2];
-  napi_value nullValue;
-  napi_get_null(env, &nullValue);
-
-  if (work->rv == CKR_OK)
-  {
-    napi_value wrappedKey;
-    napi_create_buffer_copy(env, work->wrappedKeyLength, work->wrappedKey, nullptr, &wrappedKey);
-
-    argv[0] = nullValue;
-    argv[1] = wrappedKey;
-  }
-  else
-  {
-    const char *error_name = get_error_name(work->rv);
-    char error_message[100];
-    snprintf(error_message, sizeof(error_message), "%s:%lu", error_name, work->rv);
-    napi_value errorMessage;
-    napi_create_string_utf8(env, error_message, NAPI_AUTO_LENGTH, &errorMessage);
-    napi_value error;
-    napi_create_error(env, nullptr, errorMessage, &error);
-
-    argv[0] = error;
-    argv[1] = nullValue;
-  }
-
-  napi_call_function(env, global, callback, 2, argv, nullptr);
-  napi_delete_reference(env, work->callback);
-
-  napi_delete_async_work(env, work->work);
-  delete work;
-}
-
-WorkerWrapKey *newWorkerWrapKey(
-    napi_env env,
-    CK_C_WrapKey function,
-    napi_value callback,
-    CK_SESSION_HANDLE sessionHandle,
-    CK_MECHANISM_PTR mechanism,
-    CK_OBJECT_HANDLE wrappingKeyHandle,
-    CK_OBJECT_HANDLE keyHandle,
-    CK_BYTE_PTR wrappedKey,
-    CK_ULONG wrappedKeyLength)
-{
-  WorkerWrapKey *work = new WorkerWrapKey;
-  work->function = function;
-  work->rv = CKR_OK;
-  work->sessionHandle = sessionHandle;
-  work->mechanism = mechanism;
-  work->wrappingKeyHandle = wrappingKeyHandle;
-  work->keyHandle = keyHandle;
-  work->wrappedKey = wrappedKey;
-  work->wrappedKeyLength = wrappedKeyLength;
-  napi_create_reference(env, callback, 1, &work->callback);
-
-  napi_value resource_name;
-  napi_create_string_utf8(env, "WorkerWrapKey", NAPI_AUTO_LENGTH, &resource_name);
-  napi_create_async_work(env, nullptr, resource_name, WorkerWrapKeyExecute, WorkerWrapKeyComplete, work, &work->work);
-  napi_queue_async_work(env, work->work);
-
-  return work;
-}
-
-struct WorkerUnwrapKey
-{
-  napi_async_work work;
-  napi_deferred deferred;
-  napi_ref callback;
-  CK_C_UnwrapKey function;
-  CK_RV rv;
-  CK_SESSION_HANDLE sessionHandle;
+public:
+  const CK_C_UnwrapKey function;
+  const CK_SESSION_HANDLE sessionHandle;
   CK_MECHANISM_PTR mechanism;
   CK_OBJECT_HANDLE unwrappingKeyHandle;
   CK_BYTE_PTR wrappedKey;
@@ -655,93 +435,42 @@ struct WorkerUnwrapKey
   CK_ATTRIBUTE_PTR attributes;
   CK_ULONG attributesLength;
   CK_OBJECT_HANDLE keyHandle;
-};
 
-void WorkerUnwrapKeyExecute(napi_env env, void *data)
-{
-  WorkerUnwrapKey *work = static_cast<WorkerUnwrapKey *>(data);
+  WorkerUnwrapKey(
+      napi_env env,
+      napi_value callback,
+      CK_C_UnwrapKey function,
+      CK_SESSION_HANDLE sessionHandle,
+      CK_MECHANISM_PTR mechanism,
+      CK_OBJECT_HANDLE unwrappingKeyHandle,
+      CK_BYTE_PTR wrappedKey,
+      CK_ULONG wrappedKeyLength,
+      CK_ATTRIBUTE_PTR attributes,
+      CK_ULONG attributesLength)
+      : BaseWorker(env, callback), function(function), sessionHandle(sessionHandle), mechanism(mechanism), unwrappingKeyHandle(unwrappingKeyHandle), wrappedKey(wrappedKey), wrappedKeyLength(wrappedKeyLength), attributes(attributes), attributesLength(attributesLength)
+  {
+    CreateAndQueue(env, "WorkerUnwrapKey", WorkerUnwrapKey::Execute, WorkerUnwrapKey::CompleteWork);
+  }
 
-  work->rv = work->function(
-      work->sessionHandle,
-      work->mechanism,
-      work->unwrappingKeyHandle,
-      work->wrappedKey,
-      work->wrappedKeyLength,
-      work->attributes, work->attributesLength,
-      &work->keyHandle);
-}
+  void Execute() override
+  {
+    this->rv = this->function(
+        this->sessionHandle,
+        this->mechanism,
+        this->unwrappingKeyHandle,
+        this->wrappedKey,
+        this->wrappedKeyLength,
+        this->attributes, this->attributesLength,
+        &this->keyHandle);
+  }
 
-void WorkerUnwrapKeyComplete(napi_env env, napi_status status, void *data)
-{
-  WorkerUnwrapKey *work = static_cast<WorkerUnwrapKey *>(data);
-  MechanismWrapper mechanism(work->mechanism, true);
-  AttributesWrapper attributes(work->attributes, work->attributesLength, true);
-
-  napi_value callback;
-  napi_get_reference_value(env, work->callback, &callback);
-  napi_value global;
-  napi_get_global(env, &global);
-  napi_value argv[2];
-  napi_value nullValue;
-  napi_get_null(env, &nullValue);
-
-  if (work->rv == CKR_OK)
+  napi_value CreateResult(napi_env env) override
   {
     napi_value keyHandle;
-    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &work->keyHandle, nullptr, &keyHandle);
-
-    argv[0] = nullValue;
-    argv[1] = keyHandle;
-  }
-  else
-  {
-    const char *error_name = get_error_name(work->rv);
-    char error_message[100];
-    snprintf(error_message, sizeof(error_message), "%s:%lu", error_name, work->rv);
-    napi_value errorMessage;
-    napi_create_string_utf8(env, error_message, NAPI_AUTO_LENGTH, &errorMessage);
-    napi_value error;
-    napi_create_error(env, nullptr, errorMessage, &error);
-
-    argv[0] = error;
-    argv[1] = nullValue;
+    napi_create_buffer_copy(env, sizeof(CK_OBJECT_HANDLE), &this->keyHandle, nullptr, &keyHandle);
+    return keyHandle;
   }
 
-  napi_call_function(env, global, callback, 2, argv, nullptr);
-  napi_delete_reference(env, work->callback);
-
-  napi_delete_async_work(env, work->work);
-  delete work;
-}
-
-WorkerUnwrapKey *newWorkerUnwrapKey(
-    napi_env env,
-    CK_C_UnwrapKey function,
-    napi_value callback,
-    CK_SESSION_HANDLE sessionHandle,
-    CK_MECHANISM_PTR mechanism,
-    CK_OBJECT_HANDLE unwrappingKeyHandle,
-    CK_BYTE_PTR wrappedKey,
-    CK_ULONG wrappedKeyLength,
-    CK_ATTRIBUTE_PTR attributes,
-    CK_ULONG attributesLength)
-{
-  WorkerUnwrapKey *work = new WorkerUnwrapKey;
-  work->function = function;
-  work->rv = CKR_OK;
-  work->sessionHandle = sessionHandle;
-  work->mechanism = mechanism;
-  work->unwrappingKeyHandle = unwrappingKeyHandle;
-  work->wrappedKey = wrappedKey;
-  work->wrappedKeyLength = wrappedKeyLength;
-  work->attributes = attributes;
-  work->attributesLength = attributesLength;
-  napi_create_reference(env, callback, 1, &work->callback);
-
-  napi_value resource_name;
-  napi_create_string_utf8(env, "WorkerUnwrapKey", NAPI_AUTO_LENGTH, &resource_name);
-  napi_create_async_work(env, nullptr, resource_name, WorkerUnwrapKeyExecute, WorkerUnwrapKeyComplete, work, &work->work);
-  napi_queue_async_work(env, work->work);
-
-  return work;
-}
+  DEFINE_EXECUTE_WORKER(WorkerUnwrapKey)
+  DEFINE_COMPLETE_WORKER(WorkerUnwrapKey)
+};

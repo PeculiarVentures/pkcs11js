@@ -1822,7 +1822,7 @@ public:
     GET_ARGS_CALLBACK(3, callback)
 
     // Create worker
-    newWorkerGenerateKey(env, pkcs11->functionList->C_GenerateKey, callback, sessionHandle, mechanism.value, attrs.attributes, attrsLength);
+    new WorkerGenerateKey(env, callback, pkcs11->functionList->C_GenerateKey, sessionHandle, mechanism.value, attrs.attributes, attrsLength);
     return nullptr;
   }
 
@@ -1878,7 +1878,7 @@ public:
     privateKeyAttrs.dispose = false;
     GET_ARGS_CALLBACK(4, callback)
 
-    newWorkerGenerateKeyPair(env, pkcs11->functionList->C_GenerateKeyPair, callback, sessionHandle, mechanism.value, publicKeyAttrs.attributes, publicKeyAttrsLength, privateKeyAttrs.attributes, privateKeyAttrsLength);
+    new WorkerGenerateKeyPair(env, callback, pkcs11->functionList->C_GenerateKeyPair, sessionHandle, mechanism.value, publicKeyAttrs.attributes, publicKeyAttrsLength, privateKeyAttrs.attributes, privateKeyAttrsLength);
     return nullptr;
   }
 
@@ -2349,7 +2349,7 @@ public:
     GET_ARGS_CALLBACK(4, callback)
 
     // Create worker
-    newWorkerDeriveKey(env, pkcs11->functionList->C_DeriveKey, callback, sessionHandle, mechanism.value, baseKeyHandle, attrs.attributes, attrsLength);
+    new WorkerDeriveKey(env, callback, pkcs11->functionList->C_DeriveKey, sessionHandle, mechanism.value, baseKeyHandle, attrs.attributes, attrsLength);
     return nullptr;
   }
 
@@ -2391,7 +2391,7 @@ public:
     GET_ARGS_CALLBACK(5, callback)
 
     // Create worker
-    newWorkerWrapKey(env, pkcs11->functionList->C_WrapKey, callback, sessionHandle, mechanism.value, wrappingKeyHandle, keyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength);
+    new WorkerWrapKey(env, callback, pkcs11->functionList->C_WrapKey, sessionHandle, mechanism.value, wrappingKeyHandle, keyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength);
     return nullptr;
   }
 
@@ -2435,7 +2435,7 @@ public:
     GET_ARGS_CALLBACK(5, callback)
 
     // Create worker
-    newWorkerUnwrapKey(env, pkcs11->functionList->C_UnwrapKey, callback, sessionHandle, mechanism.value, unwrappingKeyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength, attrs.attributes, attrsLength);
+    new WorkerUnwrapKey(env, callback, pkcs11->functionList->C_UnwrapKey, sessionHandle, mechanism.value, unwrappingKeyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength, attrs.attributes, attrsLength);
     return nullptr;
   }
 
