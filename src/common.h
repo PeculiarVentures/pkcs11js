@@ -24,6 +24,23 @@
 #include "dl.h"
 #endif
 
+typedef CK_GCM_PARAMS CK_AES_GCM_240_PARAMS;
+typedef CK_AES_GCM_240_PARAMS CK_PTR CK_AES_GCM_240_PARAMS_PTR;
+
+// Extended structure for NSS
+typedef struct CK_NSS_C_INITIALIZE_ARGS
+{
+  CK_CREATEMUTEX CreateMutex;
+  CK_DESTROYMUTEX DestroyMutex;
+  CK_LOCKMUTEX LockMutex;
+  CK_UNLOCKMUTEX UnlockMutex;
+  CK_FLAGS flags;
+  CK_CHAR_PTR LibraryParameters;
+  CK_VOID_PTR pReserved;
+} CK_NSS_C_INITIALIZE_ARGS;
+
+typedef CK_NSS_C_INITIALIZE_ARGS *CK_NSS_C_INITIALIZE_ARGS_PTR;
+
 // Types of parameters
 #define CK_PARAMS_BUFFER 0
 #define CK_PARAMS_AES_CBC 1
