@@ -4,9 +4,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
+#include <vector>
 #include <node_api.h>
-#include <pkcs11/pkcs11.h>
 #include <cstdarg>
+
+#ifdef _WIN32
+// Use Windows-specific definitions
+#pragma pack(push, cryptoki, 1)
+#endif
+#include <pkcs11/pkcs11.h>
+#ifdef _WIN32
+// Restore default packing
+#pragma pack(pop, cryptoki)
+#endif
 
 #ifndef _WIN32
 #include <dlfcn.h>
