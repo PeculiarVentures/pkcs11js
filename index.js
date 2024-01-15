@@ -5,17 +5,6 @@
 const pkcs11 = require("./build/Release/pkcs11.node");
 const util = require("node:util");
 
-// pkcs11.PKCS11.prototype.C_EncryptAsync = util.promisify(pkcs11.PKCS11.prototype.C_Encrypt);
-// pkcs11.PKCS11.prototype.C_DecryptAsync = util.promisify(pkcs11.PKCS11.prototype.C_Decrypt);
-// pkcs11.PKCS11.prototype.C_DigestAsync = util.promisify(pkcs11.PKCS11.prototype.C_Digest);
-// pkcs11.PKCS11.prototype.C_SignAsync = util.promisify(pkcs11.PKCS11.prototype.C_Sign);
-// pkcs11.PKCS11.prototype.C_VerifyAsync = util.promisify(pkcs11.PKCS11.prototype.C_Verify);
-// pkcs11.PKCS11.prototype.C_GenerateKeyAsync = util.promisify(pkcs11.PKCS11.prototype.C_GenerateKey);
-// pkcs11.PKCS11.prototype.C_GenerateKeyPairAsync = util.promisify(pkcs11.PKCS11.prototype.C_GenerateKeyPair);
-// pkcs11.PKCS11.prototype.C_WrapKeyAsync = util.promisify(pkcs11.PKCS11.prototype.C_WrapKey);
-// pkcs11.PKCS11.prototype.C_UnwrapKeyAsync = util.promisify(pkcs11.PKCS11.prototype.C_UnwrapKey);
-// pkcs11.PKCS11.prototype.C_DeriveKeyAsync = util.promisify(pkcs11.PKCS11.prototype.C_DeriveKey);
-
 class NativeError extends Error {
   constructor(message, method) {
     super(message || "");
@@ -83,14 +72,6 @@ function handleError(e) {
   throw prepareError(e);
 }
 
-function modifyMethodWithSubarray(methodName, argIndex, prototype) {
-  const old = prototype[methodName];
-  prototype[methodName] = function (...args) {
-    const res = old.apply(this, args);
-    return args[argIndex].subarray(0, res);
-  };
-}
-
 /**
  * Catches and wraps PKCS#11 errors to Pkcs11Error
  * @param {*} fn 
@@ -111,16 +92,63 @@ function catchError(fn) {
   };
 }
 
-function fixCallbackArgs(cb, dataToSubarray) {
+function modifyCallback(cb, data, useSubarray) {
   if (typeof cb === "function") {
-    return function (err, data) {
+    return function (err, dataOrLength) {
       if (err) {
         return cb(prepareError(err), null);
       }
-      cb(null, dataToSubarray.subarray(0, data));
+      if (useSubarray) {
+        // Call the callback with subarray
+        cb(null, data.subarray(0, dataOrLength));
+      } else {
+        // Call the original callback
+        cb(null, dataOrLength);
+      }
     };
   }
 }
+
+function modifyMethod(key, prototype, config) {
+  const oldMethod = prototype[key];
+  const callbackMethodName = key + "Callback";
+
+  // Modified method
+  prototype[key] = function (...args) {
+    // Handle callback logic if callbackIndex is defined
+    if (config.callbackIndex !== undefined && args.length > config.callbackIndex) {
+      return this[callbackMethodName].apply(this, args);
+    }
+
+    // Execute the original method
+    const result = oldMethod.apply(this, args);
+
+    // If outputIndex is defined, modify the output
+    if (config.outputIndex !== undefined) {
+      return args[config.outputIndex].subarray(0, result);
+    }
+
+    // Return the original result if outputIndex is not defined
+    return result;
+  };
+
+  // If callbackIndex is defined, update the callback method and promisify it
+  if (config.callbackIndex !== undefined) {
+    const oldCallbackMethod = prototype[callbackMethodName];
+
+    prototype[callbackMethodName] = function (...args) {
+      if (typeof args[config.callbackIndex] === "function") {
+        args[config.callbackIndex] = modifyCallback(args[config.callbackIndex], args[config.outputIndex], config.outputIndex !== undefined);
+      }
+      return oldCallbackMethod.apply(this, args);
+    };
+
+    // Promisify the callback method
+    const asyncMethodName = key + "Async";
+    prototype[asyncMethodName] = util.promisify(prototype[callbackMethodName]);
+  }
+}
+
 
 // Customize native exceptions
 for (const key in pkcs11.PKCS11.prototype) {
@@ -139,469 +167,78 @@ for (const key in pkcs11.PKCS11.prototype) {
         };
         break;
       }
-      case "C_Digest": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 4) {
-            // sync
-            const res = old.apply(this, args);
-            return args[2].subarray(0, res);
-          } else {
-            // callback
-            return this.C_DigestCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_DigestCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[3];
-          if (typeof oldCallback === "function") {
-            args[3] = fixCallbackArgs(oldCallback, args[2]);
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_DigestFinal": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 3) {
-            // sync
-            const res = old.apply(this, args);
-            return args[1].subarray(0, res);
-          } else {
-            // callback
-            return this.C_DigestFinalCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_DigestFinalCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[2];
-          if (typeof oldCallback === "function") {
-            args[2] = fixCallbackArgs(oldCallback, args[1]);
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_Sign": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 4) {
-            // sync
-            const res = old.apply(this, args);
-            return args[2].subarray(0, res);
-          } else {
-            // callback
-            return this.C_SignCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_SignCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[3];
-          if (typeof oldCallback === "function") {
-            args[3] = fixCallbackArgs(oldCallback, args[2]);
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_SignFinal": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 3) {
-            // sync
-            const res = old.apply(this, args);
-            return args[1].subarray(0, res);
-          } else {
-            // callback
-            return this.C_SignFinalCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_SignFinalCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[2];
-          if (typeof oldCallback === "function") {
-            args[2] = fixCallbackArgs(oldCallback, args[1]);
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_Encrypt": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 4) {
-            // sync
-            const res = old.apply(this, args);
-            return args[2].subarray(0, res);
-          } else {
-            // callback
-            return this.C_EncryptCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_EncryptCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[3];
-          if (typeof oldCallback === "function") {
-            args[3] = fixCallbackArgs(oldCallback, args[2]);
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-      }
-      case "C_EncryptUpdate": {
-        modifyMethodWithSubarray(key, 2, pkcs11.PKCS11.prototype);
-        break;
-      }
-      case "C_EncryptFinal": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 3) {
-            // sync
-            const res = old.apply(this, args);
-            return args[1].subarray(0, res);
-          } else {
-            // callback
-            return this.C_EncryptFinalCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_EncryptFinalCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[2];
-          if (typeof oldCallback === "function") {
-            args[2] = fixCallbackArgs(oldCallback, args[1]);
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_Decrypt": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 4) {
-            // sync
-            const res = old.apply(this, args);
-            return args[2].subarray(0, res);
-          } else {
-            // callback
-            return this.C_DecryptCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_DecryptCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[3];
-          if (typeof oldCallback === "function") {
-            args[3] = fixCallbackArgs(oldCallback, args[2]);
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-      }
-      case "C_DecryptUpdate": {
-        modifyMethodWithSubarray(key, 2, pkcs11.PKCS11.prototype);
-        break;
-      }
-      case "C_DecryptFinal": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 3) {
-            // sync
-            const res = old.apply(this, args);
-            return args[1].subarray(0, res);
-          } else {
-            // callback
-            return this.C_DecryptFinalCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_DecryptFinalCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[2];
-          if (typeof oldCallback === "function") {
-            args[2] = fixCallbackArgs(oldCallback, args[1]);
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_Verify": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 4) {
-            // sync
-            return old.apply(this, args);
-          } else {
-            // callback
-            return this.C_VerifyCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_VerifyCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[3];
-          if (typeof oldCallback === "function") {
-            args[3] = (err, res) => {
-              if (err) {
-                return oldCallback(prepareError(err), null);
-              }
-              oldCallback(null, res);
-            };
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_VerifyFinal": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 3) {
-            // sync
-            return old.apply(this, args);
-          } else {
-            // callback
-            return this.C_VerifyFinalCallback(...args);
-          }
-        };
-        break;
-      }
-      case "C_VerifyFinalCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[2];
-          if (typeof oldCallback === "function") {
-            args[2] = (err, res) => {
-              if (err) {
-                return oldCallback(prepareError(err), null);
-              }
-              oldCallback(null, res);
-            };
-          }
-          return old.apply(this, args);
-        };
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_GenerateKey": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 4) {
-            // sync
-            return old.apply(this, args);
-          }
-          // callback
-          return this.C_GenerateKeyCallback(...args);
+      case "C_Digest":
+      case "C_Sign":
+      case "C_Encrypt":
+      case "C_Decrypt":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            outputIndex: 2,
+            callbackIndex: 3,
+          });
+          break;
         }
-        break;
-      }
-      case "C_GenerateKeyCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[3];
-          if (typeof oldCallback === "function") {
-            args[3] = (err, res) => {
-              if (err) {
-                return oldCallback(prepareError(err), null);
-              }
-              oldCallback(null, res);
-            };
-          }
-          return old.apply(this, args);
+      case "C_DigestFinal":
+      case "C_SignFinal":
+      case "C_EncryptFinal":
+      case "C_DecryptFinal":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            outputIndex: 1,
+            callbackIndex: 2,
+          });
+          break;
         }
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_GenerateKeyPair": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 5) {
-            // sync
-            return old.apply(this, args);
-          }
-          // callback
-          return this.C_GenerateKeyPairCallback(...args);
+      case "C_DecryptUpdate":
+      case "C_EncryptUpdate":
+      case "C_SignRecover":
+      case "C_VerifyRecover":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            outputIndex: 2,
+          });
+          break;
         }
-        break;
-      }
-      case "C_GenerateKeyPairCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[4];
-          if (typeof oldCallback === "function") {
-            args[4] = (err, res) => {
-              if (err) {
-                return oldCallback(prepareError(err), null);
-              }
-              oldCallback(null, res);
-            };
-          }
-          return old.apply(this, args);
+      case "C_Verify":
+      case "C_GenerateKey":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            callbackIndex: 3,
+          });
+          break;
         }
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_DeriveKey": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 5) {
-            // sync
-            return old.apply(this, args);
-          }
-          // callback
-          return this.C_DeriveKeyCallback(...args);
+      case "C_VerifyFinal":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            callbackIndex: 2,
+          });
+          break;
         }
-        break;
-      }
-      case "C_DeriveKeyCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[5];
-          if (typeof oldCallback === "function") {
-            args[5] = (err, res) => {
-              if (err) {
-                return oldCallback(prepareError(err), null);
-              }
-              oldCallback(null, res);
-            };
-          }
-          return old.apply(this, args);
+      case "C_GenerateKeyPair":
+      case "C_DeriveKey":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            callbackIndex: 4,
+          });
+          break;
         }
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_WrapKey": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 6) {
-            // sync
-            const res = old.apply(this, args);
-            return args[4].subarray(0, res);
-          }
-          // callback
-          return this.C_WrapKeyCallback(...args);
+      case "C_WrapKey":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            outputIndex: 4,
+            callbackIndex: 5,
+          });
+          break;
         }
-        break;
-      }
-      case "C_WrapKeyCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-
-          const oldCallback = args[4];
-          if (typeof oldCallback === "function") {
-            args[4] = (err, res) => {
-              if (err) {
-                return oldCallback(prepareError(err), null);
-              }
-              oldCallback(null, res);
-            };
-          }
-          return old.apply(this, args);
+      case "C_UnwrapKey":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            callbackIndex: 5,
+          });
+          break;
         }
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-        break;
-      }
-      case "C_UnwrapKey": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          if (args.length < 6) {
-            // sync
-            return old.apply(this, args);
-          }
-          // callback
-          return this.C_UnwrapKeyCallback(...args);
-        }
-        break;
-      }
-      case "C_UnwrapKeyCallback": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
-          const oldCallback = args[5];
-          if (typeof oldCallback === "function") {
-            args[5] = (err, res) => {
-              if (err) {
-                return oldCallback(prepareError(err), null);
-              }
-              oldCallback(null, res);
-            };
-          }
-          return old.apply(this, args);
-        }
-        // async
-        const name = key.replace("Callback", "Async");
-        pkcs11.PKCS11.prototype[name] = util.promisify(pkcs11.PKCS11.prototype[key]);
-
-        break;
-      }
-      case "C_SignRecover": {
-        modifyMethodWithSubarray(key, 2, pkcs11.PKCS11.prototype);
-        break;
-      }
-      case "C_VerifyRecover": {
-        modifyMethodWithSubarray(key, 2, pkcs11.PKCS11.prototype);
-        break;
-      }
     }
   }
 }
-
 
 module.exports = pkcs11
