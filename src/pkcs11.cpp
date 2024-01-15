@@ -579,7 +579,11 @@ bool get_args_attributes(napi_env env, napi_value *arg, size_t argc, size_t inde
     napi_get_value_uint32(env, typeValue, &type);
     attr->type = (CK_ATTRIBUTE_TYPE)type;
 
-    if (valueValueType == napi_number)
+    if (valueValueType == napi_undefined || valueValueType == napi_null)
+    {
+      attrs->allocValue(i, 0);
+    }
+    else if (valueValueType == napi_number)
     {
       attrs->allocValue(i, sizeof(CK_ULONG));
       uint32_t value;
@@ -1597,23 +1601,17 @@ public:
     napi_value result = arg[2];
     for (int i = 0; i < int(attrsLength); i++)
     {
-      CK_ATTRIBUTE *attr = &attrs.attributes[i];
-      napi_value jsAttr;
-      napi_get_element(env, arg[2], i, &jsAttr);
+      // Get element
+      napi_value element;
+      napi_get_element(env, result, i, &element);
 
+      // create Buffer for value
       napi_value value;
-      if (attr->ulValueLen == CK_UNAVAILABLE_INFORMATION)
-      {
-        // use undefined for unavailable information
-        napi_get_undefined(env, &value);
-      }
-      else
-      {
-        // copy value to Buffer
-        napi_create_buffer_copy(env, (size_t)attr->ulValueLen, (void *)attr->pValue, nullptr, &value);
-      }
+      CK_ATTRIBUTE_PTR attr = &attrs.attributes[i];
+      napi_create_buffer_copy(env, attr->ulValueLen, attr->pValue, nullptr, &value);
 
-      napi_set_named_property(env, jsAttr, "value", value);
+      // set value property on element
+      napi_set_named_property(env, element, "value", value);
     }
 
     return result;

@@ -216,23 +216,33 @@ AttributesWrapper::AttributesWrapper(CK_ULONG length)
 
 AttributesWrapper::~AttributesWrapper()
 {
-  if (dispose)
+  if (dispose && attributes != nullptr)
   {
     for (int i = 0; i < int(length); i++)
     {
       if (attributes[i].pValue != nullptr)
       {
         free(attributes[i].pValue);
+        attributes[i].pValue = nullptr;
       }
     }
     free(attributes);
+    attributes = nullptr;
+    length = 0;
   }
 }
 
 void AttributesWrapper::allocValue(CK_ULONG index, CK_ULONG length)
 {
-  attributes[index].pValue = malloc(sizeof(CK_BYTE) * length);
-  attributes[index].ulValueLen = length;
+  CK_ATTRIBUTE_PTR attr = &attributes[index];
+  if (length == 0)
+  {
+    attr->pValue = nullptr;
+    attr->ulValueLen = 0;
+    return;
+  }
+  attr->pValue = malloc(sizeof(CK_BYTE) * length);
+  attr->ulValueLen = length;
   this->dispose = true;
 }
 
