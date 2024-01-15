@@ -474,3 +474,41 @@ public:
   DEFINE_EXECUTE_WORKER(WorkerUnwrapKey)
   DEFINE_COMPLETE_WORKER(WorkerUnwrapKey)
 };
+
+class WorkerDualOperation : public BaseWorker
+{
+public:
+  const CK_C_DigestEncryptUpdate function;
+  const CK_SESSION_HANDLE sessionHandle;
+  CK_BYTE_PTR data;
+  const CK_ULONG dataLength;
+  CK_BYTE_PTR out;
+  CK_ULONG outLength;
+
+  WorkerDualOperation(
+      napi_env env,
+      napi_value callback,
+      CK_C_DigestEncryptUpdate function,
+      CK_SESSION_HANDLE sessionHandle,
+      CK_BYTE_PTR data, CK_ULONG dataLength,
+      CK_BYTE_PTR out, CK_ULONG outLength)
+      : BaseWorker(env, callback), function(function), sessionHandle(sessionHandle), data(data), dataLength(dataLength), out(out), outLength(outLength)
+  {
+    CreateAndQueue(env, "WorkerDualOperation", WorkerDualOperation::Execute, WorkerDualOperation::CompleteWork);
+  }
+
+  void Execute() override
+  {
+    this->rv = this->function(this->sessionHandle, this->data, this->dataLength, this->out, &this->outLength);
+  }
+
+  napi_value CreateResult(napi_env env) override
+  {
+    napi_value outLength;
+    napi_create_uint32(env, this->outLength, &outLength);
+    return outLength;
+  }
+
+  DEFINE_EXECUTE_WORKER(WorkerDualOperation)
+  DEFINE_COMPLETE_WORKER(WorkerDualOperation)
+};

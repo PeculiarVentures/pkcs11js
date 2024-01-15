@@ -2541,4 +2541,97 @@ public:
     }
     return result;
   }
+
+  static napi_value dualOperation(napi_env env, napi_callback_info info, CK_C_DigestEncryptUpdate operation)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, inData)
+    GET_ARGS_BUFFER(2, outData)
+
+    // Call PKCS11 function
+    CK_RV rv = operation(sessionHandle, (CK_BYTE_PTR)inData, (CK_ULONG)inDataLength, (CK_BYTE_PTR)outData, (CK_ULONG_PTR)&outDataLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, outDataLength, &result);
+
+    return result;
+  }
+
+  static napi_value dualOperationCallback(napi_env env, napi_callback_info info, CK_C_DigestEncryptUpdate operation)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, inData)
+    GET_ARGS_BUFFER(2, outData)
+    GET_ARGS_CALLBACK(3, callback)
+
+    // Create worker
+    new WorkerDualOperation(env, callback, operation, sessionHandle, (CK_BYTE_PTR)inData, (CK_ULONG)inDataLength, (CK_BYTE_PTR)outData, (CK_ULONG)outDataLength);
+    return nullptr;
+  }
+
+  static napi_value C_DigestEncryptUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    return dualOperation(env, info, pkcs11->functionList->C_DigestEncryptUpdate);
+  }
+
+  static napi_value C_DigestEncryptUpdateCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    return dualOperationCallback(env, info, pkcs11->functionList->C_DigestEncryptUpdate);
+  }
+
+  static napi_value C_DecryptDigestUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    return dualOperation(env, info, pkcs11->functionList->C_DecryptDigestUpdate);
+  }
+
+  static napi_value C_DecryptDigestUpdateCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    return dualOperationCallback(env, info, pkcs11->functionList->C_DecryptDigestUpdate);
+  }
+
+  static napi_value C_SignEncryptUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    return dualOperation(env, info, pkcs11->functionList->C_SignEncryptUpdate);
+  }
+
+  static napi_value C_SignEncryptUpdateCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    return dualOperationCallback(env, info, pkcs11->functionList->C_SignEncryptUpdate);
+  }
+
+  static napi_value C_DecryptVerifyUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    return dualOperation(env, info, pkcs11->functionList->C_DecryptVerifyUpdate);
+  }
+
+  static napi_value C_DecryptVerifyUpdateCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    return dualOperationCallback(env, info, pkcs11->functionList->C_DecryptVerifyUpdate);
+  }
 };

@@ -237,6 +237,17 @@ for (const key in pkcs11.PKCS11.prototype) {
           });
           break;
         }
+      case "C_DigestEncryptUpdate":
+      case "C_DecryptDigestUpdate":
+      case "C_SignEncryptUpdate":
+      case "C_DecryptVerifyUpdate":
+        {
+          modifyMethod(key, pkcs11.PKCS11.prototype, {
+            outputIndex: 2,
+            callbackIndex: 3,
+          });
+          break;
+        }
     }
   }
 }

@@ -385,6 +385,47 @@ context("PKCS11", () => {
             });
           });
         });
+        [
+          "C_DigestEncryptUpdate",
+          "C_DecryptDigestUpdate",
+          "C_SignEncryptUpdate",
+          "C_DecryptVerifyUpdate",
+        ].forEach((key) => {
+          context(key, () => {
+            it("sync", () => {
+              const data = Buffer.from("message");
+              const encrypted = Buffer.alloc(40);
+              assert.throws(() => {
+                // SoftHSM does not support dual-function operations
+                token[key](session, data, encrypted);
+              }, (e) => {
+                assert.strictEqual(e instanceof pkcs11.Pkcs11Error, true);
+                assert.strictEqual(e.message, "CKR_FUNCTION_NOT_SUPPORTED");
+                return true;
+              });
+            });
+            it("callback", (done) => {
+              const data = Buffer.from("message");
+              const encrypted = Buffer.alloc(40);
+              token.C_DigestEncryptUpdate(session, data, encrypted, (error, encrypted2) => {
+                assert.strictEqual(error instanceof pkcs11.Pkcs11Error, true);
+                assert.strictEqual(error.message, "CKR_FUNCTION_NOT_SUPPORTED");
+                assert.strictEqual(encrypted2, null);
+                done();
+              });
+            });
+            it("async", async () => {
+              const data = Buffer.from("message");
+              const encrypted = Buffer.alloc(40);
+              try {
+                await token.C_DigestEncryptUpdateAsync(session, data, encrypted);
+              } catch (e) {
+                assert.strictEqual(e instanceof pkcs11.Pkcs11Error, true);
+                assert.strictEqual(e.message, "CKR_FUNCTION_NOT_SUPPORTED");
+              }
+            });
+          })
+        })
         context("C_GenerateKey", () => {
           let session;
           before(() => {

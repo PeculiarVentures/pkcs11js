@@ -1250,6 +1250,121 @@ declare module "pkcs11js" {
         public C_WaitForSlotEvent(flags: number): Handle | null;
         //#endregion
 
+        //#region Dual-function cryptographic operations
+        /**
+         * Continues a multiple-part digest and encryption
+         * operation (digesting and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be digested and encrypted
+         * @param outData Encrypted data
+         * @returns Sliced encrypted data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         */
+        public C_DigestEncryptUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
+        /**
+         * Continues a multiple-part digest and encryption
+         * operation (digesting and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be digested and encrypted
+         * @param outData Encrypted data
+         * @param cb Async callback with sliced encrypted data
+         */
+        public C_DigestEncryptUpdate(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Continues a multiple-part digest and encryption
+         * operation (digesting and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be digested and encrypted
+         * @param outData Encrypted data
+         * @returns Sliced encrypted data
+         */
+        public C_DigestEncryptUpdateAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        /**
+         * Continues a multiple-part decryption and digest
+         * operation (decrypting and digesting)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and digested
+         * @param outData Digested data
+         * @returns Sliced digested data
+         */
+        public C_DecryptDigestUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
+        /**
+         * Continues a multiple-part decryption and digest
+         * operation (decrypting and digesting)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and digested
+         * @param outData Digested data
+         * @param cb Async callback with sliced digested data
+         */
+        public C_DecryptDigestUpdate(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Continues a multiple-part decryption and digest
+         * operation (decrypting and digesting)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and digested
+         * @param outData Digested data
+         * @returns Sliced digested data
+         */
+        public C_DecryptDigestUpdateAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        /**
+         * Continues a multiple-part signing and encryption
+         * operation (signing and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be signed and encrypted
+         * @param outData Encrypted data
+         * @returns Sliced encrypted data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         */
+        public C_SignEncryptUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
+        /**
+         * Continues a multiple-part signing and encryption
+         * operation (signing and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be signed and encrypted
+         * @param outData Encrypted data
+         * @param cb Async callback with sliced encrypted data
+         */
+        public C_SignEncryptUpdate(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Continues a multiple-part signing and encryption
+         * operation (signing and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be signed and encrypted
+         * @param outData Encrypted data
+         * @returns Sliced encrypted data
+         */
+        public C_SignEncryptUpdateAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        /**
+         * Continues a multiple-part decryption and
+         * verification operation (decrypting and verifying)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and verified
+         * @param outData Verified data
+         * @returns Sliced verified data
+         */
+        public C_DecryptVerifyUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
+        /**
+         * Continues a multiple-part decryption and
+         * verification operation (decrypting and verifying)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and verified
+         * @param outData Verified data
+         * @param cb Async callback with sliced verified data
+         */
+        public C_DecryptVerifyUpdate(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Continues a multiple-part decryption and
+         * verification operation (decrypting and verifying)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and verified
+         * @param outData Verified data
+         * @returns Sliced verified data
+         */
+        public C_DecryptVerifyUpdateAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        //#endregion
+
     }
 
     //#region Attributes
