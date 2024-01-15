@@ -7,10 +7,13 @@
 
 [![NPM](https://nodei.co/npm/pkcs11js.png)](https://nodei.co/npm/pkcs11js/)
 
+PKCS11js is a package for direct interaction with the PKCS#11 API, the standard interface for interacting with hardware crypto devices such as Smart Cards and Hardware Security Modules (HSMs). It was developed to the PKCS#11 2.30 specification and has been tested with a variety of devices.
 
-We make a package called [Graphene](https://github.com/PeculiarVentures/graphene), it provides a simplistic Object Oriented interface for interacting with PKCS#11 devices, for most people this is the right level to build on. In some cases you may want to interact directly with the PKCS#11 API, if so PKCS11js is the package for you.
+**Versioning Note:** 
+- Version 1.x was implemented using the `nan` module, which allowed the package to be built for older versions of Node.js.
+- Starting from version 2.x, the module has been rewritten to use `napi`. As a result, the minimum required Node.js version is now v18.
 
-PKCS#11 (also known as CryptoKI or PKCS11) is the standard interface for interacting with hardware crypto devices such as Smart Cards and Hardware Security Modules (HSMs). 
+For most use cases, we recommend our package [Graphene](https://github.com/PeculiarVentures/graphene), which provides a simplistic Object Oriented interface for interacting with PKCS#11 devices.
 
 This was developed to the PKCS#11 2.30 specification, the 2.40 headers were not available at the time we created this, it should be easy enough to extend it for the new version at a later date.
 
