@@ -1,42 +1,43 @@
-#ifdef WIN32
+#ifdef _WIN32
 
 #include <windows.h>
 #include <stdio.h>
 #include <malloc.h>
 
 /**
-* Win32 error code from last failure.
-*/
+ * Win32 error code from last failure.
+ */
 
 static DWORD lastError = 0;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 	/**
-	* Convert UTF-8 string to Windows UNICODE (UCS-2 LE).
-	*
-	* Caller must free() the returned string.
-	*/
+	 * Convert UTF-8 string to Windows UNICODE (UCS-2 LE).
+	 *
+	 * Caller must free() the returned string.
+	 */
 
-	static
-		WCHAR*
-		UTF8toWCHAR(
-			const char* inputString /** UTF-8 string. */
-		)
+	static WCHAR *
+	UTF8toWCHAR(
+			const char *inputString /** UTF-8 string. */
+	)
 	{
 		int outputSize;
-		WCHAR* outputString;
+		WCHAR *outputString;
 
 		outputSize = MultiByteToWideChar(CP_UTF8, 0, inputString, -1, NULL, 0);
 
 		if (outputSize == 0)
 			return NULL;
 
-		outputString = (WCHAR*)malloc(outputSize * sizeof(WCHAR));
+		outputString = (WCHAR *)malloc(outputSize * sizeof(WCHAR));
 
-		if (outputString == NULL) {
+		if (outputString == NULL)
+		{
 			SetLastError(ERROR_OUTOFMEMORY);
 			return NULL;
 		}
@@ -51,27 +52,28 @@ extern "C" {
 	}
 
 	/**
-	* Open DLL, returning a handle.
-	*/
+	 * Open DLL, returning a handle.
+	 */
 
-	void*
-		dlopen(
-			const char* file,   /** DLL filename (UTF-8). */
-			int mode            /** mode flags (ignored). */
-		)
+	void *
+	dlopen(
+			const char *file, /** DLL filename (UTF-8). */
+			int mode					/** mode flags (ignored). */
+	)
 	{
-		WCHAR* unicodeFilename;
+		WCHAR *unicodeFilename;
 		UINT errorMode;
-		void* handle;
+		void *handle;
 
 		UNREFERENCED_PARAMETER(mode);
 
 		if (file == NULL)
-			return (void*)GetModuleHandle(NULL);
+			return (void *)GetModuleHandle(NULL);
 
 		unicodeFilename = UTF8toWCHAR(file);
 
-		if (unicodeFilename == NULL) {
+		if (unicodeFilename == NULL)
+		{
 			lastError = GetLastError();
 			return NULL;
 		}
@@ -81,7 +83,7 @@ extern "C" {
 		/* Have LoadLibrary return NULL on failure; prevent GUI error message. */
 		SetErrorMode(errorMode | SEM_FAILCRITICALERRORS);
 
-		handle = (void*)LoadLibraryW(unicodeFilename);
+		handle = (void *)LoadLibraryW(unicodeFilename);
 
 		if (handle == NULL)
 			lastError = GetLastError();
@@ -94,17 +96,16 @@ extern "C" {
 	}
 
 	/**
-	* Close DLL.
-	*/
+	 * Close DLL.
+	 */
 
-	int
-		dlclose(
-			void* handle        /** Handle from dlopen(). */
-		)
+	int dlclose(
+			void *handle /** Handle from dlopen(). */
+	)
 	{
 		int rc = 0;
 
-		if (handle != (void*)GetModuleHandle(NULL))
+		if (handle != (void *)GetModuleHandle(NULL))
 			rc = !FreeLibrary((HMODULE)handle);
 
 		if (rc)
@@ -114,16 +115,16 @@ extern "C" {
 	}
 
 	/**
-	* Look up symbol exported by DLL.
-	*/
+	 * Look up symbol exported by DLL.
+	 */
 
-	void*
-		dlsym(
-			void* handle,       /** Handle from dlopen(). */
-			const char* name    /** Name of exported symbol (ASCII). */
-		)
+	void *
+	dlsym(
+			void *handle,		 /** Handle from dlopen(). */
+			const char *name /** Name of exported symbol (ASCII). */
+	)
 	{
-		void* address = (void*)GetProcAddress((HMODULE)handle, name);
+		void *address = (void *)GetProcAddress((HMODULE)handle, name);
 
 		if (address == NULL)
 			lastError = GetLastError();
@@ -132,20 +133,22 @@ extern "C" {
 	}
 
 	/**
-	* Return message describing last error.
-	*/
+	 * Return message describing last error.
+	 */
 
-	char*
-		dlerror(void)
+	char *
+	dlerror(void)
 	{
 		static char errorMessage[64];
 
-		if (lastError != 0) {
+		if (lastError != 0)
+		{
 			sprintf(errorMessage, "Win32 error %lu", lastError);
 			lastError = 0;
 			return errorMessage;
 		}
-		else {
+		else
+		{
 			return NULL;
 		}
 	}
@@ -155,4 +158,4 @@ extern "C" {
 
 #else
 #include <dlfcn.h>
-#endif // WIN32
+#endif // _WIN32

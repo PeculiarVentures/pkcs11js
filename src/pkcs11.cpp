@@ -369,7 +369,8 @@ bool get_args_string(napi_env env, napi_value *arg, size_t argc, size_t index, c
   {                                                                                             \
     return nullptr;                                                                             \
   }                                                                                             \
-  char string[string##Length + 1];                                                              \
+  std::vector<char> string##Vector(string##Length + 1);                                         \
+  char *string = string##Vector.data();                                                         \
   if (!get_args_string(env, &arg[0], argc, index, string, string##Length + 1, &string##Length)) \
   {                                                                                             \
     return nullptr;                                                                             \
@@ -676,12 +677,12 @@ bool get_args(napi_env env, napi_callback_info info, size_t argc, napi_value *ar
  * @param expectedArgc The number of arguments to retrieve.
  * @param args The variable to store the retrieved arguments.
  */
-#define GET_ARGS(expectedArgc, args)    \
-  size_t argc = expectedArgc;           \
-  napi_value args[argc];                \
-  if (!get_args(env, info, argc, args)) \
-  {                                     \
-    return nullptr;                     \
+#define GET_ARGS(expectedArgc, args)           \
+  size_t argc = expectedArgc;                  \
+  std::vector<napi_value> args(argc);          \
+  if (!get_args(env, info, argc, args.data())) \
+  {                                            \
+    return nullptr;                            \
   }
 
 /**
@@ -784,10 +785,11 @@ public:
     size_t length;
     napi_get_value_string_utf8(env, arg[0], nullptr, 0, &length);
 
-    char path[length + 1];
-    napi_get_value_string_utf8(env, arg[0], path, length + 1, &length);
+    std::vector<char> path(length + 1);
+    char *pPath = path.data();
+    napi_get_value_string_utf8(env, arg[0], pPath, length + 1, &length);
 
-    pkcs11->handle = dlopen(path, RTLD_NOW);
+    pkcs11->handle = dlopen(pPath, RTLD_LAZY);
     if (pkcs11->handle == nullptr)
     {
       napi_throw_error(env, nullptr, dlerror());
@@ -895,6 +897,11 @@ public:
       }
     }
 
+    if (pInitArgs == nullptr)
+    {
+      pInitArgs = &initArgs;
+    }
+
     // Call PKCS11 function
     CK_RV rv = pkcs11->functionList->C_Initialize(pInitArgs);
     if (path != nullptr)
@@ -980,8 +987,9 @@ public:
     CK_RV rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, nullptr, &slotCount); // get slot count
     ASSERT_RV(rv);
 
-    CK_SLOT_ID slotList[slotCount];
-    rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, slotList, &slotCount);
+    std::vector<CK_SLOT_ID> slotList(slotCount);
+    CK_SLOT_ID_PTR pSlotList = slotList.data();
+    rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, pSlotList, &slotCount);
     ASSERT_RV(rv);
 
     // Create result array
@@ -990,7 +998,7 @@ public:
     for (int i = 0; i < int(slotCount); i++)
     {
       napi_value slotId;
-      napi_create_buffer_copy(env, sizeof(slotList[i]), &slotList[i], nullptr, &slotId);
+      napi_create_buffer_copy(env, sizeof(CK_SLOT_ID), &pSlotList[i], nullptr, &slotId);
       napi_set_element(env, result, i, slotId);
     }
 
@@ -1155,8 +1163,9 @@ public:
     CK_RV rv = pkcs11->functionList->C_GetMechanismList(slotId, nullptr, &mechanismCount); // get mechanism count
     ASSERT_RV(rv);
 
-    CK_MECHANISM_TYPE mechanismList[mechanismCount];
-    rv = pkcs11->functionList->C_GetMechanismList(slotId, mechanismList, &mechanismCount);
+    std::vector<CK_MECHANISM_TYPE> mechanismList(mechanismCount);
+    CK_MECHANISM_TYPE_PTR pMechanismList = mechanismList.data();
+    rv = pkcs11->functionList->C_GetMechanismList(slotId, pMechanismList, &mechanismCount);
     ASSERT_RV(rv);
 
     // Create result array
@@ -1165,7 +1174,7 @@ public:
     for (int i = 0; i < int(mechanismCount); i++)
     {
       napi_value mechanism;
-      napi_create_uint32(env, mechanismList[i], &mechanism);
+      napi_create_uint32(env, pMechanismList[i], &mechanism);
       napi_set_element(env, result, i, mechanism);
     }
 
@@ -1359,7 +1368,8 @@ public:
     CK_RV rv = pkcs11->functionList->C_GetOperationState(sessionHandle, nullptr, &stateLength); // get state length
     ASSERT_RV(rv);
 
-    CK_BYTE state[stateLength];
+    std::vector<CK_BYTE> stateVector(stateLength);
+    CK_BYTE_PTR state = stateVector.data();
     rv = pkcs11->functionList->C_GetOperationState(sessionHandle, state, &stateLength);
     ASSERT_RV(rv);
 
@@ -1504,7 +1514,8 @@ public:
 
     // Call PKCS11 function
     CK_ULONG objectCount;
-    CK_OBJECT_HANDLE objectHandles[maxObjectCount];
+    std::vector<CK_OBJECT_HANDLE> objectVector(maxObjectCount);
+    CK_OBJECT_HANDLE_PTR objectHandles = objectVector.data();
     CK_RV rv = pkcs11->functionList->C_FindObjects(sessionHandle, objectHandles, maxObjectCount, &objectCount);
     ASSERT_RV(rv);
 

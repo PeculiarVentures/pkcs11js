@@ -10,10 +10,6 @@
 
 napi_value Init(napi_env env, napi_value exports)
 {
-  napi_property_descriptor properties[] = {};
-
-  napi_define_properties(env, exports, sizeof(properties) / sizeof(*properties), properties);
-
   napi_property_attributes attributes = static_cast<napi_property_attributes>(napi_enumerable | napi_writable);
   napi_property_descriptor instance_properties[] = {
       {"load", nullptr, Pkcs11::Load, nullptr, nullptr, nullptr, napi_default, nullptr},

@@ -2,9 +2,20 @@ const assert = require("assert");
 const os = require("os");
 const pkcs11 = require("../");
 
-const softHsmLib = os.platform() === "darwin"
-  ? "/usr/local/lib/softhsm/libsofthsm2.so" // macos
-  : "/usr/lib/softhsm//libsofthsm2.so"; // linux
+let softHsmLib;
+switch (os.platform()) {
+  case "darwin": // macOS
+    softHsmLib = "/usr/local/lib/softhsm/libsofthsm2.so";
+    break;
+  case "linux":
+    softHsmLib = "/usr/lib/softhsm/libsofthsm2.so";
+    break;
+  case "win32": // Windows
+    softHsmLib = "C:\\SoftHSM2\\lib\\softhsm2-x64.dll";
+    break;
+  default:
+    throw new Error("Unsupported platform " + os.platform());
+}
 const pin = "12345";
 
 context("PKCS11", () => {
@@ -13,7 +24,7 @@ context("PKCS11", () => {
       const token = new pkcs11.PKCS11();
       token.load(softHsmLib);
     });
-    it("throw esxception if file does not exist", () => {
+    it("throw exception if file does not exist", () => {
       const token = new pkcs11.PKCS11();
       assert.throws(() => {
         token.load("/tmp/wrong/file/path.net");
