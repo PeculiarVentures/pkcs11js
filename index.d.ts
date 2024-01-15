@@ -660,6 +660,20 @@ declare module "pkcs11js" {
          */
         public C_EncryptFinal(session: Handle, outData: Buffer): Buffer;
         /**
+         * Finishes a multiple-part encryption operation
+         * @param session The session's handle
+         * @param outData Last output data
+         * @param cb Async callback with sliced output data
+         */
+        public C_EncryptFinal(session: Handle, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Finishes a multiple-part encryption operation
+         * @param session The session's handle
+         * @param outData Last output data
+         * @returns Sliced output data
+         */
+        public C_EncryptFinalAsync(session: Handle, outData: Buffer): Promise<Buffer>;
+        /**
          * Initializes a decryption operation
          * @param session The session's handle
          * @param mechanism The decryption mechanism
@@ -717,6 +731,20 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DecryptFinal(session: Handle, outData: Buffer): Buffer;
+        /**
+         * Finishes a multiple-part decryption operation
+         * @param session The session's handle
+         * @param outData Last part of output data
+         * @param cb Async callback with sliced output data with decrypted final block
+         */
+        public C_DecryptFinal(session: Handle, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Finishes a multiple-part decryption operation
+         * @param session The session's handle
+         * @param outData Last part of output data
+         * @returns Sliced output data with decrypted final block
+         */
+        public C_DecryptFinalAsync(session: Handle, outData: Buffer): Promise<Buffer>;
 
         /* Message digesting */
 
@@ -777,6 +805,21 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DigestFinal(session: Handle, outData: Buffer): Buffer;
+        /**
+         * Finishes a multiple-part message-digesting operation
+         * @param session The session's handle
+         * @param outData Output data
+         * @param cb Async callback with sliced output data
+         */
+        public C_DigestFinal(session: Handle, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Finishes a multiple-part message-digesting operation
+         * @param session The session's handle
+         * @param outData Output data
+         * @returns Sliced output data
+         */
+        public C_DigestFinalAsync(session: Handle, outData: Buffer): Promise<Buffer>;
+
         /**
          * Continues a multiple-part message-digesting operation by digesting the value of a secret key
          * @param session The session's handle
@@ -858,6 +901,23 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SignFinal(session: Handle, outData: Buffer): Buffer;
+        /**
+         * Finishes a multiple-part signature operation,
+         * returning the signature
+         * @param session The session's handle
+         * @param outData Output data
+         * @param cb Async callback with sliced output data
+         */
+        public C_SignFinal(session: Handle, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Finishes a multiple-part signature operation,
+         * returning the signature
+         * @param session The session's handle
+         * @param outData Output data
+         * @returns Sliced output data
+         */
+        public C_SignFinalAsync(session: Handle, outData: Buffer): Promise<Buffer>;
+
         /**
          * Initializes a signature operation, where the data can be recovered from the signature
          * @param session The session's handle
@@ -949,6 +1009,22 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_VerifyFinal(session: Handle, signature: Buffer): boolean;
+        /**
+         * Finishes a multiple-part verification
+         * operation, checking the signature
+         * @param session The session's handle
+         * @param signature Signature to verify
+         * @param cb Async callback with verification result
+         */
+        public C_VerifyFinal(session: Handle, signature: Buffer, cb: (error: Error, verify: boolean) => void): void;
+        /**
+         * Finishes a multiple-part verification
+         * operation, checking the signature
+         * @param session The session's handle
+         * @param signature Signature to verify
+         * @returns Verification result
+         */
+        public C_VerifyFinalAsync(session: Handle, signature: Buffer): Promise<boolean>;
         /**
          * Initializes a signature verification operation, where the data is recovered from the signature
          * @param session The session's handle
