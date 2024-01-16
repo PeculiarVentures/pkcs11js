@@ -7,7 +7,7 @@
 
 [![NPM](https://nodei.co/npm/pkcs11js.png)](https://nodei.co/npm/pkcs11js/)
 
-PKCS11js is a package for direct interaction with the PKCS#11 API, the standard interface for interacting with hardware crypto devices such as Smart Cards and Hardware Security Modules (HSMs). It was developed to the PKCS#11 2.30 specification and has been tested with a variety of devices.
+PKCS11js is a package for direct interaction with the PKCS#11 API, the standard interface for interacting with hardware crypto devices such as Smart Cards and Hardware Security Modules (HSMs). It was developed to the PKCS#11 2.40 specification and has been tested with a variety of devices.
 
 **Versioning Note:** 
 - Version 1.x was implemented using the `nan` module, which allowed the package to be built for older versions of Node.js.
@@ -15,7 +15,7 @@ PKCS11js is a package for direct interaction with the PKCS#11 API, the standard 
 
 For most use cases, we recommend our package [Graphene](https://github.com/PeculiarVentures/graphene), which provides a simplistic Object Oriented interface for interacting with PKCS#11 devices.
 
-This was developed to the PKCS#11 2.30 specification, the 2.40 headers were not available at the time we created this, it should be easy enough to extend it for the new version at a later date.
+This was developed to the PKCS#11 2.40 specification. It should be easy enough to extend it for any new versions at a later date.
 
 It has been tested with :
 - [SoftHSM2](https://www.opendnssec.org/softhsm/)
