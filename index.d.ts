@@ -243,7 +243,7 @@ declare module "pkcs11js" {
         /**
          * The parameter if required by the mechanism
          */
-        parameter?: Buffer | IParams;
+        parameter?: Buffer | number | IParams;
     }
 
     //#region Crypto parameters
@@ -307,6 +307,107 @@ declare module "pkcs11js" {
         hashAlg: number;
         mgf: number;
         saltLen: number;
+    }
+
+    interface Ecdh2Derive extends IParams {
+        kdf: number;
+        sharedData?: Buffer;
+        publicData: Buffer;
+        privateDataLen: number;
+        privateData: Handle;
+        publicData2?: Buffer;
+    }
+
+    interface EcmqvDerive extends IParams {
+        kdf: number;
+        sharedData?: Buffer;
+        publicData: Buffer;
+        privateDataLen: number;
+        publicData2?: Buffer;
+        privateData: Handle;
+    }
+
+    interface X942DH1Derive extends IParams {
+        kdf: number;
+        otherInfo?: Buffer;
+        publicData: Buffer;
+        privateData: Handle;
+    }
+
+    interface X942DH2Derive extends IParams {
+        kdf: number;
+        otherInfo?: Buffer;
+        publicData: Buffer;
+        privateData: Handle;
+        privateDataLen: number;
+        publicData2?: Buffer;
+    }
+
+    interface X942MQvDeriveParams {
+        kdf: number;
+        otherInfo?: Buffer;
+        publicData: Buffer;
+        privateData: Handle;
+        publicData2?: Buffer;
+        publicKey: Handle;
+    }
+
+    interface RC2CBCParams extends IParams {
+        effectiveBits: number;
+        iv: Buffer;
+    }
+
+    interface RC2MACGeneralParams extends IParams {
+        effectiveBits: number;
+        macLength: number;
+    }
+
+    interface RC5Params extends IParams {
+        wordSize: number;
+        rounds: number;
+    }
+
+    interface RC5CBCParams extends RC5Params {
+        wordSize: number;
+        rounds: number;
+        iv: Buffer;
+    }
+
+    interface RC5MACGeneralParams extends RC5Params {
+        wordSize: number;
+        rounds: number;
+        macLength: number;
+    }
+
+    interface DesCbcEncryptDataParams extends IParams {
+        iv: Buffer;
+        data?: Buffer;
+    }
+
+    interface SkipjackPrivateWrapParams extends IParams {
+        password: Buffer;
+        publicData: Buffer;
+        primeP: Buffer;
+        baseG: Buffer;
+        subprimeQ: Buffer;
+        randomA: Buffer;
+    }
+
+    interface SkipjackRelayXParams extends IParams {
+        oldWrappedX: Buffer;
+        oldPassword: Buffer;
+        oldPublicData: Buffer;
+        oldRandomA: Buffer;
+        newPassword: Buffer;
+        newPublicData: Buffer;
+        newRandomA: Buffer;
+    }
+
+    interface PbeParams extends IParams {
+        initVector: Buffer;
+        password: Buffer;
+        salt: Buffer;
+        iteration: number;
     }
 
     //#endregion
@@ -1843,7 +1944,7 @@ declare module "pkcs11js" {
     const CKF_SERIAL_SESSION: number;
     //#endregion
 
-    //#region Follows
+    //#region Mechanism flags
     const CKF_HW: number;
     const CKF_ENCRYPT: number;
     const CKF_DECRYPT: number;
@@ -1919,6 +2020,22 @@ declare module "pkcs11js" {
     const CK_PARAMS_RSA_PSS: number;
     const CK_PARAMS_EC_DH: number;
     const CK_PARAMS_AES_GCM_v240: number;
+    const CK_PARAMS_ECDH2_DERIVE: number;
+    const CK_PARAMS_ECMQV_DERIVE: number;
+    const CK_PARAMS_X9_42_DH1_DERIVE: number;
+    const CK_PARAMS_X9_42_DH2_DERIVE: number;
+    const CK_PARAMS_X9_42_MQV_DERIVE: number;
+    const CK_PARAMS_KEA_DERIVE: number;
+    const CK_PARAMS_RC2: number;
+    const CK_PARAMS_RC2_CBC: number;
+    const CK_PARAMS_RC2_MAC_GENERAL: number;
+    const CK_PARAMS_RC5: number;
+    const CK_PARAMS_RC5_CBC: number;
+    const CK_PARAMS_RC5_MAC_GENERAL: number;
+    const CK_PARAMS_DES_CBC_ENCRYPT_DATA: number;
+    const CK_PARAMS_SKIPJACK_PRIVATE_WRAP: number;
+    const CK_PARAMS_SKIPJACK_RELAYX: number;
+    const CK_PARAMS_PBE: number;
     //#endregion
 
     //#region User types

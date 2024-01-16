@@ -408,6 +408,7 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
   if (mechanismParameterType != napi_undefined && // undefined
       mechanismParameterType != napi_null &&      // null
       mechanismParameterType != napi_object &&    // Object
+      mechanismParameterType != napi_number &&    // Number
       !mechanismParameterIsBuffer)                // Buffer
   {
     THROW_TYPE_ERRORF(false, "Argument %lu has wrong type. Property 'parameter' should be an Object or Buffer", index);
@@ -430,6 +431,15 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
     mechanism->pParameter = malloc(sizeof(CK_BYTE) * length);
     memcpy(mechanism->pParameter, data, length);
     mechanism->ulParameterLen = length;
+  }
+  else if (mechanismParameterType == napi_number)
+  {
+    // Number
+    uint32_t value;
+    napi_get_value_uint32(env, mechanismParameter, &value);
+    mechanism->pParameter = malloc(sizeof(CK_ULONG));
+    *(CK_ULONG *)mechanism->pParameter = value;
+    mechanism->ulParameterLen = sizeof(CK_ULONG);
   }
   else if (mechanismParameterType == napi_object)
   {
@@ -463,7 +473,7 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
     }
     case CK_PARAMS_RSA_PSS:
     {
-      return ge_params_rsa_pss(env, mechanismParameter, mechanism);
+      return get_params_rsa_pss(env, mechanismParameter, mechanism);
     }
     case CK_PARAMS_RSA_OAEP:
     {
@@ -472,6 +482,66 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
     case CK_PARAMS_EC_DH:
     {
       return get_params_ec_dh(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_ECDH2_DERIVE:
+    {
+      return get_params_ecdh2_derive(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_ECMQV_DERIVE:
+    {
+      return get_params_ecmqv_derive(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_X9_42_DH1_DERIVE:
+    {
+      return get_params_x9_42_dh1_derive(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_X9_42_DH2_DERIVE:
+    {
+      return get_params_x9_42_dh2_derive(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_X9_42_MQV_DERIVE:
+    {
+      return get_params_x9_42_mqv_derive(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_KEA_DERIVE:
+    {
+      return get_params_kea_derive(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_RC2_CBC:
+    {
+      return get_params_rc2_cbc(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_RC2_MAC_GENERAL:
+    {
+      return get_params_rc2_mac_general(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_RC5:
+    {
+      return get_params_rc5(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_RC5_CBC:
+    {
+      return get_params_rc5_cbc(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_RC5_MAC_GENERAL:
+    {
+      return get_params_rc5_mac_general(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_DES_CBC_ENCRYPT_DATA:
+    {
+      return get_params_des_cbc_encrypt_data(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_SKIPJACK_PRIVATE_WRAP:
+    {
+      return get_params_skipjack_private_wrap(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_SKIPJACK_RELAYX:
+    {
+      return get_params_skipjack_relayx(env, mechanismParameter, mechanism);
+    }
+    case CK_PARAMS_PBE:
+    {
+      return get_params_pbe(env, mechanismParameter, mechanism);
     }
     }
   }
