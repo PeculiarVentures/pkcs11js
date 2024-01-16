@@ -1,6 +1,6 @@
 {
   "name": "pkcs11js",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A Node.js implementation of the PKCS#11 2.40 interface",
   "repository": {
     "type": "git",
