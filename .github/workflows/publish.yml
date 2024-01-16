@@ -11,16 +11,31 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-    - name: Install dependencies
-      run: npm install
-    - name: Build
-      run: npm run build
-    - name: Publish to NPM
+
+    - name: Setup .npmrc
+      shell: bash
       run: |
-            npm set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-            npm publish --access public
+        npm set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+    - name: Ensure access
+      shell: bash
+      run: npm whoami --registry https://registry.npmjs.org/
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build
+      run: npm run build
+
+    - name: Publish to NPM
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
