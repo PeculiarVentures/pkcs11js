@@ -410,6 +410,37 @@ declare module "pkcs11js" {
         iteration: number;
     }
 
+    interface KeyWrapSetOaepParams extends IParams {
+        bc: number;
+        x: Buffer;
+    }
+
+    interface GcmParams extends IParams {
+        iv: Buffer;
+        ivBits: number;
+        aad?: Buffer;
+        tagBits?: number;
+    }
+
+    interface CcmParams extends IParams {
+        dataLen: number;
+        nonce?: Buffer;
+        aad?: Buffer;
+        macLen?: number;
+    }
+
+    interface GostR3410DeriveParams extends IParams {
+        kdf: number;
+        publicData: Buffer;
+        ukm?: Buffer;
+    }
+
+    interface GostR3410KeyWrapParams extends IParams {
+        wrapOID: Buffer;
+        ukm?: Buffer;
+        key: Handle;
+    }
+
     //#endregion
 
     interface KeyPair {
@@ -2036,6 +2067,11 @@ declare module "pkcs11js" {
     const CK_PARAMS_SKIPJACK_PRIVATE_WRAP: number;
     const CK_PARAMS_SKIPJACK_RELAYX: number;
     const CK_PARAMS_PBE: number;
+    const CK_PARAMS_KEY_WRAP_SET_OAEP: number;
+    const CK_PARAMS_GCM: number;
+    const CK_PARAMS_CCM: number;
+    const CK_PARAM_GOSTR3410_DERIVE: number;
+    const CK_PARAM_GOSTR3410_KEY_WRAP: number;
     //#endregion
 
     //#region User types

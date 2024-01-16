@@ -164,6 +164,76 @@ bool read_property_ulong(napi_env env, napi_value object, const char *property, 
   }
 
 /**
+ * @brief Reads a byte property from a given JavaScript object.
+ *
+ * @param env The N-API environment.
+ * @param object The JavaScript object to read the property from.
+ * @param property The name of the property to read.
+ * @param value A pointer to store the read value.
+ * @return Returns true if the property was successfully read, false otherwise.
+ */
+bool read_property_byte(napi_env env, napi_value object, const char *property, CK_BYTE_PTR value)
+{
+  // Get the property value
+  napi_value propertyValue;
+  napi_get_named_property(env, object, property, &propertyValue);
+
+  // Check that the property value is a Number
+  napi_valuetype propertyValueType;
+  napi_typeof(env, propertyValue, &propertyValueType);
+  if (propertyValueType != napi_number)
+  {
+    return false;
+  }
+
+  // Read the property value and write it to the single byte
+  uint32_t uintValue;
+  napi_get_value_uint32(env, propertyValue, (uint32_t *)&uintValue);
+  if (uintValue > 255)
+  {
+    return false;
+  }
+  *value = (CK_BYTE)uintValue;
+
+  return true;
+}
+
+/**
+ * @brief Macro for reading a required byte property from a given JavaScript object.
+ *
+ * Creates a variable with the name of the property and reads the property value into it.
+ *
+ * @param property The name of the property to read.
+ * @param target The JavaScript object to read the property from.
+ * @param paramType The type of the mechanism parameter.
+ */
+#define READ_BYTE_REQUIRED(property, target, paramType)       \
+  CK_BYTE property;                                           \
+  if (!read_property_byte(env, target, #property, &property)) \
+  {                                                           \
+    THROW_PROPERTY_TYPE(#property, #paramType, "Number");     \
+  }
+
+/**
+ * @brief Macro for reading an optional byte property from a given JavaScript object.
+ *
+ * Creates a variable with the name of the property and reads the property value into it
+ *
+ * @param property The name of the property to read.
+ * @param target The JavaScript object to read the property from.
+ * @param paramType The type of the mechanism parameter.
+ */
+#define READ_BYTE_OPTIONAL(property, target, paramType)         \
+  CK_BYTE property = 0;                                         \
+  if (has_property(env, target, #property))                     \
+  {                                                             \
+    if (!read_property_byte(env, target, #property, &property)) \
+    {                                                           \
+      THROW_PROPERTY_TYPE(#property, #paramType, "Number");     \
+    }                                                           \
+  }
+
+/**
  * @brief Reads a byte array property from a given JavaScript object.
  *
  * @param env The N-API environment.
@@ -278,6 +348,48 @@ bool read_property_handle(napi_env env, napi_value object, const char *property,
     if (!read_property_handle(env, target, #property, &property)) \
     {                                                             \
       THROW_PROPERTY_TYPE(#property, #paramType, "Buffer");       \
+    }                                                             \
+  }
+
+bool read_property_string(napi_env env, napi_value object, const char *property, std::string *value)
+{
+  // Get the property value
+  napi_value propertyValue;
+  napi_get_named_property(env, object, property, &propertyValue);
+
+  // Check that the property value is a String
+  napi_valuetype propertyValueType;
+  napi_typeof(env, propertyValue, &propertyValueType);
+  if (propertyValueType != napi_string)
+  {
+    return false;
+  }
+
+  // Read the property value
+  size_t stringLength;
+  napi_get_value_string_utf8(env, propertyValue, nullptr, 0, &stringLength);
+  char *stringValue = (char *)malloc(stringLength + 1);
+  napi_get_value_string_utf8(env, propertyValue, stringValue, stringLength + 1, &stringLength);
+  *value = std::string(stringValue);
+  free(stringValue);
+
+  return true;
+}
+
+#define READ_STRING_REQUIRED(property, target, paramType)       \
+  std::string property;                                         \
+  if (!read_property_string(env, target, #property, &property)) \
+  {                                                             \
+    THROW_PROPERTY_TYPE(#property, #paramType, "String");       \
+  }
+
+#define READ_STRING_OPTIONAL(property, target, paramType)         \
+  std::string property;                                           \
+  if (has_property(env, target, #property))                       \
+  {                                                               \
+    if (!read_property_string(env, target, #property, &property)) \
+    {                                                             \
+      THROW_PROPERTY_TYPE(#property, #paramType, "String");       \
     }                                                             \
   }
 
@@ -960,6 +1072,142 @@ bool get_params_pbe(
   // Set the mechanism parameters
   mechanism->pParameter = params;
   mechanism->ulParameterLen = sizeof(CK_PBE_PARAMS);
+
+  return true;
+}
+
+// Reads CK_KEY_WRAP_SET_OAEP_PARAMS from a given JavaScript object.
+bool get_params_key_wrap_set_oaep(
+    napi_env env,
+    napi_value mechanismParameter,
+    CK_MECHANISM_PTR mechanism)
+{
+  CK_KEY_WRAP_SET_OAEP_PARAMS_PTR params = CK_KEY_WRAP_SET_OAEP_PARAMS_PTR(malloc(sizeof(CK_KEY_WRAP_SET_OAEP_PARAMS)));
+
+  // Read the mechanism parameters
+  READ_BYTE_OPTIONAL(bc, mechanismParameter, CK_KEY_WRAP_SET_OAEP_PARAMS);
+  READ_BYTES_OPTIONAL(x, mechanismParameter, CK_KEY_WRAP_SET_OAEP_PARAMS);
+
+  // Create the mechanism parameters structure
+  params->bBC = bc;
+  params->pX = x;
+  params->ulXLen = xLength;
+
+  // Set the mechanism parameters
+  mechanism->pParameter = params;
+  mechanism->ulParameterLen = sizeof(CK_KEY_WRAP_SET_OAEP_PARAMS);
+
+  return true;
+}
+
+// Reads CK_GCM_PARAMS from a given JavaScript object.
+bool get_params_gcm(
+    napi_env env,
+    napi_value mechanismParameter,
+    CK_MECHANISM_PTR mechanism)
+{
+  CK_GCM_PARAMS_PTR params = CK_GCM_PARAMS_PTR(malloc(sizeof(CK_GCM_PARAMS)));
+
+  // Read the mechanism parameters
+  READ_BYTES_REQUIRED(iv, mechanismParameter, CK_GCM_PARAMS);
+  READ_ULONG_REQUIRED(ivBits, mechanismParameter, CK_GCM_PARAMS);
+  READ_BYTES_OPTIONAL(aad, mechanismParameter, CK_GCM_PARAMS);
+  READ_ULONG_OPTIONAL(tagBits, mechanismParameter, CK_GCM_PARAMS);
+
+  // Create the mechanism parameters structure
+  params->pIv = iv;
+  params->ulIvLen = ivLength;
+  params->ulIvBits = ivBits;
+  params->pAAD = aad;
+  params->ulAADLen = aadLength;
+  params->ulTagBits = tagBits;
+
+  // Set the mechanism parameters
+  mechanism->pParameter = params;
+  mechanism->ulParameterLen = sizeof(CK_GCM_PARAMS);
+
+  return true;
+}
+
+// Reads CK_CCM_PARAMS from a given JavaScript object.
+bool get_params_ccm(
+    napi_env env,
+    napi_value mechanismParameter,
+    CK_MECHANISM_PTR mechanism)
+{
+  CK_CCM_PARAMS_PTR params = CK_CCM_PARAMS_PTR(malloc(sizeof(CK_CCM_PARAMS)));
+
+  // Read the mechanism parameters
+  READ_ULONG_REQUIRED(dataLength, mechanismParameter, CK_CCM_PARAMS);
+  READ_BYTES_OPTIONAL(nonce, mechanismParameter, CK_CCM_PARAMS);
+  READ_BYTES_OPTIONAL(aad, mechanismParameter, CK_CCM_PARAMS);
+  READ_ULONG_OPTIONAL(macLength, mechanismParameter, CK_CCM_PARAMS);
+
+  // Create the mechanism parameters structure
+  params->ulDataLen = dataLength;
+  params->pNonce = nonce;
+  params->ulNonceLen = nonceLength;
+  params->pAAD = aad;
+  params->ulAADLen = aadLength;
+  params->ulMACLen = macLength;
+
+  // Set the mechanism parameters
+  mechanism->pParameter = params;
+  mechanism->ulParameterLen = sizeof(CK_CCM_PARAMS);
+
+  return true;
+}
+
+// Reads CK_GOSTR3410_DERIVE_PARAMS from a given JavaScript object.
+bool get_params_gost_r3410_derive(
+    napi_env env,
+    napi_value mechanismParameter,
+    CK_MECHANISM_PTR mechanism)
+{
+  CK_GOSTR3410_DERIVE_PARAMS_PTR params = CK_GOSTR3410_DERIVE_PARAMS_PTR(malloc(sizeof(CK_GOSTR3410_DERIVE_PARAMS)));
+
+  // Read the mechanism parameters
+  READ_ULONG_REQUIRED(kdf, mechanismParameter, CK_GOSTR3410_DERIVE_PARAMS);
+  READ_BYTES_REQUIRED(publicData, mechanismParameter, CK_GOSTR3410_DERIVE_PARAMS);
+  READ_BYTES_OPTIONAL(ukm, mechanismParameter, CK_GOSTR3410_DERIVE_PARAMS);
+
+  // Create the mechanism parameters structure
+  params->kdf = kdf;
+  params->pPublicData = publicData;
+  params->ulPublicDataLen = publicDataLength;
+  params->pUKM = ukm;
+  params->ulUKMLen = ukmLength;
+
+  // Set the mechanism parameters
+  mechanism->pParameter = params;
+  mechanism->ulParameterLen = sizeof(CK_GOSTR3410_DERIVE_PARAMS);
+
+  return true;
+}
+
+// Reads CK_GOSTR3410_KEY_WRAP_PARAMS from a given JavaScript object.
+bool get_params_gost_r3410_key_wrap(
+    napi_env env,
+    napi_value mechanismParameter,
+    CK_MECHANISM_PTR mechanism)
+{
+  CK_GOSTR3410_KEY_WRAP_PARAMS_PTR params = CK_GOSTR3410_KEY_WRAP_PARAMS_PTR(malloc(sizeof(CK_GOSTR3410_KEY_WRAP_PARAMS)));
+
+  // Read the mechanism parameters
+  READ_BYTES_REQUIRED(wrapOID, mechanismParameter, CK_GOSTR3410_KEY_WRAP_PARAMS);
+  READ_BYTES_OPTIONAL(ukm, mechanismParameter, CK_GOSTR3410_KEY_WRAP_PARAMS);
+  READ_HANDLE_REQUIRED(key, mechanismParameter, CK_GOSTR3410_KEY_WRAP_PARAMS);
+
+  // Create the mechanism parameters structure
+  params->pWrapOID = wrapOID;
+  params->ulWrapOIDLen = wrapOIDLength;
+  params->pUKM = ukm;
+  params->ulUKMLen = ukmLength;
+  params->hKey = key;
+
+  // Set the mechanism parameters
+  mechanism->pParameter = params;
+  mechanism->ulParameterLen = sizeof(CK_GOSTR3410_KEY_WRAP_PARAMS);
 
   return true;
 }

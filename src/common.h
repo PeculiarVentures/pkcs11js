@@ -7,6 +7,7 @@
 #include <vector>
 #include <node_api.h>
 #include <cstdarg>
+#include <string>
 
 #ifdef _WIN32
 // Use Windows-specific definitions
@@ -66,6 +67,11 @@ typedef CK_NSS_C_INITIALIZE_ARGS *CK_NSS_C_INITIALIZE_ARGS_PTR;
 #define CK_PARAMS_SKIPJACK_PRIVATE_WRAP 21
 #define CK_PARAMS_SKIPJACK_RELAYX 22
 #define CK_PARAMS_PBE 23
+#define CK_PARAMS_KEY_WRAP_SET_OAEP 24
+#define CK_PARAMS_GCM 25
+#define CK_PARAMS_CCM 26
+#define CK_PARAM_GOSTR3410_DERIVE 27
+#define CK_PARAM_GOSTR3410_KEY_WRAP 28
 
 /**
  * @brief Retrieves the name of the error code.
