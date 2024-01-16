@@ -564,14 +564,15 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
       return get_params_gost_r3410_key_wrap(env, mechanismParameter, mechanism);
     }
     }
-    else
-    {
-      mechanism->pParameter = nullptr;
-      mechanism->ulParameterLen = 0;
-    }
-
-    return true;
   }
+  else
+  {
+    mechanism->pParameter = nullptr;
+    mechanism->ulParameterLen = 0;
+  }
+
+  return true;
+}
 
 /**
  * @brief A macro that retrieves a mechanism from the argument list at a specified index.
@@ -586,127 +587,127 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
     return nullptr;                                                    \
   }
 
-  /**
-   * @brief Get the attributes object from the argument list at a specified index.
-   *
-   * @param env The N-API environment.
-   * @param arg The array of N-API values representing the arguments.
-   * @param argc The number of arguments in the array.
-   * @param index The index of the argument to retrieve.
-   * @param attrs A pointer to store the retrieved attributes. If nullptr, only the length is retrieved.
-   * @param length A pointer to store the length of the attributes.
-   * @return true if the attributes were successfully retrieved, false otherwise.
-   */
-  bool get_args_attributes(napi_env env, napi_value * arg, size_t argc, size_t index, AttributesWrapper * attrs, CK_ULONG * length)
+/**
+ * @brief Get the attributes object from the argument list at a specified index.
+ *
+ * @param env The N-API environment.
+ * @param arg The array of N-API values representing the arguments.
+ * @param argc The number of arguments in the array.
+ * @param index The index of the argument to retrieve.
+ * @param attrs A pointer to store the retrieved attributes. If nullptr, only the length is retrieved.
+ * @param length A pointer to store the length of the attributes.
+ * @return true if the attributes were successfully retrieved, false otherwise.
+ */
+bool get_args_attributes(napi_env env, napi_value *arg, size_t argc, size_t index, AttributesWrapper *attrs, CK_ULONG *length)
+{
+  ASSERT_ARGS_INDEX(index);
+
+  // check type
+  // { type: number, value?: number | boolean | string | Buffer  }[]
+  bool isArray;
+  napi_is_array(env, arg[index], &isArray);
+  if (!isArray)
   {
-    ASSERT_ARGS_INDEX(index);
+    THROW_TYPE_ERRORF(false, "Argument %lu has wrong type. Should be an Array", index);
+  }
 
-    // check type
-    // { type: number, value?: number | boolean | string | Buffer  }[]
-    bool isArray;
-    napi_is_array(env, arg[index], &isArray);
-    if (!isArray)
-    {
-      THROW_TYPE_ERRORF(false, "Argument %lu has wrong type. Should be an Array", index);
-    }
+  // get length
+  napi_value array = arg[index];
+  uint32_t arrayLength;
+  napi_get_array_length(env, array, &arrayLength);
+  if (attrs != nullptr && arrayLength != attrs->length)
+  {
+    THROW_TYPE_ERRORF(false, "Parameter 'attrs' has wrong length. Should be %lu.", attrs->length);
+  }
+  *length = arrayLength;
 
-    // get length
-    napi_value array = arg[index];
-    uint32_t arrayLength;
-    napi_get_array_length(env, array, &arrayLength);
-    if (attrs != nullptr && arrayLength != attrs->length)
-    {
-      THROW_TYPE_ERRORF(false, "Parameter 'attrs' has wrong length. Should be %lu.", attrs->length);
-    }
-    *length = arrayLength;
-
-    if (attrs == nullptr)
-    {
-      // only length is required
-      return true;
-    }
-
-    // get attributes
-    for (int i = 0; i < int(arrayLength); i++)
-    {
-      napi_value element;
-      napi_get_element(env, array, i, &element);
-
-      // check element type
-      if (!is_object(env, element))
-      {
-        THROW_TYPE_ERRORF(false, "Element %d has wrong type. Should be an Object", i);
-      }
-
-      // type
-      napi_value typeValue;
-      napi_get_named_property(env, element, "type", &typeValue);
-      if (!is_number(env, typeValue))
-      {
-        THROW_TYPE_ERRORF(false, "Element %d has wrong type. Property 'type' should be a Number", i);
-      }
-
-      // value
-      napi_value valueValue;
-      napi_get_named_property(env, element, "value", &valueValue);
-      napi_valuetype valueValueType;
-      napi_typeof(env, valueValue, &valueValueType);
-      bool valueIsBuffer = false;
-      napi_is_buffer(env, valueValue, &valueIsBuffer);
-      if (valueValueType != napi_undefined && // undefined
-          valueValueType != napi_null &&      // null
-          valueValueType != napi_number &&    // Number
-          valueValueType != napi_boolean &&   // Boolean
-          valueValueType != napi_string &&    // String
-          !valueIsBuffer)                     // Buffer
-      {
-        THROW_TYPE_ERRORF(false, "Element %d has wrong type. Property 'value' should be a Number, Boolean, String or Buffer", i);
-      }
-
-      CK_ATTRIBUTE_PTR attr = &attrs->attributes[i];
-
-      uint32_t type;
-      napi_get_value_uint32(env, typeValue, &type);
-      attr->type = (CK_ATTRIBUTE_TYPE)type;
-
-      if (valueValueType == napi_undefined || valueValueType == napi_null)
-      {
-        attrs->allocValue(i, 0);
-      }
-      else if (valueValueType == napi_number)
-      {
-        attrs->allocValue(i, sizeof(CK_ULONG));
-        uint32_t value;
-        napi_get_value_uint32(env, valueValue, &value);
-        *(CK_ULONG *)attr->pValue = value;
-      }
-      else if (valueValueType == napi_boolean)
-      {
-        attrs->allocValue(i, sizeof(CK_BBOOL));
-        bool value;
-        napi_get_value_bool(env, valueValue, &value);
-        *(CK_BBOOL *)attr->pValue = value ? CK_TRUE : CK_FALSE;
-      }
-      else if (valueValueType == napi_string)
-      {
-        size_t length;
-        napi_get_value_string_utf8(env, valueValue, nullptr, 0, &length);
-        attrs->allocValue(i, length + 1);
-        attrs->attributes[i].ulValueLen = length; // length without null terminator
-        napi_get_value_string_utf8(env, valueValue, (char *)attr->pValue, length + 1, &length);
-      }
-      else if (valueIsBuffer)
-      {
-        void *data;
-        size_t length;
-        napi_get_buffer_info(env, valueValue, &data, &length);
-        attrs->allocValue(i, length);
-        memcpy(attr->pValue, data, length);
-      }
-    }
-
+  if (attrs == nullptr)
+  {
+    // only length is required
     return true;
   }
+
+  // get attributes
+  for (int i = 0; i < int(arrayLength); i++)
+  {
+    napi_value element;
+    napi_get_element(env, array, i, &element);
+
+    // check element type
+    if (!is_object(env, element))
+    {
+      THROW_TYPE_ERRORF(false, "Element %d has wrong type. Should be an Object", i);
+    }
+
+    // type
+    napi_value typeValue;
+    napi_get_named_property(env, element, "type", &typeValue);
+    if (!is_number(env, typeValue))
+    {
+      THROW_TYPE_ERRORF(false, "Element %d has wrong type. Property 'type' should be a Number", i);
+    }
+
+    // value
+    napi_value valueValue;
+    napi_get_named_property(env, element, "value", &valueValue);
+    napi_valuetype valueValueType;
+    napi_typeof(env, valueValue, &valueValueType);
+    bool valueIsBuffer = false;
+    napi_is_buffer(env, valueValue, &valueIsBuffer);
+    if (valueValueType != napi_undefined && // undefined
+        valueValueType != napi_null &&      // null
+        valueValueType != napi_number &&    // Number
+        valueValueType != napi_boolean &&   // Boolean
+        valueValueType != napi_string &&    // String
+        !valueIsBuffer)                     // Buffer
+    {
+      THROW_TYPE_ERRORF(false, "Element %d has wrong type. Property 'value' should be a Number, Boolean, String or Buffer", i);
+    }
+
+    CK_ATTRIBUTE_PTR attr = &attrs->attributes[i];
+
+    uint32_t type;
+    napi_get_value_uint32(env, typeValue, &type);
+    attr->type = (CK_ATTRIBUTE_TYPE)type;
+
+    if (valueValueType == napi_undefined || valueValueType == napi_null)
+    {
+      attrs->allocValue(i, 0);
+    }
+    else if (valueValueType == napi_number)
+    {
+      attrs->allocValue(i, sizeof(CK_ULONG));
+      uint32_t value;
+      napi_get_value_uint32(env, valueValue, &value);
+      *(CK_ULONG *)attr->pValue = value;
+    }
+    else if (valueValueType == napi_boolean)
+    {
+      attrs->allocValue(i, sizeof(CK_BBOOL));
+      bool value;
+      napi_get_value_bool(env, valueValue, &value);
+      *(CK_BBOOL *)attr->pValue = value ? CK_TRUE : CK_FALSE;
+    }
+    else if (valueValueType == napi_string)
+    {
+      size_t length;
+      napi_get_value_string_utf8(env, valueValue, nullptr, 0, &length);
+      attrs->allocValue(i, length + 1);
+      attrs->attributes[i].ulValueLen = length; // length without null terminator
+      napi_get_value_string_utf8(env, valueValue, (char *)attr->pValue, length + 1, &length);
+    }
+    else if (valueIsBuffer)
+    {
+      void *data;
+      size_t length;
+      napi_get_buffer_info(env, valueValue, &data, &length);
+      attrs->allocValue(i, length);
+      memcpy(attr->pValue, data, length);
+    }
+  }
+
+  return true;
+}
 
 /**
  * @brief A macro that retrieves attributes from the argument list at a specified index.
@@ -736,29 +737,29 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
     THROW_TYPE_ERRORF(nullptr, "Argument %lu has wrong type. Should be a Function", index); \
   }
 
-  /**
-   * @brief Get a list of arguments from the function call.
-   *
-   * @param env The N-API environment.
-   * @param info The N-API callback info.
-   * @param argc The number of arguments to retrieve.
-   * @param arg A pointer to store the retrieved arguments.
-   * @return true if the arguments were successfully retrieved, false otherwise.
-   */
-  bool get_args(napi_env env, napi_callback_info info, size_t argc, napi_value * arg)
+/**
+ * @brief Get a list of arguments from the function call.
+ *
+ * @param env The N-API environment.
+ * @param info The N-API callback info.
+ * @param argc The number of arguments to retrieve.
+ * @param arg A pointer to store the retrieved arguments.
+ * @return true if the arguments were successfully retrieved, false otherwise.
+ */
+bool get_args(napi_env env, napi_callback_info info, size_t argc, napi_value *arg)
+{
+  napi_value jsthis;
+  size_t length = 0;
+  napi_get_cb_info(env, info, &length, nullptr, &jsthis, nullptr);
+  if (length != argc)
   {
-    napi_value jsthis;
-    size_t length = 0;
-    napi_get_cb_info(env, info, &length, nullptr, &jsthis, nullptr);
-    if (length != argc)
-    {
-      THROW_TYPE_ERRORF(false, "Parameters are required. Expected %lu arguments, but received %lu.", argc, length);
-    }
-
-    napi_get_cb_info(env, info, &length, arg, &jsthis, nullptr);
-
-    return true;
+    THROW_TYPE_ERRORF(false, "Parameters are required. Expected %lu arguments, but received %lu.", argc, length);
   }
+
+  napi_get_cb_info(env, info, &length, arg, &jsthis, nullptr);
+
+  return true;
+}
 
 /**
  * @brief A macro that retrieves a list of arguments from the function call.
@@ -800,1927 +801,1927 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
     return nullptr;                                                 \
   }
 
-  class Pkcs11
+class Pkcs11
+{
+public:
+  void *handle;
+  CK_FUNCTION_LIST_PTR functionList;
+
+  Pkcs11() : handle(nullptr), functionList(nullptr) {}
+
+  ~Pkcs11()
   {
-  public:
-    void *handle;
-    CK_FUNCTION_LIST_PTR functionList;
-
-    Pkcs11() : handle(nullptr), functionList(nullptr) {}
-
-    ~Pkcs11()
+    if (handle != nullptr)
     {
-      if (handle != nullptr)
-      {
-        dlclose(handle);
-        handle = nullptr;
-      }
+      dlclose(handle);
+      handle = nullptr;
+    }
+  }
+
+  static napi_value Constructor(napi_env env, napi_callback_info info)
+  {
+    napi_value target;
+    napi_get_new_target(env, info, &target);
+
+    bool isConstructor = target != nullptr;
+
+    if (isConstructor)
+    {
+      napi_value jsthis;
+      napi_get_cb_info(env, info, nullptr, nullptr, &jsthis, nullptr);
+
+      Pkcs11 *pkcs11 = new Pkcs11();
+      napi_wrap(env, jsthis, pkcs11, Pkcs11::Destructor, nullptr, nullptr);
+
+      return jsthis;
+    }
+    else
+    {
+      napi_value cons;
+      napi_get_reference_value(env, constructorRef, &cons);
+
+      napi_value instance;
+      napi_new_instance(env, cons, 0, nullptr, &instance);
+
+      return instance;
+    }
+  }
+
+  static void Destructor(napi_env env, void *nativeObject, void *finalize_hint)
+  {
+    Pkcs11 *pkcs11 = static_cast<Pkcs11 *>(nativeObject);
+    pkcs11->~Pkcs11();
+  }
+
+  /**
+   * @brief Loads the PKCS11 module.
+   *
+   * @param env The N-API environment.
+   * @param info The N-API callback info.
+   * @return The loaded PKCS11 module.
+   */
+  static napi_value Load(napi_env env, napi_callback_info info)
+  {
+    napi_value jsthis;
+    napi_get_cb_info(env, info, nullptr, nullptr, &jsthis, nullptr);
+
+    Pkcs11 *pkcs11;
+    napi_unwrap(env, jsthis, (void **)&pkcs11);
+
+    size_t argc = 1;
+    napi_value arg[1];
+    napi_get_cb_info(env, info, &argc, arg, nullptr, nullptr);
+
+    size_t length;
+    napi_get_value_string_utf8(env, arg[0], nullptr, 0, &length);
+
+    std::vector<char> path(length + 1);
+    char *pPath = path.data();
+    napi_get_value_string_utf8(env, arg[0], pPath, length + 1, &length);
+
+    pkcs11->handle = dlopen(pPath, RTLD_LAZY);
+    if (pkcs11->handle == nullptr)
+    {
+      napi_throw_error(env, nullptr, dlerror());
+      return nullptr;
     }
 
-    static napi_value Constructor(napi_env env, napi_callback_info info)
+    CK_C_GetFunctionList pC_GetFunctionList = (CK_C_GetFunctionList)dlsym(pkcs11->handle, "C_GetFunctionList");
+    if (pC_GetFunctionList == nullptr)
     {
-      napi_value target;
-      napi_get_new_target(env, info, &target);
+      napi_throw_error(env, nullptr, dlerror());
+      return nullptr;
+    }
 
-      bool isConstructor = target != nullptr;
+    CK_RV rv = pC_GetFunctionList(&pkcs11->functionList);
+    ASSERT_RV(rv);
 
-      if (isConstructor)
+    return nullptr;
+  }
+
+  /**
+   * @brief Closes the PKCS11 module.
+   *
+   * @param env The N-API environment.
+   * @param info The N-API callback info.
+   * @return Nothing.
+   */
+  static napi_value Close(napi_env env, napi_callback_info info)
+  {
+    napi_value jsthis;
+    napi_get_cb_info(env, info, nullptr, nullptr, &jsthis, nullptr);
+
+    Pkcs11 *pkcs11;
+    napi_unwrap(env, jsthis, (void **)&pkcs11);
+
+    if (pkcs11->handle != nullptr)
+    {
+      dlclose(pkcs11->handle);
+      pkcs11->handle = nullptr;
+    }
+
+    return nullptr;
+  }
+
+  static napi_value C_Initialize(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    // Read arguments
+    size_t argc = 1;
+    napi_value arg[1];
+    napi_get_cb_info(env, info, &argc, arg, nullptr, nullptr);
+
+    CK_VOID_PTR pInitArgs = nullptr;
+    CK_NSS_C_INITIALIZE_ARGS nssInitArgs = {nullptr, nullptr, nullptr, nullptr, 0, nullptr, nullptr};
+    CK_C_INITIALIZE_ARGS initArgs = {nullptr, nullptr, nullptr, nullptr, 0, nullptr};
+    char *path = nullptr;
+    if (argc > 0 && !is_empty(env, arg[0]))
+    {
+      napi_valuetype type;
+      napi_typeof(env, arg[0], &type);
+
+      if (type != napi_object)
       {
-        napi_value jsthis;
-        napi_get_cb_info(env, info, nullptr, nullptr, &jsthis, nullptr);
+        THROW_TYPE_ERRORF(nullptr, "Argument %lu has wrong type. Should be an Object", 0);
+      }
 
-        Pkcs11 *pkcs11 = new Pkcs11();
-        napi_wrap(env, jsthis, pkcs11, Pkcs11::Destructor, nullptr, nullptr);
+      // Read common C_Initialize args
+      napi_value flags;
+      napi_get_named_property(env, arg[0], "flags", &flags);
+      uint32_t ckFlags;
+      napi_get_value_uint32(env, flags, &ckFlags);
 
-        return jsthis;
+      bool hasLibraryParameters;
+      napi_has_named_property(env, arg[0], "libraryParameters", &hasLibraryParameters);
+      if (hasLibraryParameters)
+      {
+        // Read NSS C_Initialize args
+        napi_value libraryParameters;
+        napi_get_named_property(env, arg[0], "libraryParameters", &libraryParameters);
+        napi_valuetype type;
+        napi_typeof(env, libraryParameters, &type);
+
+        if (type != napi_string)
+        {
+          THROW_TYPE_ERRORF(nullptr, "Argument %lu has wrong type. Property 'libraryParameters' should be a String", 0);
+        }
+
+        size_t length;
+        napi_get_value_string_utf8(env, libraryParameters, nullptr, 0, &length);
+
+        path = new char[length + 1];
+        napi_get_value_string_utf8(env, libraryParameters, path, length + 1, &length);
+
+        nssInitArgs.LibraryParameters = (CK_CHAR_PTR)path;
+        nssInitArgs.flags = (CK_FLAGS)ckFlags;
+
+        pInitArgs = &nssInitArgs;
       }
       else
       {
-        napi_value cons;
-        napi_get_reference_value(env, constructorRef, &cons);
-
-        napi_value instance;
-        napi_new_instance(env, cons, 0, nullptr, &instance);
-
-        return instance;
-      }
-    }
-
-    static void Destructor(napi_env env, void *nativeObject, void *finalize_hint)
-    {
-      Pkcs11 *pkcs11 = static_cast<Pkcs11 *>(nativeObject);
-      pkcs11->~Pkcs11();
-    }
-
-    /**
-     * @brief Loads the PKCS11 module.
-     *
-     * @param env The N-API environment.
-     * @param info The N-API callback info.
-     * @return The loaded PKCS11 module.
-     */
-    static napi_value Load(napi_env env, napi_callback_info info)
-    {
-      napi_value jsthis;
-      napi_get_cb_info(env, info, nullptr, nullptr, &jsthis, nullptr);
-
-      Pkcs11 *pkcs11;
-      napi_unwrap(env, jsthis, (void **)&pkcs11);
-
-      size_t argc = 1;
-      napi_value arg[1];
-      napi_get_cb_info(env, info, &argc, arg, nullptr, nullptr);
-
-      size_t length;
-      napi_get_value_string_utf8(env, arg[0], nullptr, 0, &length);
-
-      std::vector<char> path(length + 1);
-      char *pPath = path.data();
-      napi_get_value_string_utf8(env, arg[0], pPath, length + 1, &length);
-
-      pkcs11->handle = dlopen(pPath, RTLD_LAZY);
-      if (pkcs11->handle == nullptr)
-      {
-        napi_throw_error(env, nullptr, dlerror());
-        return nullptr;
-      }
-
-      CK_C_GetFunctionList pC_GetFunctionList = (CK_C_GetFunctionList)dlsym(pkcs11->handle, "C_GetFunctionList");
-      if (pC_GetFunctionList == nullptr)
-      {
-        napi_throw_error(env, nullptr, dlerror());
-        return nullptr;
-      }
-
-      CK_RV rv = pC_GetFunctionList(&pkcs11->functionList);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    /**
-     * @brief Closes the PKCS11 module.
-     *
-     * @param env The N-API environment.
-     * @param info The N-API callback info.
-     * @return Nothing.
-     */
-    static napi_value Close(napi_env env, napi_callback_info info)
-    {
-      napi_value jsthis;
-      napi_get_cb_info(env, info, nullptr, nullptr, &jsthis, nullptr);
-
-      Pkcs11 *pkcs11;
-      napi_unwrap(env, jsthis, (void **)&pkcs11);
-
-      if (pkcs11->handle != nullptr)
-      {
-        dlclose(pkcs11->handle);
-        pkcs11->handle = nullptr;
-      }
-
-      return nullptr;
-    }
-
-    static napi_value C_Initialize(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-
-      // Read arguments
-      size_t argc = 1;
-      napi_value arg[1];
-      napi_get_cb_info(env, info, &argc, arg, nullptr, nullptr);
-
-      CK_VOID_PTR pInitArgs = nullptr;
-      CK_NSS_C_INITIALIZE_ARGS nssInitArgs = {nullptr, nullptr, nullptr, nullptr, 0, nullptr, nullptr};
-      CK_C_INITIALIZE_ARGS initArgs = {nullptr, nullptr, nullptr, nullptr, 0, nullptr};
-      char *path = nullptr;
-      if (argc > 0 && !is_empty(env, arg[0]))
-      {
-        napi_valuetype type;
-        napi_typeof(env, arg[0], &type);
-
-        if (type != napi_object)
-        {
-          THROW_TYPE_ERRORF(nullptr, "Argument %lu has wrong type. Should be an Object", 0);
-        }
-
         // Read common C_Initialize args
-        napi_value flags;
-        napi_get_named_property(env, arg[0], "flags", &flags);
-        uint32_t ckFlags;
-        napi_get_value_uint32(env, flags, &ckFlags);
+        initArgs.flags = (CK_FLAGS)ckFlags;
 
-        bool hasLibraryParameters;
-        napi_has_named_property(env, arg[0], "libraryParameters", &hasLibraryParameters);
-        if (hasLibraryParameters)
-        {
-          // Read NSS C_Initialize args
-          napi_value libraryParameters;
-          napi_get_named_property(env, arg[0], "libraryParameters", &libraryParameters);
-          napi_valuetype type;
-          napi_typeof(env, libraryParameters, &type);
-
-          if (type != napi_string)
-          {
-            THROW_TYPE_ERRORF(nullptr, "Argument %lu has wrong type. Property 'libraryParameters' should be a String", 0);
-          }
-
-          size_t length;
-          napi_get_value_string_utf8(env, libraryParameters, nullptr, 0, &length);
-
-          path = new char[length + 1];
-          napi_get_value_string_utf8(env, libraryParameters, path, length + 1, &length);
-
-          nssInitArgs.LibraryParameters = (CK_CHAR_PTR)path;
-          nssInitArgs.flags = (CK_FLAGS)ckFlags;
-
-          pInitArgs = &nssInitArgs;
-        }
-        else
-        {
-          // Read common C_Initialize args
-          initArgs.flags = (CK_FLAGS)ckFlags;
-
-          pInitArgs = &initArgs;
-        }
-      }
-
-      if (pInitArgs == nullptr)
-      {
         pInitArgs = &initArgs;
       }
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Initialize(pInitArgs);
-      if (path != nullptr)
-      {
-        delete[] path;
-      }
-      ASSERT_RV(rv);
-
-      return nullptr;
     }
 
-    static napi_value C_Finalize(napi_env env, napi_callback_info info)
+    if (pInitArgs == nullptr)
     {
-      UNWRAP_PKCS11();
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Finalize(nullptr);
-      ASSERT_RV(rv);
-
-      return nullptr;
+      pInitArgs = &initArgs;
     }
 
-    static napi_value C_GetInfo(napi_env env, napi_callback_info info)
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Initialize(pInitArgs);
+    if (path != nullptr)
     {
-      UNWRAP_PKCS11();
-
-      // Call PKCS11 function
-      CK_INFO ckInfo;
-      CK_RV rv = pkcs11->functionList->C_GetInfo(&ckInfo);
-      ASSERT_RV(rv);
-
-      // Create result object
-      napi_value result;
-      napi_create_object(env, &result);
-
-      napi_value cryptokiVersion = create_version(env, ckInfo.cryptokiVersion);
-      napi_set_named_property(env, result, "cryptokiVersion", cryptokiVersion);
-
-      napi_value manufacturerID;
-      napi_create_string_utf8(env, (char *)&ckInfo.manufacturerID[0], sizeof(ckInfo.manufacturerID), &manufacturerID);
-      napi_set_named_property(env, result, "manufacturerID", manufacturerID);
-
-      napi_value flags;
-      napi_create_uint32(env, ckInfo.flags, &flags);
-      napi_set_named_property(env, result, "flags", flags);
-
-      napi_value libraryDescription;
-      napi_create_string_utf8(env, (char *)&ckInfo.libraryDescription[0], sizeof(ckInfo.libraryDescription), &libraryDescription);
-      napi_set_named_property(env, result, "libraryDescription", libraryDescription);
-
-      napi_value libraryVersion = create_version(env, ckInfo.libraryVersion);
-      napi_set_named_property(env, result, "libraryVersion", libraryVersion);
-
-      return result;
+      delete[] path;
     }
+    ASSERT_RV(rv);
 
-    static napi_value C_GetSlotList(napi_env env, napi_callback_info info)
+    return nullptr;
+  }
+
+  static napi_value C_Finalize(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Finalize(nullptr);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_GetInfo(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    // Call PKCS11 function
+    CK_INFO ckInfo;
+    CK_RV rv = pkcs11->functionList->C_GetInfo(&ckInfo);
+    ASSERT_RV(rv);
+
+    // Create result object
+    napi_value result;
+    napi_create_object(env, &result);
+
+    napi_value cryptokiVersion = create_version(env, ckInfo.cryptokiVersion);
+    napi_set_named_property(env, result, "cryptokiVersion", cryptokiVersion);
+
+    napi_value manufacturerID;
+    napi_create_string_utf8(env, (char *)&ckInfo.manufacturerID[0], sizeof(ckInfo.manufacturerID), &manufacturerID);
+    napi_set_named_property(env, result, "manufacturerID", manufacturerID);
+
+    napi_value flags;
+    napi_create_uint32(env, ckInfo.flags, &flags);
+    napi_set_named_property(env, result, "flags", flags);
+
+    napi_value libraryDescription;
+    napi_create_string_utf8(env, (char *)&ckInfo.libraryDescription[0], sizeof(ckInfo.libraryDescription), &libraryDescription);
+    napi_set_named_property(env, result, "libraryDescription", libraryDescription);
+
+    napi_value libraryVersion = create_version(env, ckInfo.libraryVersion);
+    napi_set_named_property(env, result, "libraryVersion", libraryVersion);
+
+    return result;
+  }
+
+  static napi_value C_GetSlotList(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+
+    // Read arguments
+    CK_BBOOL ckTokenPresent = CK_FALSE;
+    size_t argc = 1;
+    napi_value arg[1];
+    napi_get_cb_info(env, info, &argc, arg, nullptr, nullptr);
+    if (argc > 0)
     {
-      UNWRAP_PKCS11();
+      napi_valuetype type;
+      napi_typeof(env, arg[0], &type);
 
-      // Read arguments
-      CK_BBOOL ckTokenPresent = CK_FALSE;
-      size_t argc = 1;
-      napi_value arg[1];
-      napi_get_cb_info(env, info, &argc, arg, nullptr, nullptr);
-      if (argc > 0)
+      if (type != napi_boolean)
       {
-        napi_valuetype type;
-        napi_typeof(env, arg[0], &type);
-
-        if (type != napi_boolean)
-        {
-          THROW_TYPE_ERRORF(nullptr, "Argument %lu has wrong type. Should be a Boolean", 0);
-        }
-
-        bool temp;
-        napi_get_value_bool(env, arg[0], &temp);
-        ckTokenPresent = temp;
-      }
-
-      // Call PKCS11 function
-      CK_ULONG slotCount;
-      CK_RV rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, nullptr, &slotCount); // get slot count
-      ASSERT_RV(rv);
-
-      std::vector<CK_SLOT_ID> slotList(slotCount);
-      CK_SLOT_ID_PTR pSlotList = slotList.data();
-      rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, pSlotList, &slotCount);
-      ASSERT_RV(rv);
-
-      // Create result array
-      napi_value result;
-      napi_create_array(env, &result);
-      for (int i = 0; i < int(slotCount); i++)
-      {
-        napi_value slotId;
-        napi_create_buffer_copy(env, sizeof(CK_SLOT_ID), &pSlotList[i], nullptr, &slotId);
-        napi_set_element(env, result, i, slotId);
+        THROW_TYPE_ERRORF(nullptr, "Argument %lu has wrong type. Should be a Boolean", 0);
       }
 
-      return result;
+      bool temp;
+      napi_get_value_bool(env, arg[0], &temp);
+      ckTokenPresent = temp;
     }
 
-    static napi_value C_GetSlotInfo(napi_env env, napi_callback_info info)
+    // Call PKCS11 function
+    CK_ULONG slotCount;
+    CK_RV rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, nullptr, &slotCount); // get slot count
+    ASSERT_RV(rv);
+
+    std::vector<CK_SLOT_ID> slotList(slotCount);
+    CK_SLOT_ID_PTR pSlotList = slotList.data();
+    rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, pSlotList, &slotCount);
+    ASSERT_RV(rv);
+
+    // Create result array
+    napi_value result;
+    napi_create_array(env, &result);
+    for (int i = 0; i < int(slotCount); i++)
     {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
+      napi_value slotId;
+      napi_create_buffer_copy(env, sizeof(CK_SLOT_ID), &pSlotList[i], nullptr, &slotId);
+      napi_set_element(env, result, i, slotId);
+    }
 
-      // Read arguments
-      GET_ARGS_SLOT_ID(0, slotId)
+    return result;
+  }
 
-      // Call PKCS11 function
-      CK_SLOT_INFO ckSlotInfo;
-      CK_RV rv = pkcs11->functionList->C_GetSlotInfo(slotId, &ckSlotInfo);
+  static napi_value C_GetSlotInfo(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SLOT_ID(0, slotId)
+
+    // Call PKCS11 function
+    CK_SLOT_INFO ckSlotInfo;
+    CK_RV rv = pkcs11->functionList->C_GetSlotInfo(slotId, &ckSlotInfo);
+    ASSERT_RV(rv);
+
+    // Create result object
+    napi_value result;
+    napi_create_object(env, &result);
+
+    napi_value slotDescription;
+    napi_create_string_utf8(env, (char *)&ckSlotInfo.slotDescription[0], sizeof(ckSlotInfo.slotDescription), &slotDescription);
+    napi_set_named_property(env, result, "slotDescription", slotDescription);
+
+    napi_value manufacturerID;
+    napi_create_string_utf8(env, (char *)&ckSlotInfo.manufacturerID[0], sizeof(ckSlotInfo.manufacturerID), &manufacturerID);
+    napi_set_named_property(env, result, "manufacturerID", manufacturerID);
+
+    napi_value flags;
+    napi_create_uint32(env, ckSlotInfo.flags, &flags);
+    napi_set_named_property(env, result, "flags", flags);
+
+    napi_value hardwareVersion = create_version(env, ckSlotInfo.hardwareVersion);
+    napi_set_named_property(env, result, "hardwareVersion", hardwareVersion);
+
+    napi_value firmwareVersion = create_version(env, ckSlotInfo.firmwareVersion);
+    napi_set_named_property(env, result, "firmwareVersion", firmwareVersion);
+
+    return result;
+  }
+
+  static napi_value C_GetTokenInfo(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SLOT_ID(0, slotId)
+
+    // Call PKCS11 function
+    CK_TOKEN_INFO ckTokenInfo;
+    CK_RV rv = pkcs11->functionList->C_GetTokenInfo(slotId, &ckTokenInfo);
+    ASSERT_RV(rv);
+
+    // Create result object
+    napi_value result;
+    napi_create_object(env, &result);
+
+    // label
+    napi_value label;
+    napi_create_string_utf8(env, (char *)&ckTokenInfo.label[0], sizeof(ckTokenInfo.label), &label);
+    napi_set_named_property(env, result, "label", label);
+
+    // manufacturerID
+    napi_value manufacturerID;
+    napi_create_string_utf8(env, (char *)&ckTokenInfo.manufacturerID[0], sizeof(ckTokenInfo.manufacturerID), &manufacturerID);
+    napi_set_named_property(env, result, "manufacturerID", manufacturerID);
+
+    // model
+    napi_value model;
+    napi_create_string_utf8(env, (char *)&ckTokenInfo.model[0], sizeof(ckTokenInfo.model), &model);
+    napi_set_named_property(env, result, "model", model);
+
+    // serialNumber
+    napi_value serialNumber;
+    napi_create_string_utf8(env, (char *)&ckTokenInfo.serialNumber[0], sizeof(ckTokenInfo.serialNumber), &serialNumber);
+    napi_set_named_property(env, result, "serialNumber", serialNumber);
+
+    // flags
+    napi_value flags;
+    napi_create_uint32(env, ckTokenInfo.flags, &flags);
+    napi_set_named_property(env, result, "flags", flags);
+
+    // maxSessionCount
+    napi_value ulMaxSessionCount;
+    napi_create_uint32(env, ckTokenInfo.ulMaxSessionCount, &ulMaxSessionCount);
+    napi_set_named_property(env, result, "maxSessionCount", ulMaxSessionCount);
+
+    // sessionCount
+    napi_value ulSessionCount;
+    napi_create_uint32(env, ckTokenInfo.ulSessionCount, &ulSessionCount);
+    napi_set_named_property(env, result, "sessionCount", ulSessionCount);
+
+    // maxRwSessionCount
+    napi_value ulMaxRwSessionCount;
+    napi_create_uint32(env, ckTokenInfo.ulMaxRwSessionCount, &ulMaxRwSessionCount);
+    napi_set_named_property(env, result, "maxRwSessionCount", ulMaxRwSessionCount);
+
+    // rwSessionCount
+    napi_value ulRwSessionCount;
+    napi_create_uint32(env, ckTokenInfo.ulRwSessionCount, &ulRwSessionCount);
+    napi_set_named_property(env, result, "rwSessionCount", ulRwSessionCount);
+
+    // maxPinLen
+    napi_value ulMaxPinLen;
+    napi_create_uint32(env, ckTokenInfo.ulMaxPinLen, &ulMaxPinLen);
+    napi_set_named_property(env, result, "maxPinLen", ulMaxPinLen);
+
+    // minPinLen
+    napi_value ulMinPinLen;
+    napi_create_uint32(env, ckTokenInfo.ulMinPinLen, &ulMinPinLen);
+    napi_set_named_property(env, result, "minPinLen", ulMinPinLen);
+
+    // hardwareVersion
+    napi_value hardwareVersion = create_version(env, ckTokenInfo.hardwareVersion);
+    napi_set_named_property(env, result, "hardwareVersion", hardwareVersion);
+
+    // firmwareVersion
+    napi_value firmwareVersion = create_version(env, ckTokenInfo.firmwareVersion);
+    napi_set_named_property(env, result, "firmwareVersion", firmwareVersion);
+
+    // utcTime
+    napi_value utcTime = create_date_utc_property(env, ckTokenInfo.utcTime);
+    napi_set_named_property(env, result, "utcTime", utcTime);
+
+    // totalPublicMemory
+    napi_value totalPublicMemory;
+    napi_create_bigint_uint64(env, ckTokenInfo.ulTotalPublicMemory, &totalPublicMemory);
+    napi_set_named_property(env, result, "totalPublicMemory", totalPublicMemory);
+
+    // freePublicMemory
+    napi_value freePublicMemory;
+    napi_create_bigint_uint64(env, ckTokenInfo.ulFreePublicMemory, &freePublicMemory);
+    napi_set_named_property(env, result, "freePublicMemory", freePublicMemory);
+
+    // totalPrivateMemory
+    napi_value totalPrivateMemory;
+    napi_create_bigint_uint64(env, ckTokenInfo.ulTotalPrivateMemory, &totalPrivateMemory);
+    napi_set_named_property(env, result, "totalPrivateMemory", totalPrivateMemory);
+
+    // freePrivateMemory
+    napi_value freePrivateMemory;
+    napi_create_bigint_uint64(env, ckTokenInfo.ulFreePrivateMemory, &freePrivateMemory);
+    napi_set_named_property(env, result, "freePrivateMemory", freePrivateMemory);
+
+    return result;
+  }
+
+  static napi_value C_GetMechanismList(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SLOT_ID(0, slotId)
+
+    // Call PKCS11 function
+    CK_ULONG mechanismCount;
+    CK_RV rv = pkcs11->functionList->C_GetMechanismList(slotId, nullptr, &mechanismCount); // get mechanism count
+    ASSERT_RV(rv);
+
+    std::vector<CK_MECHANISM_TYPE> mechanismList(mechanismCount);
+    CK_MECHANISM_TYPE_PTR pMechanismList = mechanismList.data();
+    rv = pkcs11->functionList->C_GetMechanismList(slotId, pMechanismList, &mechanismCount);
+    ASSERT_RV(rv);
+
+    // Create result array
+    napi_value result;
+    napi_create_array(env, &result);
+    for (int i = 0; i < int(mechanismCount); i++)
+    {
+      napi_value mechanism;
+      napi_create_uint32(env, pMechanismList[i], &mechanism);
+      napi_set_element(env, result, i, mechanism);
+    }
+
+    return result;
+  }
+
+  static napi_value C_GetMechanismInfo(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SLOT_ID(0, slotId)
+    GET_ARGS_MECHANISM_TYPE(1, mechanismType)
+
+    // Call PKCS11 function
+    CK_MECHANISM_INFO ckMechanismInfo;
+    CK_RV rv = pkcs11->functionList->C_GetMechanismInfo(slotId, mechanismType, &ckMechanismInfo);
+    ASSERT_RV(rv);
+
+    // Create result object
+    napi_value result;
+    napi_create_object(env, &result);
+
+    napi_value minKeySize;
+    napi_create_uint32(env, ckMechanismInfo.ulMinKeySize, &minKeySize);
+    napi_set_named_property(env, result, "minKeySize", minKeySize);
+
+    napi_value maxKeySize;
+    napi_create_uint32(env, ckMechanismInfo.ulMaxKeySize, &maxKeySize);
+    napi_set_named_property(env, result, "maxKeySize", maxKeySize);
+
+    napi_value flags;
+    napi_create_uint32(env, ckMechanismInfo.flags, &flags);
+    napi_set_named_property(env, result, "flags", flags);
+
+    return result;
+  }
+
+  static napi_value C_InitToken(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SLOT_ID(0, slotId)
+    GET_ARGS_STRING(1, pin)
+    GET_ARGS_STRING(2, label)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_InitToken(slotId, (CK_UTF8CHAR_PTR)pin, (CK_ULONG)pinLength, (CK_UTF8CHAR_PTR)label);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_InitPIN(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_STRING(1, pin)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_InitPIN(sessionHandle, (CK_UTF8CHAR_PTR)pin, (CK_ULONG)pinLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_SetPIN(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_STRING(1, oldPin)
+    GET_ARGS_STRING(2, newPin)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SetPIN(
+        sessionHandle,
+        (CK_UTF8CHAR_PTR)oldPin, (CK_ULONG)oldPinLength,
+        (CK_UTF8CHAR_PTR)newPin, (CK_ULONG)newPinLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_OpenSession(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SLOT_ID(0, slotId)
+    GET_ARGS_ULONG(1, flags)
+    // GET_FUNCTION_FROM_ARG(2, callback)
+
+    // Call PKCS11 function
+    CK_SESSION_HANDLE sessionHandle;
+    CK_RV rv = pkcs11->functionList->C_OpenSession(slotId, (CK_FLAGS)flags, nullptr, nullptr, &sessionHandle);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_buffer_copy(env, sizeof(sessionHandle), &sessionHandle, nullptr, &result);
+
+    return result;
+  }
+
+  static napi_value C_CloseSession(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_CloseSession(sessionHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_CloseAllSessions(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SLOT_ID(0, slotId)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_CloseAllSessions(slotId);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_GetSessionInfo(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+
+    // Call PKCS11 function
+    CK_SESSION_INFO ckSessionInfo;
+    CK_RV rv = pkcs11->functionList->C_GetSessionInfo(sessionHandle, &ckSessionInfo);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_object(env, &result);
+
+    napi_value slotID;
+    napi_create_buffer_copy(env, sizeof(ckSessionInfo.slotID), &ckSessionInfo.slotID, nullptr, &slotID);
+    napi_set_named_property(env, result, "slotID", slotID);
+
+    napi_value state;
+    napi_create_uint32(env, ckSessionInfo.state, &state);
+    napi_set_named_property(env, result, "state", state);
+
+    napi_value flags;
+    napi_create_uint32(env, ckSessionInfo.flags, &flags);
+    napi_set_named_property(env, result, "flags", flags);
+
+    napi_value ulDeviceError;
+    napi_create_uint32(env, ckSessionInfo.ulDeviceError, &ulDeviceError);
+    napi_set_named_property(env, result, "deviceError", ulDeviceError);
+
+    return result;
+  }
+
+  static napi_value C_GetOperationState(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+
+    // Call PKCS11 function
+    CK_ULONG stateLength;
+    CK_RV rv = pkcs11->functionList->C_GetOperationState(sessionHandle, nullptr, &stateLength); // get state length
+    ASSERT_RV(rv);
+
+    std::vector<CK_BYTE> stateVector(stateLength);
+    CK_BYTE_PTR state = stateVector.data();
+    rv = pkcs11->functionList->C_GetOperationState(sessionHandle, state, &stateLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_buffer_copy(env, stateLength, state, nullptr, &result);
+
+    return result;
+  }
+
+  static napi_value C_SetOperationState(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, state)
+    GET_ARGS_HANDLE(2, encryptionKeyHandle)
+    GET_ARGS_HANDLE(3, authenticationKeyHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SetOperationState(
+        sessionHandle,
+        (CK_BYTE_PTR)state, (CK_ULONG)stateLength,
+        (CK_OBJECT_HANDLE)encryptionKeyHandle,
+        (CK_OBJECT_HANDLE)authenticationKeyHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_Login(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_ULONG(1, userType)
+    GET_ARGS_STRING(2, pin)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Login(sessionHandle, (CK_USER_TYPE)userType, (CK_UTF8CHAR_PTR)pin, (CK_ULONG)pinLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_Logout(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Logout(sessionHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_SeedRandom(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, seed)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SeedRandom(sessionHandle, (CK_BYTE_PTR)seed, (CK_ULONG)seedLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_GenerateRandom(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, randomData)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_GenerateRandom(sessionHandle, (CK_BYTE_PTR)randomData, (CK_ULONG)randomDataLength);
+    ASSERT_RV(rv);
+
+    return arg[1];
+  }
+
+  static napi_value C_CreateObject(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_ATTRIBUTES(1, attrs)
+
+    // Call PKCS11 function
+    CK_OBJECT_HANDLE objectHandle;
+    CK_RV rv = pkcs11->functionList->C_CreateObject(sessionHandle, attrs.attributes, attrsLength, &objectHandle);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_buffer_copy(env, sizeof(objectHandle), &objectHandle, nullptr, &result);
+
+    return result;
+  }
+
+  static napi_value C_FindObjectsInit(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_ATTRIBUTES(1, attrs)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_FindObjectsInit(sessionHandle, attrs.attributes, attrsLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_FindObjects(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_ULONG(1, maxObjectCount)
+
+    // Call PKCS11 function
+    CK_ULONG objectCount;
+    std::vector<CK_OBJECT_HANDLE> objectVector(maxObjectCount);
+    CK_OBJECT_HANDLE_PTR objectHandles = objectVector.data();
+    CK_RV rv = pkcs11->functionList->C_FindObjects(sessionHandle, objectHandles, maxObjectCount, &objectCount);
+    ASSERT_RV(rv);
+
+    // Create result array
+    napi_value result;
+    napi_create_array(env, &result);
+    for (int i = 0; i < int(objectCount); i++)
+    {
+      napi_value objectHandle;
+      napi_create_buffer_copy(env, sizeof(objectHandles[i]), &objectHandles[i], nullptr, &objectHandle);
+      napi_set_element(env, result, i, objectHandle);
+    }
+
+    return result;
+  }
+
+  static napi_value C_FindObjectsFinal(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_FindObjectsFinal(sessionHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_CopyObject(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_HANDLE(1, objectHandle)
+    GET_ARGS_ATTRIBUTES(2, attrs)
+
+    // Call PKCS11 function
+    CK_OBJECT_HANDLE newObjectHandle;
+    CK_RV rv = pkcs11->functionList->C_CopyObject(
+        sessionHandle,
+        objectHandle,
+        attrs.attributes, attrsLength,
+        &newObjectHandle);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_buffer_copy(env, sizeof(newObjectHandle), &newObjectHandle, nullptr, &result);
+
+    return result;
+  }
+
+  static napi_value C_DestroyObject(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_HANDLE(1, objectHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_DestroyObject(sessionHandle, objectHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_GetAttributeValue(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_HANDLE(1, objectHandle)
+    GET_ARGS_ATTRIBUTES(2, attrs)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_GetAttributeValue(sessionHandle, objectHandle, attrs.attributes, attrsLength);
+    ASSERT_RV(rv);
+
+    attrs.allocAllValues();
+
+    rv = pkcs11->functionList->C_GetAttributeValue(sessionHandle, objectHandle, attrs.attributes, attrsLength);
+    ASSERT_RV(rv);
+
+    // Create result array
+    napi_value result = arg[2];
+    for (int i = 0; i < int(attrsLength); i++)
+    {
+      // Get element
+      napi_value element;
+      napi_get_element(env, result, i, &element);
+
+      // create Buffer for value
+      napi_value value;
+      CK_ATTRIBUTE_PTR attr = &attrs.attributes[i];
+      napi_create_buffer_copy(env, attr->ulValueLen, attr->pValue, nullptr, &value);
+
+      // set value property on element
+      napi_set_named_property(env, element, "value", value);
+    }
+
+    return result;
+  }
+
+  static napi_value C_SetAttributeValue(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_HANDLE(1, objectHandle)
+    GET_ARGS_ATTRIBUTES(2, attrs)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SetAttributeValue(sessionHandle, objectHandle, attrs.attributes, attrsLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_GetObjectSize(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_HANDLE(1, objectHandle)
+
+    // Call PKCS11 function
+    CK_ULONG objectSize;
+    CK_RV rv = pkcs11->functionList->C_GetObjectSize(sessionHandle, objectHandle, &objectSize);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, objectSize, &result);
+
+    return result;
+  }
+
+  static napi_value C_DigestInit(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_DigestInit(sessionHandle, mechanism.value);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_Digest(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, digest)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Digest(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)digest, (CK_ULONG_PTR)&digestLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, digestLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_DigestCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, digest)
+    GET_ARGS_CALLBACK(3, callback)
+
+    // Create worker
+    new Worker(env, callback, pkcs11->functionList->C_Digest, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)digest, (CK_ULONG)digestLength);
+    return nullptr;
+  }
+
+  static napi_value C_DigestUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_DigestUpdate(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_DigestKey(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_HANDLE(1, keyHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_DigestKey(sessionHandle, keyHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_DigestFinal(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, digest)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_DigestFinal(sessionHandle, (CK_BYTE_PTR)digest, (CK_ULONG_PTR)&digestLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, digestLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_DigestFinalCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, digest)
+    GET_ARGS_CALLBACK(2, callback)
+
+    // Create worker
+    new Worker2(env, callback, pkcs11->functionList->C_DigestFinal, sessionHandle, (CK_BYTE_PTR)digest, (CK_ULONG)digestLength);
+    return nullptr;
+  }
+
+  static napi_value C_GenerateKey(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_ATTRIBUTES(2, attrs)
+
+    // Call PKCS11 function
+    CK_OBJECT_HANDLE keyHandle;
+    CK_RV rv = pkcs11->functionList->C_GenerateKey(sessionHandle, mechanism.value, attrs.attributes, attrsLength, &keyHandle);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_buffer_copy(env, sizeof(keyHandle), &keyHandle, nullptr, &result);
+
+    return result;
+  }
+
+  static napi_value C_GenerateKeyCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    mechanism.dispose = false;
+    GET_ARGS_ATTRIBUTES(2, attrs)
+    attrs.dispose = false;
+    GET_ARGS_CALLBACK(3, callback)
+
+    // Create worker
+    new WorkerGenerateKey(env, callback, pkcs11->functionList->C_GenerateKey, sessionHandle, mechanism.value, attrs.attributes, attrsLength);
+    return nullptr;
+  }
+
+  static napi_value C_GenerateKeyPair(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_ATTRIBUTES(2, publicKeyAttrs)
+    GET_ARGS_ATTRIBUTES(3, privateKeyAttrs)
+
+    // Call PKCS11 function
+    CK_OBJECT_HANDLE publicKeyHandle;
+    CK_OBJECT_HANDLE privateKeyHandle;
+    CK_RV rv = pkcs11->functionList->C_GenerateKeyPair(
+        sessionHandle,
+        mechanism.value,
+        publicKeyAttrs.attributes, publicKeyAttrsLength,
+        privateKeyAttrs.attributes, privateKeyAttrsLength,
+        &publicKeyHandle, &privateKeyHandle);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_object(env, &result);
+
+    napi_value privateKey;
+    napi_create_buffer_copy(env, sizeof(privateKeyHandle), &privateKeyHandle, nullptr, &privateKey);
+    napi_set_named_property(env, result, "privateKey", privateKey);
+
+    napi_value publicKey;
+    napi_create_buffer_copy(env, sizeof(publicKeyHandle), &publicKeyHandle, nullptr, &publicKey);
+    napi_set_named_property(env, result, "publicKey", publicKey);
+
+    return result;
+  }
+
+  static napi_value C_GenerateKeyPairCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(5, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    mechanism.dispose = false;
+    GET_ARGS_ATTRIBUTES(2, publicKeyAttrs)
+    publicKeyAttrs.dispose = false;
+    GET_ARGS_ATTRIBUTES(3, privateKeyAttrs)
+    privateKeyAttrs.dispose = false;
+    GET_ARGS_CALLBACK(4, callback)
+
+    new WorkerGenerateKeyPair(env, callback, pkcs11->functionList->C_GenerateKeyPair, sessionHandle, mechanism.value, publicKeyAttrs.attributes, publicKeyAttrsLength, privateKeyAttrs.attributes, privateKeyAttrsLength);
+    return nullptr;
+  }
+
+  static napi_value C_SignInit(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, keyHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SignInit(sessionHandle, mechanism.value, keyHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_Sign(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, signature)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Sign(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG_PTR)&signatureLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, signatureLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_SignCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, signature)
+    GET_ARGS_CALLBACK(3, callback)
+
+    // Create worker
+    new Worker(env, callback, pkcs11->functionList->C_Sign, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
+    return nullptr;
+  }
+
+  static napi_value C_SignUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SignUpdate(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_SignFinal(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, signature)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SignFinal(sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG_PTR)&signatureLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, signatureLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_SignFinalCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, signature)
+    GET_ARGS_CALLBACK(2, callback)
+
+    // Create worker
+    new Worker2(env, callback, pkcs11->functionList->C_SignFinal, sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
+    return nullptr;
+  }
+
+  static napi_value C_VerifyInit(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, keyHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_VerifyInit(sessionHandle, mechanism.value, keyHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_Verify(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, signature)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Verify(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_get_boolean(env, true, &result);
+
+    return result;
+  }
+
+  static napi_value C_VerifyCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, signature)
+    GET_ARGS_CALLBACK(3, callback)
+
+    // Create worker
+    new WorkerVerify(env, callback, pkcs11->functionList->C_Verify, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
+    return nullptr;
+  }
+
+  static napi_value C_VerifyUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_VerifyUpdate(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_VerifyFinal(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, signature)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_VerifyFinal(sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_get_boolean(env, true, &result);
+
+    return result;
+  }
+
+  static napi_value C_VerifyFinalCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, signature)
+    GET_ARGS_CALLBACK(2, callback)
+
+    // Create worker
+    new WorkerVerifyFinal(env, callback, pkcs11->functionList->C_VerifyFinal, sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
+    return nullptr;
+  }
+
+  static napi_value C_EncryptInit(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, keyHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_EncryptInit(sessionHandle, mechanism.value, keyHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_Encrypt(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, encryptedData)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Encrypt(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)encryptedData, (CK_ULONG_PTR)&encryptedDataLength);
+    ASSERT_RV(rv);
+
+    // Create result (size of encryptedData)
+    napi_value result;
+    napi_create_uint32(env, encryptedDataLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_EncryptCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, encryptedData)
+    GET_ARGS_CALLBACK(3, callback)
+
+    new Worker(env, callback, pkcs11->functionList->C_Encrypt, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength);
+    return nullptr;
+  }
+
+  static napi_value C_EncryptUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, encryptedData)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_EncryptUpdate(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)encryptedData, (CK_ULONG_PTR)&encryptedDataLength);
+    ASSERT_RV(rv);
+
+    // Create result (size of encryptedData)
+    napi_value result;
+    napi_create_uint32(env, encryptedDataLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_EncryptFinal(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, encryptedData)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_EncryptFinal(sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG_PTR)&encryptedDataLength);
+    ASSERT_RV(rv);
+
+    // Create result (size of encryptedData)
+    napi_value result;
+    napi_create_uint32(env, encryptedDataLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_EncryptFinalCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, encryptedData)
+    GET_ARGS_CALLBACK(2, callback)
+
+    // Create worker
+    new Worker2(env, callback, pkcs11->functionList->C_EncryptFinal, sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength);
+    return nullptr;
+  }
+
+  static napi_value C_DecryptInit(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, keyHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_DecryptInit(sessionHandle, mechanism.value, keyHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_Decrypt(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, encryptedData)
+    GET_ARGS_BUFFER(2, data)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_Decrypt(sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength, (CK_BYTE_PTR)data, (CK_ULONG_PTR)&dataLength);
+    ASSERT_RV(rv);
+
+    // Create result (size of data)
+    napi_value result;
+    napi_create_uint32(env, dataLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_DecryptCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, encryptedData)
+    GET_ARGS_BUFFER(2, data)
+    GET_ARGS_CALLBACK(3, callback)
+
+    // Create worker
+    new Worker(env, callback, pkcs11->functionList->C_Decrypt, sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
+    return nullptr;
+  }
+
+  static napi_value C_DecryptUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, encryptedData)
+    GET_ARGS_BUFFER(2, data)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_DecryptUpdate(sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength, (CK_BYTE_PTR)data, (CK_ULONG_PTR)&dataLength);
+    ASSERT_RV(rv);
+
+    // Create result (size of data)
+    napi_value result;
+    napi_create_uint32(env, dataLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_DecryptFinal(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(2, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_DecryptFinal(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG_PTR)&dataLength);
+    ASSERT_RV(rv);
+
+    // Create result (size of data)
+    napi_value result;
+    napi_create_uint32(env, dataLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_DecryptFinalCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_CALLBACK(2, callback)
+
+    // Create worker
+    new Worker2(env, arg[2], pkcs11->functionList->C_DecryptFinal, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
+    return nullptr;
+  }
+
+  static napi_value C_DeriveKey(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, baseKeyHandle)
+    GET_ARGS_ATTRIBUTES(3, attrs)
+
+    // Call PKCS11 function
+    CK_OBJECT_HANDLE keyHandle;
+    CK_RV rv = pkcs11->functionList->C_DeriveKey(sessionHandle, mechanism.value, baseKeyHandle, attrs.attributes, attrsLength, &keyHandle);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_buffer_copy(env, sizeof(keyHandle), &keyHandle, nullptr, &result);
+
+    return result;
+  }
+
+  static napi_value C_DeriveKeyCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(5, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    mechanism.dispose = false;
+    GET_ARGS_HANDLE(2, baseKeyHandle)
+    GET_ARGS_ATTRIBUTES(3, attrs)
+    attrs.dispose = false;
+    GET_ARGS_CALLBACK(4, callback)
+
+    // Create worker
+    new WorkerDeriveKey(env, callback, pkcs11->functionList->C_DeriveKey, sessionHandle, mechanism.value, baseKeyHandle, attrs.attributes, attrsLength);
+    return nullptr;
+  }
+
+  static napi_value C_WrapKey(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(5, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, wrappingKeyHandle)
+    GET_ARGS_HANDLE(3, keyHandle)
+    GET_ARGS_BUFFER(4, wrappedKey)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_WrapKey(sessionHandle, mechanism.value, wrappingKeyHandle, keyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG_PTR)&wrappedKeyLength);
+    ASSERT_RV(rv);
+
+    // Create result (size of wrappedKey)
+    napi_value result;
+    napi_create_uint32(env, wrappedKeyLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_WrapKeyCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(6, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    mechanism.dispose = false;
+    GET_ARGS_HANDLE(2, wrappingKeyHandle)
+    GET_ARGS_HANDLE(3, keyHandle)
+    GET_ARGS_BUFFER(4, wrappedKey)
+    GET_ARGS_CALLBACK(5, callback)
+
+    // Create worker
+    new WorkerWrapKey(env, callback, pkcs11->functionList->C_WrapKey, sessionHandle, mechanism.value, wrappingKeyHandle, keyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength);
+    return nullptr;
+  }
+
+  static napi_value C_UnwrapKey(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(5, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, unwrappingKeyHandle)
+    GET_ARGS_BUFFER(3, wrappedKey)
+    GET_ARGS_ATTRIBUTES(4, attrs)
+
+    // Call PKCS11 function
+    CK_OBJECT_HANDLE keyHandle;
+    CK_RV rv = pkcs11->functionList->C_UnwrapKey(sessionHandle, mechanism.value, unwrappingKeyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength, attrs.attributes, attrsLength, &keyHandle);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_buffer_copy(env, sizeof(keyHandle), &keyHandle, nullptr, &result);
+
+    return result;
+  }
+
+  static napi_value C_UnwrapKeyCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(6, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    mechanism.dispose = false;
+    GET_ARGS_HANDLE(2, unwrappingKeyHandle)
+    GET_ARGS_BUFFER(3, wrappedKey)
+    GET_ARGS_ATTRIBUTES(4, attrs)
+    attrs.dispose = false;
+    GET_ARGS_CALLBACK(5, callback)
+
+    // Create worker
+    new WorkerUnwrapKey(env, callback, pkcs11->functionList->C_UnwrapKey, sessionHandle, mechanism.value, unwrappingKeyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength, attrs.attributes, attrsLength);
+    return nullptr;
+  }
+
+  static napi_value C_SignRecoverInit(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, keyHandle)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SignRecoverInit(sessionHandle, mechanism.value, keyHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_SignRecover(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, data)
+    GET_ARGS_BUFFER(2, signature)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_SignRecover(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG_PTR)&signatureLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, signatureLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_VerifyRecoverInit(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_MECHANISM(1, mechanism)
+    GET_ARGS_HANDLE(2, keyHandle)
+
+    CK_RV rv = pkcs11->functionList->C_VerifyRecoverInit(sessionHandle, mechanism.value, keyHandle);
+    ASSERT_RV(rv);
+
+    return nullptr;
+  }
+
+  static napi_value C_VerifyRecover(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
+
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, signature)
+    GET_ARGS_BUFFER(2, data)
+
+    // Call PKCS11 function
+    CK_RV rv = pkcs11->functionList->C_VerifyRecover(sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength, (CK_BYTE_PTR)data, (CK_ULONG_PTR)&dataLength);
+    ASSERT_RV(rv);
+
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, dataLength, &result);
+
+    return result;
+  }
+
+  static napi_value C_WaitForSlotEvent(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(1, arg)
+
+    // Read arguments
+    GET_ARGS_ULONG(0, flags)
+
+    // Call PKCS11 function
+    CK_SLOT_ID slotId;
+    CK_RV rv = pkcs11->functionList->C_WaitForSlotEvent(flags, &slotId, nullptr);
+    if (rv != CKR_NO_EVENT)
+    {
       ASSERT_RV(rv);
-
-      // Create result object
-      napi_value result;
-      napi_create_object(env, &result);
-
-      napi_value slotDescription;
-      napi_create_string_utf8(env, (char *)&ckSlotInfo.slotDescription[0], sizeof(ckSlotInfo.slotDescription), &slotDescription);
-      napi_set_named_property(env, result, "slotDescription", slotDescription);
-
-      napi_value manufacturerID;
-      napi_create_string_utf8(env, (char *)&ckSlotInfo.manufacturerID[0], sizeof(ckSlotInfo.manufacturerID), &manufacturerID);
-      napi_set_named_property(env, result, "manufacturerID", manufacturerID);
-
-      napi_value flags;
-      napi_create_uint32(env, ckSlotInfo.flags, &flags);
-      napi_set_named_property(env, result, "flags", flags);
-
-      napi_value hardwareVersion = create_version(env, ckSlotInfo.hardwareVersion);
-      napi_set_named_property(env, result, "hardwareVersion", hardwareVersion);
-
-      napi_value firmwareVersion = create_version(env, ckSlotInfo.firmwareVersion);
-      napi_set_named_property(env, result, "firmwareVersion", firmwareVersion);
-
-      return result;
-    }
-
-    static napi_value C_GetTokenInfo(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_SLOT_ID(0, slotId)
-
-      // Call PKCS11 function
-      CK_TOKEN_INFO ckTokenInfo;
-      CK_RV rv = pkcs11->functionList->C_GetTokenInfo(slotId, &ckTokenInfo);
-      ASSERT_RV(rv);
-
-      // Create result object
-      napi_value result;
-      napi_create_object(env, &result);
-
-      // label
-      napi_value label;
-      napi_create_string_utf8(env, (char *)&ckTokenInfo.label[0], sizeof(ckTokenInfo.label), &label);
-      napi_set_named_property(env, result, "label", label);
-
-      // manufacturerID
-      napi_value manufacturerID;
-      napi_create_string_utf8(env, (char *)&ckTokenInfo.manufacturerID[0], sizeof(ckTokenInfo.manufacturerID), &manufacturerID);
-      napi_set_named_property(env, result, "manufacturerID", manufacturerID);
-
-      // model
-      napi_value model;
-      napi_create_string_utf8(env, (char *)&ckTokenInfo.model[0], sizeof(ckTokenInfo.model), &model);
-      napi_set_named_property(env, result, "model", model);
-
-      // serialNumber
-      napi_value serialNumber;
-      napi_create_string_utf8(env, (char *)&ckTokenInfo.serialNumber[0], sizeof(ckTokenInfo.serialNumber), &serialNumber);
-      napi_set_named_property(env, result, "serialNumber", serialNumber);
-
-      // flags
-      napi_value flags;
-      napi_create_uint32(env, ckTokenInfo.flags, &flags);
-      napi_set_named_property(env, result, "flags", flags);
-
-      // maxSessionCount
-      napi_value ulMaxSessionCount;
-      napi_create_uint32(env, ckTokenInfo.ulMaxSessionCount, &ulMaxSessionCount);
-      napi_set_named_property(env, result, "maxSessionCount", ulMaxSessionCount);
-
-      // sessionCount
-      napi_value ulSessionCount;
-      napi_create_uint32(env, ckTokenInfo.ulSessionCount, &ulSessionCount);
-      napi_set_named_property(env, result, "sessionCount", ulSessionCount);
-
-      // maxRwSessionCount
-      napi_value ulMaxRwSessionCount;
-      napi_create_uint32(env, ckTokenInfo.ulMaxRwSessionCount, &ulMaxRwSessionCount);
-      napi_set_named_property(env, result, "maxRwSessionCount", ulMaxRwSessionCount);
-
-      // rwSessionCount
-      napi_value ulRwSessionCount;
-      napi_create_uint32(env, ckTokenInfo.ulRwSessionCount, &ulRwSessionCount);
-      napi_set_named_property(env, result, "rwSessionCount", ulRwSessionCount);
-
-      // maxPinLen
-      napi_value ulMaxPinLen;
-      napi_create_uint32(env, ckTokenInfo.ulMaxPinLen, &ulMaxPinLen);
-      napi_set_named_property(env, result, "maxPinLen", ulMaxPinLen);
-
-      // minPinLen
-      napi_value ulMinPinLen;
-      napi_create_uint32(env, ckTokenInfo.ulMinPinLen, &ulMinPinLen);
-      napi_set_named_property(env, result, "minPinLen", ulMinPinLen);
-
-      // hardwareVersion
-      napi_value hardwareVersion = create_version(env, ckTokenInfo.hardwareVersion);
-      napi_set_named_property(env, result, "hardwareVersion", hardwareVersion);
-
-      // firmwareVersion
-      napi_value firmwareVersion = create_version(env, ckTokenInfo.firmwareVersion);
-      napi_set_named_property(env, result, "firmwareVersion", firmwareVersion);
-
-      // utcTime
-      napi_value utcTime = create_date_utc_property(env, ckTokenInfo.utcTime);
-      napi_set_named_property(env, result, "utcTime", utcTime);
-
-      // totalPublicMemory
-      napi_value totalPublicMemory;
-      napi_create_bigint_uint64(env, ckTokenInfo.ulTotalPublicMemory, &totalPublicMemory);
-      napi_set_named_property(env, result, "totalPublicMemory", totalPublicMemory);
-
-      // freePublicMemory
-      napi_value freePublicMemory;
-      napi_create_bigint_uint64(env, ckTokenInfo.ulFreePublicMemory, &freePublicMemory);
-      napi_set_named_property(env, result, "freePublicMemory", freePublicMemory);
-
-      // totalPrivateMemory
-      napi_value totalPrivateMemory;
-      napi_create_bigint_uint64(env, ckTokenInfo.ulTotalPrivateMemory, &totalPrivateMemory);
-      napi_set_named_property(env, result, "totalPrivateMemory", totalPrivateMemory);
-
-      // freePrivateMemory
-      napi_value freePrivateMemory;
-      napi_create_bigint_uint64(env, ckTokenInfo.ulFreePrivateMemory, &freePrivateMemory);
-      napi_set_named_property(env, result, "freePrivateMemory", freePrivateMemory);
-
-      return result;
-    }
-
-    static napi_value C_GetMechanismList(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_SLOT_ID(0, slotId)
-
-      // Call PKCS11 function
-      CK_ULONG mechanismCount;
-      CK_RV rv = pkcs11->functionList->C_GetMechanismList(slotId, nullptr, &mechanismCount); // get mechanism count
-      ASSERT_RV(rv);
-
-      std::vector<CK_MECHANISM_TYPE> mechanismList(mechanismCount);
-      CK_MECHANISM_TYPE_PTR pMechanismList = mechanismList.data();
-      rv = pkcs11->functionList->C_GetMechanismList(slotId, pMechanismList, &mechanismCount);
-      ASSERT_RV(rv);
-
-      // Create result array
-      napi_value result;
-      napi_create_array(env, &result);
-      for (int i = 0; i < int(mechanismCount); i++)
-      {
-        napi_value mechanism;
-        napi_create_uint32(env, pMechanismList[i], &mechanism);
-        napi_set_element(env, result, i, mechanism);
-      }
-
-      return result;
-    }
-
-    static napi_value C_GetMechanismInfo(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SLOT_ID(0, slotId)
-      GET_ARGS_MECHANISM_TYPE(1, mechanismType)
-
-      // Call PKCS11 function
-      CK_MECHANISM_INFO ckMechanismInfo;
-      CK_RV rv = pkcs11->functionList->C_GetMechanismInfo(slotId, mechanismType, &ckMechanismInfo);
-      ASSERT_RV(rv);
-
-      // Create result object
-      napi_value result;
-      napi_create_object(env, &result);
-
-      napi_value minKeySize;
-      napi_create_uint32(env, ckMechanismInfo.ulMinKeySize, &minKeySize);
-      napi_set_named_property(env, result, "minKeySize", minKeySize);
-
-      napi_value maxKeySize;
-      napi_create_uint32(env, ckMechanismInfo.ulMaxKeySize, &maxKeySize);
-      napi_set_named_property(env, result, "maxKeySize", maxKeySize);
-
-      napi_value flags;
-      napi_create_uint32(env, ckMechanismInfo.flags, &flags);
-      napi_set_named_property(env, result, "flags", flags);
-
-      return result;
-    }
-
-    static napi_value C_InitToken(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SLOT_ID(0, slotId)
-      GET_ARGS_STRING(1, pin)
-      GET_ARGS_STRING(2, label)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_InitToken(slotId, (CK_UTF8CHAR_PTR)pin, (CK_ULONG)pinLength, (CK_UTF8CHAR_PTR)label);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_InitPIN(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_STRING(1, pin)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_InitPIN(sessionHandle, (CK_UTF8CHAR_PTR)pin, (CK_ULONG)pinLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_SetPIN(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_STRING(1, oldPin)
-      GET_ARGS_STRING(2, newPin)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SetPIN(
-          sessionHandle,
-          (CK_UTF8CHAR_PTR)oldPin, (CK_ULONG)oldPinLength,
-          (CK_UTF8CHAR_PTR)newPin, (CK_ULONG)newPinLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_OpenSession(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SLOT_ID(0, slotId)
-      GET_ARGS_ULONG(1, flags)
-      // GET_FUNCTION_FROM_ARG(2, callback)
-
-      // Call PKCS11 function
-      CK_SESSION_HANDLE sessionHandle;
-      CK_RV rv = pkcs11->functionList->C_OpenSession(slotId, (CK_FLAGS)flags, nullptr, nullptr, &sessionHandle);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_buffer_copy(env, sizeof(sessionHandle), &sessionHandle, nullptr, &result);
-
-      return result;
-    }
-
-    static napi_value C_CloseSession(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_CloseSession(sessionHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_CloseAllSessions(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_SLOT_ID(0, slotId)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_CloseAllSessions(slotId);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_GetSessionInfo(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-
-      // Call PKCS11 function
-      CK_SESSION_INFO ckSessionInfo;
-      CK_RV rv = pkcs11->functionList->C_GetSessionInfo(sessionHandle, &ckSessionInfo);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_object(env, &result);
-
-      napi_value slotID;
-      napi_create_buffer_copy(env, sizeof(ckSessionInfo.slotID), &ckSessionInfo.slotID, nullptr, &slotID);
-      napi_set_named_property(env, result, "slotID", slotID);
-
-      napi_value state;
-      napi_create_uint32(env, ckSessionInfo.state, &state);
-      napi_set_named_property(env, result, "state", state);
-
-      napi_value flags;
-      napi_create_uint32(env, ckSessionInfo.flags, &flags);
-      napi_set_named_property(env, result, "flags", flags);
-
-      napi_value ulDeviceError;
-      napi_create_uint32(env, ckSessionInfo.ulDeviceError, &ulDeviceError);
-      napi_set_named_property(env, result, "deviceError", ulDeviceError);
-
-      return result;
-    }
-
-    static napi_value C_GetOperationState(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-
-      // Call PKCS11 function
-      CK_ULONG stateLength;
-      CK_RV rv = pkcs11->functionList->C_GetOperationState(sessionHandle, nullptr, &stateLength); // get state length
-      ASSERT_RV(rv);
-
-      std::vector<CK_BYTE> stateVector(stateLength);
-      CK_BYTE_PTR state = stateVector.data();
-      rv = pkcs11->functionList->C_GetOperationState(sessionHandle, state, &stateLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_buffer_copy(env, stateLength, state, nullptr, &result);
-
-      return result;
-    }
-
-    static napi_value C_SetOperationState(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, state)
-      GET_ARGS_HANDLE(2, encryptionKeyHandle)
-      GET_ARGS_HANDLE(3, authenticationKeyHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SetOperationState(
-          sessionHandle,
-          (CK_BYTE_PTR)state, (CK_ULONG)stateLength,
-          (CK_OBJECT_HANDLE)encryptionKeyHandle,
-          (CK_OBJECT_HANDLE)authenticationKeyHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_Login(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_ULONG(1, userType)
-      GET_ARGS_STRING(2, pin)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Login(sessionHandle, (CK_USER_TYPE)userType, (CK_UTF8CHAR_PTR)pin, (CK_ULONG)pinLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_Logout(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Logout(sessionHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_SeedRandom(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, seed)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SeedRandom(sessionHandle, (CK_BYTE_PTR)seed, (CK_ULONG)seedLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_GenerateRandom(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, randomData)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_GenerateRandom(sessionHandle, (CK_BYTE_PTR)randomData, (CK_ULONG)randomDataLength);
-      ASSERT_RV(rv);
-
-      return arg[1];
-    }
-
-    static napi_value C_CreateObject(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_ATTRIBUTES(1, attrs)
-
-      // Call PKCS11 function
-      CK_OBJECT_HANDLE objectHandle;
-      CK_RV rv = pkcs11->functionList->C_CreateObject(sessionHandle, attrs.attributes, attrsLength, &objectHandle);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_buffer_copy(env, sizeof(objectHandle), &objectHandle, nullptr, &result);
-
-      return result;
-    }
-
-    static napi_value C_FindObjectsInit(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_ATTRIBUTES(1, attrs)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_FindObjectsInit(sessionHandle, attrs.attributes, attrsLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_FindObjects(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_ULONG(1, maxObjectCount)
-
-      // Call PKCS11 function
-      CK_ULONG objectCount;
-      std::vector<CK_OBJECT_HANDLE> objectVector(maxObjectCount);
-      CK_OBJECT_HANDLE_PTR objectHandles = objectVector.data();
-      CK_RV rv = pkcs11->functionList->C_FindObjects(sessionHandle, objectHandles, maxObjectCount, &objectCount);
-      ASSERT_RV(rv);
-
-      // Create result array
-      napi_value result;
-      napi_create_array(env, &result);
-      for (int i = 0; i < int(objectCount); i++)
-      {
-        napi_value objectHandle;
-        napi_create_buffer_copy(env, sizeof(objectHandles[i]), &objectHandles[i], nullptr, &objectHandle);
-        napi_set_element(env, result, i, objectHandle);
-      }
-
-      return result;
-    }
-
-    static napi_value C_FindObjectsFinal(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_FindObjectsFinal(sessionHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_CopyObject(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_HANDLE(1, objectHandle)
-      GET_ARGS_ATTRIBUTES(2, attrs)
-
-      // Call PKCS11 function
-      CK_OBJECT_HANDLE newObjectHandle;
-      CK_RV rv = pkcs11->functionList->C_CopyObject(
-          sessionHandle,
-          objectHandle,
-          attrs.attributes, attrsLength,
-          &newObjectHandle);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_buffer_copy(env, sizeof(newObjectHandle), &newObjectHandle, nullptr, &result);
-
-      return result;
-    }
-
-    static napi_value C_DestroyObject(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_HANDLE(1, objectHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_DestroyObject(sessionHandle, objectHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_GetAttributeValue(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_HANDLE(1, objectHandle)
-      GET_ARGS_ATTRIBUTES(2, attrs)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_GetAttributeValue(sessionHandle, objectHandle, attrs.attributes, attrsLength);
-      ASSERT_RV(rv);
-
-      attrs.allocAllValues();
-
-      rv = pkcs11->functionList->C_GetAttributeValue(sessionHandle, objectHandle, attrs.attributes, attrsLength);
-      ASSERT_RV(rv);
-
-      // Create result array
-      napi_value result = arg[2];
-      for (int i = 0; i < int(attrsLength); i++)
-      {
-        // Get element
-        napi_value element;
-        napi_get_element(env, result, i, &element);
-
-        // create Buffer for value
-        napi_value value;
-        CK_ATTRIBUTE_PTR attr = &attrs.attributes[i];
-        napi_create_buffer_copy(env, attr->ulValueLen, attr->pValue, nullptr, &value);
-
-        // set value property on element
-        napi_set_named_property(env, element, "value", value);
-      }
-
-      return result;
-    }
-
-    static napi_value C_SetAttributeValue(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_HANDLE(1, objectHandle)
-      GET_ARGS_ATTRIBUTES(2, attrs)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SetAttributeValue(sessionHandle, objectHandle, attrs.attributes, attrsLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_GetObjectSize(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_HANDLE(1, objectHandle)
-
-      // Call PKCS11 function
-      CK_ULONG objectSize;
-      CK_RV rv = pkcs11->functionList->C_GetObjectSize(sessionHandle, objectHandle, &objectSize);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_uint32(env, objectSize, &result);
-
-      return result;
-    }
-
-    static napi_value C_DigestInit(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_DigestInit(sessionHandle, mechanism.value);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_Digest(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, digest)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Digest(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)digest, (CK_ULONG_PTR)&digestLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_uint32(env, digestLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_DigestCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, digest)
-      GET_ARGS_CALLBACK(3, callback)
-
-      // Create worker
-      new Worker(env, callback, pkcs11->functionList->C_Digest, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)digest, (CK_ULONG)digestLength);
-      return nullptr;
-    }
-
-    static napi_value C_DigestUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_DigestUpdate(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_DigestKey(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_HANDLE(1, keyHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_DigestKey(sessionHandle, keyHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_DigestFinal(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, digest)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_DigestFinal(sessionHandle, (CK_BYTE_PTR)digest, (CK_ULONG_PTR)&digestLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_uint32(env, digestLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_DigestFinalCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, digest)
-      GET_ARGS_CALLBACK(2, callback)
-
-      // Create worker
-      new Worker2(env, callback, pkcs11->functionList->C_DigestFinal, sessionHandle, (CK_BYTE_PTR)digest, (CK_ULONG)digestLength);
-      return nullptr;
-    }
-
-    static napi_value C_GenerateKey(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_ATTRIBUTES(2, attrs)
-
-      // Call PKCS11 function
-      CK_OBJECT_HANDLE keyHandle;
-      CK_RV rv = pkcs11->functionList->C_GenerateKey(sessionHandle, mechanism.value, attrs.attributes, attrsLength, &keyHandle);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_buffer_copy(env, sizeof(keyHandle), &keyHandle, nullptr, &result);
-
-      return result;
     }
 
-    static napi_value C_GenerateKeyCallback(napi_env env, napi_callback_info info)
+    // Create result
+    napi_value result;
+    if (rv == CKR_NO_EVENT)
     {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      mechanism.dispose = false;
-      GET_ARGS_ATTRIBUTES(2, attrs)
-      attrs.dispose = false;
-      GET_ARGS_CALLBACK(3, callback)
-
-      // Create worker
-      new WorkerGenerateKey(env, callback, pkcs11->functionList->C_GenerateKey, sessionHandle, mechanism.value, attrs.attributes, attrsLength);
-      return nullptr;
-    }
-
-    static napi_value C_GenerateKeyPair(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_ATTRIBUTES(2, publicKeyAttrs)
-      GET_ARGS_ATTRIBUTES(3, privateKeyAttrs)
-
-      // Call PKCS11 function
-      CK_OBJECT_HANDLE publicKeyHandle;
-      CK_OBJECT_HANDLE privateKeyHandle;
-      CK_RV rv = pkcs11->functionList->C_GenerateKeyPair(
-          sessionHandle,
-          mechanism.value,
-          publicKeyAttrs.attributes, publicKeyAttrsLength,
-          privateKeyAttrs.attributes, privateKeyAttrsLength,
-          &publicKeyHandle, &privateKeyHandle);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_object(env, &result);
-
-      napi_value privateKey;
-      napi_create_buffer_copy(env, sizeof(privateKeyHandle), &privateKeyHandle, nullptr, &privateKey);
-      napi_set_named_property(env, result, "privateKey", privateKey);
-
-      napi_value publicKey;
-      napi_create_buffer_copy(env, sizeof(publicKeyHandle), &publicKeyHandle, nullptr, &publicKey);
-      napi_set_named_property(env, result, "publicKey", publicKey);
-
-      return result;
-    }
-
-    static napi_value C_GenerateKeyPairCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(5, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      mechanism.dispose = false;
-      GET_ARGS_ATTRIBUTES(2, publicKeyAttrs)
-      publicKeyAttrs.dispose = false;
-      GET_ARGS_ATTRIBUTES(3, privateKeyAttrs)
-      privateKeyAttrs.dispose = false;
-      GET_ARGS_CALLBACK(4, callback)
-
-      new WorkerGenerateKeyPair(env, callback, pkcs11->functionList->C_GenerateKeyPair, sessionHandle, mechanism.value, publicKeyAttrs.attributes, publicKeyAttrsLength, privateKeyAttrs.attributes, privateKeyAttrsLength);
-      return nullptr;
-    }
-
-    static napi_value C_SignInit(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, keyHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SignInit(sessionHandle, mechanism.value, keyHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_Sign(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, signature)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Sign(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG_PTR)&signatureLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_uint32(env, signatureLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_SignCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, signature)
-      GET_ARGS_CALLBACK(3, callback)
-
-      // Create worker
-      new Worker(env, callback, pkcs11->functionList->C_Sign, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
-      return nullptr;
-    }
-
-    static napi_value C_SignUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SignUpdate(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_SignFinal(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, signature)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SignFinal(sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG_PTR)&signatureLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_uint32(env, signatureLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_SignFinalCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, signature)
-      GET_ARGS_CALLBACK(2, callback)
-
-      // Create worker
-      new Worker2(env, callback, pkcs11->functionList->C_SignFinal, sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
-      return nullptr;
-    }
-
-    static napi_value C_VerifyInit(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, keyHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_VerifyInit(sessionHandle, mechanism.value, keyHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_Verify(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, signature)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Verify(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_get_boolean(env, true, &result);
-
-      return result;
-    }
-
-    static napi_value C_VerifyCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, signature)
-      GET_ARGS_CALLBACK(3, callback)
-
-      // Create worker
-      new WorkerVerify(env, callback, pkcs11->functionList->C_Verify, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
-      return nullptr;
-    }
-
-    static napi_value C_VerifyUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_VerifyUpdate(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_VerifyFinal(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, signature)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_VerifyFinal(sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_get_boolean(env, true, &result);
-
-      return result;
-    }
-
-    static napi_value C_VerifyFinalCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, signature)
-      GET_ARGS_CALLBACK(2, callback)
-
-      // Create worker
-      new WorkerVerifyFinal(env, callback, pkcs11->functionList->C_VerifyFinal, sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength);
-      return nullptr;
-    }
-
-    static napi_value C_EncryptInit(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, keyHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_EncryptInit(sessionHandle, mechanism.value, keyHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_Encrypt(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, encryptedData)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Encrypt(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)encryptedData, (CK_ULONG_PTR)&encryptedDataLength);
-      ASSERT_RV(rv);
-
-      // Create result (size of encryptedData)
-      napi_value result;
-      napi_create_uint32(env, encryptedDataLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_EncryptCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, encryptedData)
-      GET_ARGS_CALLBACK(3, callback)
-
-      new Worker(env, callback, pkcs11->functionList->C_Encrypt, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength);
-      return nullptr;
-    }
-
-    static napi_value C_EncryptUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, encryptedData)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_EncryptUpdate(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)encryptedData, (CK_ULONG_PTR)&encryptedDataLength);
-      ASSERT_RV(rv);
-
-      // Create result (size of encryptedData)
-      napi_value result;
-      napi_create_uint32(env, encryptedDataLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_EncryptFinal(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, encryptedData)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_EncryptFinal(sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG_PTR)&encryptedDataLength);
-      ASSERT_RV(rv);
-
-      // Create result (size of encryptedData)
-      napi_value result;
-      napi_create_uint32(env, encryptedDataLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_EncryptFinalCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, encryptedData)
-      GET_ARGS_CALLBACK(2, callback)
-
-      // Create worker
-      new Worker2(env, callback, pkcs11->functionList->C_EncryptFinal, sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength);
-      return nullptr;
-    }
-
-    static napi_value C_DecryptInit(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, keyHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_DecryptInit(sessionHandle, mechanism.value, keyHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_Decrypt(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, encryptedData)
-      GET_ARGS_BUFFER(2, data)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_Decrypt(sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength, (CK_BYTE_PTR)data, (CK_ULONG_PTR)&dataLength);
-      ASSERT_RV(rv);
-
-      // Create result (size of data)
-      napi_value result;
-      napi_create_uint32(env, dataLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_DecryptCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, encryptedData)
-      GET_ARGS_BUFFER(2, data)
-      GET_ARGS_CALLBACK(3, callback)
-
-      // Create worker
-      new Worker(env, callback, pkcs11->functionList->C_Decrypt, sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
-      return nullptr;
-    }
-
-    static napi_value C_DecryptUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, encryptedData)
-      GET_ARGS_BUFFER(2, data)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_DecryptUpdate(sessionHandle, (CK_BYTE_PTR)encryptedData, (CK_ULONG)encryptedDataLength, (CK_BYTE_PTR)data, (CK_ULONG_PTR)&dataLength);
-      ASSERT_RV(rv);
-
-      // Create result (size of data)
-      napi_value result;
-      napi_create_uint32(env, dataLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_DecryptFinal(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(2, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_DecryptFinal(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG_PTR)&dataLength);
-      ASSERT_RV(rv);
-
-      // Create result (size of data)
-      napi_value result;
-      napi_create_uint32(env, dataLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_DecryptFinalCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_CALLBACK(2, callback)
-
-      // Create worker
-      new Worker2(env, arg[2], pkcs11->functionList->C_DecryptFinal, sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength);
-      return nullptr;
-    }
-
-    static napi_value C_DeriveKey(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, baseKeyHandle)
-      GET_ARGS_ATTRIBUTES(3, attrs)
-
-      // Call PKCS11 function
-      CK_OBJECT_HANDLE keyHandle;
-      CK_RV rv = pkcs11->functionList->C_DeriveKey(sessionHandle, mechanism.value, baseKeyHandle, attrs.attributes, attrsLength, &keyHandle);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_buffer_copy(env, sizeof(keyHandle), &keyHandle, nullptr, &result);
-
-      return result;
-    }
-
-    static napi_value C_DeriveKeyCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(5, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      mechanism.dispose = false;
-      GET_ARGS_HANDLE(2, baseKeyHandle)
-      GET_ARGS_ATTRIBUTES(3, attrs)
-      attrs.dispose = false;
-      GET_ARGS_CALLBACK(4, callback)
-
-      // Create worker
-      new WorkerDeriveKey(env, callback, pkcs11->functionList->C_DeriveKey, sessionHandle, mechanism.value, baseKeyHandle, attrs.attributes, attrsLength);
-      return nullptr;
-    }
-
-    static napi_value C_WrapKey(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(5, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, wrappingKeyHandle)
-      GET_ARGS_HANDLE(3, keyHandle)
-      GET_ARGS_BUFFER(4, wrappedKey)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_WrapKey(sessionHandle, mechanism.value, wrappingKeyHandle, keyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG_PTR)&wrappedKeyLength);
-      ASSERT_RV(rv);
-
-      // Create result (size of wrappedKey)
-      napi_value result;
-      napi_create_uint32(env, wrappedKeyLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_WrapKeyCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(6, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      mechanism.dispose = false;
-      GET_ARGS_HANDLE(2, wrappingKeyHandle)
-      GET_ARGS_HANDLE(3, keyHandle)
-      GET_ARGS_BUFFER(4, wrappedKey)
-      GET_ARGS_CALLBACK(5, callback)
-
-      // Create worker
-      new WorkerWrapKey(env, callback, pkcs11->functionList->C_WrapKey, sessionHandle, mechanism.value, wrappingKeyHandle, keyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength);
-      return nullptr;
+      napi_get_null(env, &result);
     }
-
-    static napi_value C_UnwrapKey(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(5, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, unwrappingKeyHandle)
-      GET_ARGS_BUFFER(3, wrappedKey)
-      GET_ARGS_ATTRIBUTES(4, attrs)
-
-      // Call PKCS11 function
-      CK_OBJECT_HANDLE keyHandle;
-      CK_RV rv = pkcs11->functionList->C_UnwrapKey(sessionHandle, mechanism.value, unwrappingKeyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength, attrs.attributes, attrsLength, &keyHandle);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_buffer_copy(env, sizeof(keyHandle), &keyHandle, nullptr, &result);
-
-      return result;
-    }
-
-    static napi_value C_UnwrapKeyCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(6, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      mechanism.dispose = false;
-      GET_ARGS_HANDLE(2, unwrappingKeyHandle)
-      GET_ARGS_BUFFER(3, wrappedKey)
-      GET_ARGS_ATTRIBUTES(4, attrs)
-      attrs.dispose = false;
-      GET_ARGS_CALLBACK(5, callback)
-
-      // Create worker
-      new WorkerUnwrapKey(env, callback, pkcs11->functionList->C_UnwrapKey, sessionHandle, mechanism.value, unwrappingKeyHandle, (CK_BYTE_PTR)wrappedKey, (CK_ULONG)wrappedKeyLength, attrs.attributes, attrsLength);
-      return nullptr;
-    }
-
-    static napi_value C_SignRecoverInit(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, keyHandle)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SignRecoverInit(sessionHandle, mechanism.value, keyHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_SignRecover(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, data)
-      GET_ARGS_BUFFER(2, signature)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_SignRecover(sessionHandle, (CK_BYTE_PTR)data, (CK_ULONG)dataLength, (CK_BYTE_PTR)signature, (CK_ULONG_PTR)&signatureLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_uint32(env, signatureLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_VerifyRecoverInit(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_MECHANISM(1, mechanism)
-      GET_ARGS_HANDLE(2, keyHandle)
-
-      CK_RV rv = pkcs11->functionList->C_VerifyRecoverInit(sessionHandle, mechanism.value, keyHandle);
-      ASSERT_RV(rv);
-
-      return nullptr;
-    }
-
-    static napi_value C_VerifyRecover(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
-
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, signature)
-      GET_ARGS_BUFFER(2, data)
-
-      // Call PKCS11 function
-      CK_RV rv = pkcs11->functionList->C_VerifyRecover(sessionHandle, (CK_BYTE_PTR)signature, (CK_ULONG)signatureLength, (CK_BYTE_PTR)data, (CK_ULONG_PTR)&dataLength);
-      ASSERT_RV(rv);
-
-      // Create result
-      napi_value result;
-      napi_create_uint32(env, dataLength, &result);
-
-      return result;
-    }
-
-    static napi_value C_WaitForSlotEvent(napi_env env, napi_callback_info info)
+    else
     {
-      UNWRAP_PKCS11();
-      GET_ARGS(1, arg)
-
-      // Read arguments
-      GET_ARGS_ULONG(0, flags)
-
-      // Call PKCS11 function
-      CK_SLOT_ID slotId;
-      CK_RV rv = pkcs11->functionList->C_WaitForSlotEvent(flags, &slotId, nullptr);
-      if (rv != CKR_NO_EVENT)
-      {
-        ASSERT_RV(rv);
-      }
-
-      // Create result
-      napi_value result;
-      if (rv == CKR_NO_EVENT)
-      {
-        napi_get_null(env, &result);
-      }
-      else
-      {
-        napi_create_buffer_copy(env, sizeof(CK_SLOT_ID), &slotId, nullptr, &result);
-      }
-      return result;
+      napi_create_buffer_copy(env, sizeof(CK_SLOT_ID), &slotId, nullptr, &result);
     }
+    return result;
+  }
 
-    static napi_value dualOperation(napi_env env, napi_callback_info info, CK_C_DigestEncryptUpdate operation)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(3, arg)
+  static napi_value dualOperation(napi_env env, napi_callback_info info, CK_C_DigestEncryptUpdate operation)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(3, arg)
 
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, inData)
-      GET_ARGS_BUFFER(2, outData)
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, inData)
+    GET_ARGS_BUFFER(2, outData)
 
-      // Call PKCS11 function
-      CK_RV rv = operation(sessionHandle, (CK_BYTE_PTR)inData, (CK_ULONG)inDataLength, (CK_BYTE_PTR)outData, (CK_ULONG_PTR)&outDataLength);
-      ASSERT_RV(rv);
+    // Call PKCS11 function
+    CK_RV rv = operation(sessionHandle, (CK_BYTE_PTR)inData, (CK_ULONG)inDataLength, (CK_BYTE_PTR)outData, (CK_ULONG_PTR)&outDataLength);
+    ASSERT_RV(rv);
 
-      // Create result
-      napi_value result;
-      napi_create_uint32(env, outDataLength, &result);
+    // Create result
+    napi_value result;
+    napi_create_uint32(env, outDataLength, &result);
 
-      return result;
-    }
+    return result;
+  }
 
-    static napi_value dualOperationCallback(napi_env env, napi_callback_info info, CK_C_DigestEncryptUpdate operation)
-    {
-      UNWRAP_PKCS11();
-      GET_ARGS(4, arg)
+  static napi_value dualOperationCallback(napi_env env, napi_callback_info info, CK_C_DigestEncryptUpdate operation)
+  {
+    UNWRAP_PKCS11();
+    GET_ARGS(4, arg)
 
-      // Read arguments
-      GET_ARGS_SESSION_HANDLE(0, sessionHandle)
-      GET_ARGS_BUFFER(1, inData)
-      GET_ARGS_BUFFER(2, outData)
-      GET_ARGS_CALLBACK(3, callback)
+    // Read arguments
+    GET_ARGS_SESSION_HANDLE(0, sessionHandle)
+    GET_ARGS_BUFFER(1, inData)
+    GET_ARGS_BUFFER(2, outData)
+    GET_ARGS_CALLBACK(3, callback)
 
-      // Create worker
-      new WorkerDualOperation(env, callback, operation, sessionHandle, (CK_BYTE_PTR)inData, (CK_ULONG)inDataLength, (CK_BYTE_PTR)outData, (CK_ULONG)outDataLength);
-      return nullptr;
-    }
+    // Create worker
+    new WorkerDualOperation(env, callback, operation, sessionHandle, (CK_BYTE_PTR)inData, (CK_ULONG)inDataLength, (CK_BYTE_PTR)outData, (CK_ULONG)outDataLength);
+    return nullptr;
+  }
 
-    static napi_value C_DigestEncryptUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
+  static napi_value C_DigestEncryptUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
 
-      return dualOperation(env, info, pkcs11->functionList->C_DigestEncryptUpdate);
-    }
+    return dualOperation(env, info, pkcs11->functionList->C_DigestEncryptUpdate);
+  }
 
-    static napi_value C_DigestEncryptUpdateCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
+  static napi_value C_DigestEncryptUpdateCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
 
-      return dualOperationCallback(env, info, pkcs11->functionList->C_DigestEncryptUpdate);
-    }
+    return dualOperationCallback(env, info, pkcs11->functionList->C_DigestEncryptUpdate);
+  }
 
-    static napi_value C_DecryptDigestUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
+  static napi_value C_DecryptDigestUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
 
-      return dualOperation(env, info, pkcs11->functionList->C_DecryptDigestUpdate);
-    }
+    return dualOperation(env, info, pkcs11->functionList->C_DecryptDigestUpdate);
+  }
 
-    static napi_value C_DecryptDigestUpdateCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
+  static napi_value C_DecryptDigestUpdateCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
 
-      return dualOperationCallback(env, info, pkcs11->functionList->C_DecryptDigestUpdate);
-    }
+    return dualOperationCallback(env, info, pkcs11->functionList->C_DecryptDigestUpdate);
+  }
 
-    static napi_value C_SignEncryptUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
+  static napi_value C_SignEncryptUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
 
-      return dualOperation(env, info, pkcs11->functionList->C_SignEncryptUpdate);
-    }
+    return dualOperation(env, info, pkcs11->functionList->C_SignEncryptUpdate);
+  }
 
-    static napi_value C_SignEncryptUpdateCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
+  static napi_value C_SignEncryptUpdateCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
 
-      return dualOperationCallback(env, info, pkcs11->functionList->C_SignEncryptUpdate);
-    }
+    return dualOperationCallback(env, info, pkcs11->functionList->C_SignEncryptUpdate);
+  }
 
-    static napi_value C_DecryptVerifyUpdate(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
+  static napi_value C_DecryptVerifyUpdate(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
 
-      return dualOperation(env, info, pkcs11->functionList->C_DecryptVerifyUpdate);
-    }
+    return dualOperation(env, info, pkcs11->functionList->C_DecryptVerifyUpdate);
+  }
 
-    static napi_value C_DecryptVerifyUpdateCallback(napi_env env, napi_callback_info info)
-    {
-      UNWRAP_PKCS11();
+  static napi_value C_DecryptVerifyUpdateCallback(napi_env env, napi_callback_info info)
+  {
+    UNWRAP_PKCS11();
 
-      return dualOperationCallback(env, info, pkcs11->functionList->C_DecryptVerifyUpdate);
-    }
-  };
+    return dualOperationCallback(env, info, pkcs11->functionList->C_DecryptVerifyUpdate);
+  }
+};
