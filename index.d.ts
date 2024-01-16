@@ -211,6 +211,13 @@ declare module "pkcs11js" {
 
     type Template = Attribute[];
 
+    interface AttributeResult {
+        type: number;
+        value: Buffer;
+    }
+
+    type TemplateResult = AttributeResult[];
+
     /**
      * A structure that includes the type and value of an attribute
      */
@@ -236,7 +243,7 @@ declare module "pkcs11js" {
         /**
          * The parameter if required by the mechanism
          */
-        parameter?: Buffer | IParams;
+        parameter?: Buffer | number | IParams;
     }
 
     //#region Crypto parameters
@@ -300,6 +307,138 @@ declare module "pkcs11js" {
         hashAlg: number;
         mgf: number;
         saltLen: number;
+    }
+
+    interface Ecdh2Derive extends IParams {
+        kdf: number;
+        sharedData?: Buffer;
+        publicData: Buffer;
+        privateDataLen: number;
+        privateData: Handle;
+        publicData2?: Buffer;
+    }
+
+    interface EcmqvDerive extends IParams {
+        kdf: number;
+        sharedData?: Buffer;
+        publicData: Buffer;
+        privateDataLen: number;
+        publicData2?: Buffer;
+        privateData: Handle;
+    }
+
+    interface X942DH1Derive extends IParams {
+        kdf: number;
+        otherInfo?: Buffer;
+        publicData: Buffer;
+        privateData: Handle;
+    }
+
+    interface X942DH2Derive extends IParams {
+        kdf: number;
+        otherInfo?: Buffer;
+        publicData: Buffer;
+        privateData: Handle;
+        privateDataLen: number;
+        publicData2?: Buffer;
+    }
+
+    interface X942MQvDeriveParams {
+        kdf: number;
+        otherInfo?: Buffer;
+        publicData: Buffer;
+        privateData: Handle;
+        publicData2?: Buffer;
+        publicKey: Handle;
+    }
+
+    interface RC2CBCParams extends IParams {
+        effectiveBits: number;
+        iv: Buffer;
+    }
+
+    interface RC2MACGeneralParams extends IParams {
+        effectiveBits: number;
+        macLength: number;
+    }
+
+    interface RC5Params extends IParams {
+        wordSize: number;
+        rounds: number;
+    }
+
+    interface RC5CBCParams extends RC5Params {
+        wordSize: number;
+        rounds: number;
+        iv: Buffer;
+    }
+
+    interface RC5MACGeneralParams extends RC5Params {
+        wordSize: number;
+        rounds: number;
+        macLength: number;
+    }
+
+    interface DesCbcEncryptDataParams extends IParams {
+        iv: Buffer;
+        data?: Buffer;
+    }
+
+    interface SkipjackPrivateWrapParams extends IParams {
+        password: Buffer;
+        publicData: Buffer;
+        primeP: Buffer;
+        baseG: Buffer;
+        subprimeQ: Buffer;
+        randomA: Buffer;
+    }
+
+    interface SkipjackRelayXParams extends IParams {
+        oldWrappedX: Buffer;
+        oldPassword: Buffer;
+        oldPublicData: Buffer;
+        oldRandomA: Buffer;
+        newPassword: Buffer;
+        newPublicData: Buffer;
+        newRandomA: Buffer;
+    }
+
+    interface PbeParams extends IParams {
+        initVector: Buffer;
+        password: Buffer;
+        salt: Buffer;
+        iteration: number;
+    }
+
+    interface KeyWrapSetOaepParams extends IParams {
+        bc: number;
+        x: Buffer;
+    }
+
+    interface GcmParams extends IParams {
+        iv: Buffer;
+        ivBits: number;
+        aad?: Buffer;
+        tagBits?: number;
+    }
+
+    interface CcmParams extends IParams {
+        dataLen: number;
+        nonce?: Buffer;
+        aad?: Buffer;
+        macLen?: number;
+    }
+
+    interface GostR3410DeriveParams extends IParams {
+        kdf: number;
+        publicData: Buffer;
+        ukm?: Buffer;
+    }
+
+    interface GostR3410KeyWrapParams extends IParams {
+        wrapOID: Buffer;
+        ukm?: Buffer;
+        key: Handle;
     }
 
     //#endregion
@@ -546,7 +685,7 @@ declare module "pkcs11js" {
          * objects that match a template, obtaining additional object
          * handles
          * @param session The session's handle
-         * @param session The maximum number of object handles to be returned
+         * @param maxObjectCount The maximum number of object handles to be returned. Default value is 1.
          * @returns List of handles
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
@@ -579,7 +718,7 @@ declare module "pkcs11js" {
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
-        public C_GetAttributeValue(session: Handle, object: Handle, template: Template): Template;
+        public C_GetAttributeValue(session: Handle, object: Handle, template: Template): TemplateResult;
         /**
          * Modifies the value of one or more object attributes
          * @param session The session's handle
@@ -653,6 +792,20 @@ declare module "pkcs11js" {
          */
         public C_EncryptFinal(session: Handle, outData: Buffer): Buffer;
         /**
+         * Finishes a multiple-part encryption operation
+         * @param session The session's handle
+         * @param outData Last output data
+         * @param cb Async callback with sliced output data
+         */
+        public C_EncryptFinal(session: Handle, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Finishes a multiple-part encryption operation
+         * @param session The session's handle
+         * @param outData Last output data
+         * @returns Sliced output data
+         */
+        public C_EncryptFinalAsync(session: Handle, outData: Buffer): Promise<Buffer>;
+        /**
          * Initializes a decryption operation
          * @param session The session's handle
          * @param mechanism The decryption mechanism
@@ -710,6 +863,20 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DecryptFinal(session: Handle, outData: Buffer): Buffer;
+        /**
+         * Finishes a multiple-part decryption operation
+         * @param session The session's handle
+         * @param outData Last part of output data
+         * @param cb Async callback with sliced output data with decrypted final block
+         */
+        public C_DecryptFinal(session: Handle, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Finishes a multiple-part decryption operation
+         * @param session The session's handle
+         * @param outData Last part of output data
+         * @returns Sliced output data with decrypted final block
+         */
+        public C_DecryptFinalAsync(session: Handle, outData: Buffer): Promise<Buffer>;
 
         /* Message digesting */
 
@@ -770,6 +937,21 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_DigestFinal(session: Handle, outData: Buffer): Buffer;
+        /**
+         * Finishes a multiple-part message-digesting operation
+         * @param session The session's handle
+         * @param outData Output data
+         * @param cb Async callback with sliced output data
+         */
+        public C_DigestFinal(session: Handle, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Finishes a multiple-part message-digesting operation
+         * @param session The session's handle
+         * @param outData Output data
+         * @returns Sliced output data
+         */
+        public C_DigestFinalAsync(session: Handle, outData: Buffer): Promise<Buffer>;
+
         /**
          * Continues a multiple-part message-digesting operation by digesting the value of a secret key
          * @param session The session's handle
@@ -851,6 +1033,23 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_SignFinal(session: Handle, outData: Buffer): Buffer;
+        /**
+         * Finishes a multiple-part signature operation,
+         * returning the signature
+         * @param session The session's handle
+         * @param outData Output data
+         * @param cb Async callback with sliced output data
+         */
+        public C_SignFinal(session: Handle, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Finishes a multiple-part signature operation,
+         * returning the signature
+         * @param session The session's handle
+         * @param outData Output data
+         * @returns Sliced output data
+         */
+        public C_SignFinalAsync(session: Handle, outData: Buffer): Promise<Buffer>;
+
         /**
          * Initializes a signature operation, where the data can be recovered from the signature
          * @param session The session's handle
@@ -942,6 +1141,22 @@ declare module "pkcs11js" {
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
         public C_VerifyFinal(session: Handle, signature: Buffer): boolean;
+        /**
+         * Finishes a multiple-part verification
+         * operation, checking the signature
+         * @param session The session's handle
+         * @param signature Signature to verify
+         * @param cb Async callback with verification result
+         */
+        public C_VerifyFinal(session: Handle, signature: Buffer, cb: (error: Error, verify: boolean) => void): void;
+        /**
+         * Finishes a multiple-part verification
+         * operation, checking the signature
+         * @param session The session's handle
+         * @param signature Signature to verify
+         * @returns Verification result
+         */
+        public C_VerifyFinalAsync(session: Handle, signature: Buffer): Promise<boolean>;
         /**
          * Initializes a signature verification operation, where the data is recovered from the signature
          * @param session The session's handle
@@ -1141,11 +1356,10 @@ declare module "pkcs11js" {
          * Mixes additional seed material into the token's random number generator
          * @param session The session's handle
          * @param buf The seed material
-         * @returns The seeded data
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
-        public C_SeedRandom(session: Handle, buf: Buffer): Buffer;
+        public C_SeedRandom(session: Handle, buf: Buffer): void;
         /**
          * Generates random data
          * @param session The session's handle
@@ -1161,11 +1375,126 @@ declare module "pkcs11js" {
         /**
          * Waits for a slot event, such as token insertion or token removal, to occur.
          * @param flags Determines whether or not the C_WaitForSlotEvent call blocks (i.e., waits for a slot event to occur); use CKF_DONT_BLOCK for no blocking call
-         * @param slotID The ID of the slot
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         * @returns The slot ID where the event occurred, if successful; null otherwise
+         */
+        public C_WaitForSlotEvent(flags: number): Handle | null;
+        //#endregion
+
+        //#region Dual-function cryptographic operations
+        /**
+         * Continues a multiple-part digest and encryption
+         * operation (digesting and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be digested and encrypted
+         * @param outData Encrypted data
+         * @returns Sliced encrypted data
          * @throws {@link NativeError} if native error occurs
          * @throws {@link Pkcs11Error} if Cryptoki error occurs
          */
-        public C_WaitForSlotEvent(flags: number, slotID: Handle): void;
+        public C_DigestEncryptUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
+        /**
+         * Continues a multiple-part digest and encryption
+         * operation (digesting and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be digested and encrypted
+         * @param outData Encrypted data
+         * @param cb Async callback with sliced encrypted data
+         */
+        public C_DigestEncryptUpdate(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Continues a multiple-part digest and encryption
+         * operation (digesting and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be digested and encrypted
+         * @param outData Encrypted data
+         * @returns Sliced encrypted data
+         */
+        public C_DigestEncryptUpdateAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        /**
+         * Continues a multiple-part decryption and digest
+         * operation (decrypting and digesting)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and digested
+         * @param outData Digested data
+         * @returns Sliced digested data
+         */
+        public C_DecryptDigestUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
+        /**
+         * Continues a multiple-part decryption and digest
+         * operation (decrypting and digesting)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and digested
+         * @param outData Digested data
+         * @param cb Async callback with sliced digested data
+         */
+        public C_DecryptDigestUpdate(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Continues a multiple-part decryption and digest
+         * operation (decrypting and digesting)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and digested
+         * @param outData Digested data
+         * @returns Sliced digested data
+         */
+        public C_DecryptDigestUpdateAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        /**
+         * Continues a multiple-part signing and encryption
+         * operation (signing and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be signed and encrypted
+         * @param outData Encrypted data
+         * @returns Sliced encrypted data
+         * @throws {@link NativeError} if native error occurs
+         * @throws {@link Pkcs11Error} if Cryptoki error occurs
+         */
+        public C_SignEncryptUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
+        /**
+         * Continues a multiple-part signing and encryption
+         * operation (signing and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be signed and encrypted
+         * @param outData Encrypted data
+         * @param cb Async callback with sliced encrypted data
+         */
+        public C_SignEncryptUpdate(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Continues a multiple-part signing and encryption
+         * operation (signing and encrypting)
+         * @param session The session's handle
+         * @param inData Data to be signed and encrypted
+         * @param outData Encrypted data
+         * @returns Sliced encrypted data
+         */
+        public C_SignEncryptUpdateAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
+        /**
+         * Continues a multiple-part decryption and
+         * verification operation (decrypting and verifying)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and verified
+         * @param outData Verified data
+         * @returns Sliced verified data
+         */
+        public C_DecryptVerifyUpdate(session: Handle, inData: Buffer, outData: Buffer): Buffer;
+        /**
+         * Continues a multiple-part decryption and
+         * verification operation (decrypting and verifying)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and verified
+         * @param outData Verified data
+         * @param cb Async callback with sliced verified data
+         */
+        public C_DecryptVerifyUpdate(session: Handle, inData: Buffer, outData: Buffer, cb: (error: Error, data: Buffer) => void): void;
+        /**
+         * Continues a multiple-part decryption and
+         * verification operation (decrypting and verifying)
+         * @param session The session's handle
+         * @param inData Data to be decrypted and verified
+         * @param outData Verified data
+         * @returns Sliced verified data
+         */
+        public C_DecryptVerifyUpdateAsync(session: Handle, inData: Buffer, outData: Buffer): Promise<Buffer>;
         //#endregion
 
     }
@@ -1646,7 +1975,7 @@ declare module "pkcs11js" {
     const CKF_SERIAL_SESSION: number;
     //#endregion
 
-    //#region Follows
+    //#region Mechanism flags
     const CKF_HW: number;
     const CKF_ENCRYPT: number;
     const CKF_DECRYPT: number;
@@ -1722,6 +2051,27 @@ declare module "pkcs11js" {
     const CK_PARAMS_RSA_PSS: number;
     const CK_PARAMS_EC_DH: number;
     const CK_PARAMS_AES_GCM_v240: number;
+    const CK_PARAMS_ECDH2_DERIVE: number;
+    const CK_PARAMS_ECMQV_DERIVE: number;
+    const CK_PARAMS_X9_42_DH1_DERIVE: number;
+    const CK_PARAMS_X9_42_DH2_DERIVE: number;
+    const CK_PARAMS_X9_42_MQV_DERIVE: number;
+    const CK_PARAMS_KEA_DERIVE: number;
+    const CK_PARAMS_RC2: number;
+    const CK_PARAMS_RC2_CBC: number;
+    const CK_PARAMS_RC2_MAC_GENERAL: number;
+    const CK_PARAMS_RC5: number;
+    const CK_PARAMS_RC5_CBC: number;
+    const CK_PARAMS_RC5_MAC_GENERAL: number;
+    const CK_PARAMS_DES_CBC_ENCRYPT_DATA: number;
+    const CK_PARAMS_SKIPJACK_PRIVATE_WRAP: number;
+    const CK_PARAMS_SKIPJACK_RELAYX: number;
+    const CK_PARAMS_PBE: number;
+    const CK_PARAMS_KEY_WRAP_SET_OAEP: number;
+    const CK_PARAMS_GCM: number;
+    const CK_PARAMS_CCM: number;
+    const CK_PARAM_GOSTR3410_DERIVE: number;
+    const CK_PARAM_GOSTR3410_KEY_WRAP: number;
     //#endregion
 
     //#region User types

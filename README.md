@@ -7,12 +7,15 @@
 
 [![NPM](https://nodei.co/npm/pkcs11js.png)](https://nodei.co/npm/pkcs11js/)
 
+PKCS11js is a package for direct interaction with the PKCS#11 API, the standard interface for interacting with hardware crypto devices such as Smart Cards and Hardware Security Modules (HSMs). It was developed to the PKCS#11 2.40 specification and has been tested with a variety of devices.
 
-We make a package called [Graphene](https://github.com/PeculiarVentures/graphene), it provides a simplistic Object Oriented interface for interacting with PKCS#11 devices, for most people this is the right level to build on. In some cases you may want to interact directly with the PKCS#11 API, if so PKCS11js is the package for you.
+**Versioning Note:** 
+- Version 1.x was implemented using the `nan` module, which allowed the package to be built for older versions of Node.js.
+- Starting from version 2.x, the module has been rewritten to use `napi`. As a result, the minimum required Node.js version is now v18.
 
-PKCS#11 (also known as CryptoKI or PKCS11) is the standard interface for interacting with hardware crypto devices such as Smart Cards and Hardware Security Modules (HSMs). 
+For most use cases, we recommend our package [Graphene](https://github.com/PeculiarVentures/graphene), which provides a simplistic Object Oriented interface for interacting with PKCS#11 devices.
 
-This was developed to the PKCS#11 2.30 specification, the 2.40 headers were not available at the time we created this, it should be easy enough to extend it for the new version at a later date.
+This was developed to the PKCS#11 2.40 specification. It should be easy enough to extend it for any new versions at a later date.
 
 It has been tested with :
 - [SoftHSM2](https://www.opendnssec.org/softhsm/)
@@ -385,7 +388,7 @@ mod.C_Finalize();
 
 ### Example #11
 
-Detect if smartcard is removed with C_WaitForSlotEvent function
+Detect a slot event
 
 ```javascript
 var pkcs11js = require("pkcs11js");
@@ -395,73 +398,18 @@ pkcs11.load("/usr/local/lib/softhsm/libsofthsm2.so");
 
 pkcs11.C_Initialize();
 
-var session;
-var intervalId;
-
 try {
-    // Getting info about PKCS11 Module
-    var module_info = pkcs11.C_GetInfo();
-
-    // Getting list of slots
-    var slots = pkcs11.C_GetSlotList(true);
-    var slot = slots[0];
-    console.log(slot);
-
-    // Getting info about slot
-    var slot_info = pkcs11.C_GetSlotInfo(slot);
-    // Getting info about token
-    var token_info = pkcs11.C_GetTokenInfo(slot);
-    console.log(slot_info);
-
-    // Getting info about Mechanism
-    var mechs = pkcs11.C_GetMechanismList(slot);
-    var mech_info = pkcs11.C_GetMechanismInfo(slot, mechs[0]);
-
-    session = pkcs11.C_OpenSession(slot, pkcs11js.CKF_RW_SESSION | pkcs11js.CKF_SERIAL_SESSION);
-
-    // Getting info about Session
-    var info = pkcs11.C_GetSessionInfo(session);
-    // pkcs11.C_Login(session, 1234, "password");
-
-    intervalId = setInterval(() => {
-        const rv = pkcs11.C_WaitForSlotEvent(pkcs11js.CKF_DONT_BLOCK, slot);
-        console.log('C_WaitForSlotEvent value : ' + rv.readUInt8(0));
-
-        if (rv.readUInt8(0) !== pkcs11js.CKR_NO_EVENT) {
-            /**
-             * Your code here to handle token removal for example
-             */
-        }
-    }, 1000);
-
-    /**
-     * Your app code here
-     */
-    
-    // pkcs11.C_Logout(session);
-}
-catch(e){
+    const slotId = pkcs11.C_WaitForSlotEvent(pkcs11js.CKF_DONT_BLOCK);
+    if (slotId) {
+        console.log(`Slot ${slotId} has been inserted`);
+    } else {
+        console.log(`No slot event`);
+    }
+} catch (e) {
     console.error(e);
-    process.exit(1);
+} finally {
+    pkcs11.C_Finalize();
 }
-finally {
-}
-
-function myCleanup() {
-    console.log('App specific cleanup code...');
-    clearInterval(intervalId);
-    try {
-        if (session) {
-            pkcs11.C_CloseSession(session);
-            pkcs11.C_Finalize();
-        }
-    }
-    catch(e){
-    }
-    console.log('Bye !');
-};
-
-process.on('SIGINT', myCleanup);
 ```
 
 ## Suitability
