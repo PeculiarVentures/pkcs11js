@@ -1,7 +1,4 @@
-/*!
- * Copyright (c) 2020 Peculiar Ventures, LLC
- */
-
+// @ts-check
 const pkcs11 = require("./build/Release/pkcs11.node");
 const util = require("node:util");
 
@@ -19,7 +16,6 @@ class NativeError extends Error {
       this.message = matches[1];
       this.code = +matches[2];
       if (messages.length > 1) {
-        //     at PKCS11.C_Finalize (/Users/microshine/g
         const stackMatch = /at PKCS11\.(\w+) \(/.exec(messages[1]);
         if (stackMatch) {
           this.method = stackMatch[1];
@@ -74,7 +70,7 @@ function handleError(e) {
 
 /**
  * Catches and wraps PKCS#11 errors to Pkcs11Error
- * @param {*} fn 
+ * @param fn 
  */
 function catchError(fn) {
   return function (...args) {
@@ -109,12 +105,12 @@ function modifyCallback(cb, data, useSubarray) {
   }
 }
 
-function modifyMethod(key, prototype, config) {
-  const oldMethod = prototype[key];
+function modifyMethod(key, obj, config) {
+  const oldMethod = obj[key];
   const callbackMethodName = key + "Callback";
 
   // Modified method
-  prototype[key] = function (...args) {
+  obj[key] = function (...args) {
     // Handle callback logic if callbackIndex is defined
     if (config.callbackIndex !== undefined && args.length > config.callbackIndex) {
       return this[callbackMethodName].apply(this, args);
@@ -134,9 +130,9 @@ function modifyMethod(key, prototype, config) {
 
   // If callbackIndex is defined, update the callback method and promisify it
   if (config.callbackIndex !== undefined) {
-    const oldCallbackMethod = prototype[callbackMethodName];
+    const oldCallbackMethod = obj[callbackMethodName];
 
-    prototype[callbackMethodName] = function (...args) {
+    obj[callbackMethodName] = function (...args) {
       if (typeof args[config.callbackIndex] === "function") {
         args[config.callbackIndex] = modifyCallback(args[config.callbackIndex], args[config.outputIndex], config.outputIndex !== undefined);
       }
@@ -145,25 +141,26 @@ function modifyMethod(key, prototype, config) {
 
     // Promisify the callback method
     const asyncMethodName = key + "Async";
-    prototype[asyncMethodName] = util.promisify(prototype[callbackMethodName]);
+    obj[asyncMethodName] = util.promisify(obj[callbackMethodName]);
   }
 }
 
+function modify(obj) {
+  for (const key in obj) {
+    const method = obj[key];
+    if (typeof method !== "function" || !key.startsWith("C_")) {
+      continue;
+    }
 
-// Customize native exceptions
-for (const key in pkcs11.PKCS11.prototype) {
-  if (pkcs11.PKCS11.prototype.hasOwnProperty(key)) {
-    pkcs11.PKCS11.prototype[key] = catchError(pkcs11.PKCS11.prototype[key]);
-
+    obj[key] = catchError(method);
     switch (key) {
       case "C_FindObjects": {
-        const old = pkcs11.PKCS11.prototype[key];
-        pkcs11.PKCS11.prototype[key] = function (...args) {
+        obj[key] = function (...args) {
           if (args.length < 2) {
             args.push(1);
-            return old.apply(this, args)[0] || null;
+            return method.apply(obj, args)[0] || null;
           }
-          return old.apply(this, args);
+          return method.apply(obj, args);
         };
         break;
       }
@@ -172,7 +169,7 @@ for (const key in pkcs11.PKCS11.prototype) {
       case "C_Encrypt":
       case "C_Decrypt":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             outputIndex: 2,
             callbackIndex: 3,
           });
@@ -183,7 +180,7 @@ for (const key in pkcs11.PKCS11.prototype) {
       case "C_EncryptFinal":
       case "C_DecryptFinal":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             outputIndex: 1,
             callbackIndex: 2,
           });
@@ -194,7 +191,7 @@ for (const key in pkcs11.PKCS11.prototype) {
       case "C_SignRecover":
       case "C_VerifyRecover":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             outputIndex: 2,
           });
           break;
@@ -202,14 +199,14 @@ for (const key in pkcs11.PKCS11.prototype) {
       case "C_Verify":
       case "C_GenerateKey":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             callbackIndex: 3,
           });
           break;
         }
       case "C_VerifyFinal":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             callbackIndex: 2,
           });
           break;
@@ -217,14 +214,14 @@ for (const key in pkcs11.PKCS11.prototype) {
       case "C_GenerateKeyPair":
       case "C_DeriveKey":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             callbackIndex: 4,
           });
           break;
         }
       case "C_WrapKey":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             outputIndex: 4,
             callbackIndex: 5,
           });
@@ -232,7 +229,7 @@ for (const key in pkcs11.PKCS11.prototype) {
         }
       case "C_UnwrapKey":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             callbackIndex: 5,
           });
           break;
@@ -242,7 +239,7 @@ for (const key in pkcs11.PKCS11.prototype) {
       case "C_SignEncryptUpdate":
       case "C_DecryptVerifyUpdate":
         {
-          modifyMethod(key, pkcs11.PKCS11.prototype, {
+          modifyMethod(key, obj, {
             outputIndex: 2,
             callbackIndex: 3,
           });
@@ -252,4 +249,21 @@ for (const key in pkcs11.PKCS11.prototype) {
   }
 }
 
-module.exports = pkcs11
+class PKCS11 extends pkcs11.PKCS11 {
+  constructor(library) {
+    super();
+
+    modify(this);
+
+    if (library) {
+      this.load(library);
+    }
+  }
+
+  load(library) {
+    super.load(library);
+    this.libPath = library;
+  }
+}
+
+module.exports = { ...pkcs11, PKCS11 };
