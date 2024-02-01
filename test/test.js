@@ -20,9 +20,14 @@ const pin = "12345";
 
 context("PKCS11", () => {
   context("load", () => {
+    it("load via constructor", () => {
+      const token = new pkcs11.PKCS11(softHsmLib);
+      assert.strictEqual(token.libPath, softHsmLib);
+    });
     it("correct", () => {
       const token = new pkcs11.PKCS11();
       token.load(softHsmLib);
+      assert.strictEqual(token.libPath, softHsmLib);
     });
     it("throw exception if file does not exist", () => {
       const token = new pkcs11.PKCS11();
@@ -382,6 +387,152 @@ context("PKCS11", () => {
               assert.strictEqual(attrs.length, 1);
               assert.strictEqual(attrs[0].type, pkcs11.CKA_LABEL);
               assert.strictEqual(attrs[0].value.toString("hex"), Buffer.from("new label").toString("hex"));
+            });
+          });
+          context("CK_DATE attributes", () => {
+            const certRaw = Buffer.from(
+              "MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/" +
+              "MSQwIgYDVQQKExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMT" +
+              "DkRTVCBSb290IENBIFgzMB4XDTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0Nlow" +
+              "SjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxldCdzIEVuY3J5cHQxIzAhBgNVBAMT" +
+              "GkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkqhkiG9w0BAQEFAAOC" +
+              "AQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4S0EF" +
+              "q6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8" +
+              "SMx+yk13EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0" +
+              "Z8h/pZq4UmEUEz9l6YKHy9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWA" +
+              "a6xK8xuQSXgvopZPKiAlKQTGdMDQMc2PMTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj" +
+              "/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQABo4IBfTCCAXkwEgYDVR0T" +
+              "AQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEEczBxMDIG" +
+              "CCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNv" +
+              "bTA7BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9k" +
+              "c3Ryb290Y2F4My5wN2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAw" +
+              "VAYDVR0gBE0wSzAIBgZngQwBAgEwPwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcC" +
+              "ARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNyeXB0Lm9yZzA8BgNVHR8ENTAz" +
+              "MDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9PVENBWDNDUkwu" +
+              "Y3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsF" +
+              "AAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJo" +
+              "uM2VcGfl96S8TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/" +
+              "wApIvJSwtmVi4MFU5aMqrSDE6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwu" +
+              "X4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPMTZ+sOPAveyxindmjkW8lGy+QsRlG" +
+              "PfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M+X+Q7UNKEkROb3N6" +
+              "KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==", "base64");
+
+            const subjectRaw = Buffer.from(
+              "4A310B300906035504061302555331163014060355040A130D4C65742773204" +
+              "56E6372797074312330210603550403131A4C6574277320456E637279707420" +
+              "417574686F7269747920583", "hex");
+
+            it("String", () => {
+              const obj = token.C_CreateObject(session, [
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_CERTIFICATE },
+                { type: pkcs11.CKA_CERTIFICATE_TYPE, value: pkcs11.CKC_X_509 },
+                { type: pkcs11.CKA_CERTIFICATE_CATEGORY, value: 0 },
+                { type: pkcs11.CKA_ID, value: Buffer.from("1234") },
+                { type: pkcs11.CKA_LABEL, value: Buffer.from("CKA_DATE") },
+                { type: pkcs11.CKA_SUBJECT, value: subjectRaw },
+                { type: pkcs11.CKA_VALUE, value: certRaw },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_START_DATE, value: "20200102" },
+                { type: pkcs11.CKA_END_DATE, value: "20200103" },
+              ]);
+
+              const attrs = token.C_GetAttributeValue(session, obj, [
+                { type: pkcs11.CKA_START_DATE },
+                { type: pkcs11.CKA_END_DATE },
+              ]);
+              assert.strictEqual(attrs.length, 2);
+              assert.strictEqual(attrs[0].type, pkcs11.CKA_START_DATE);
+              assert.strictEqual(attrs[0].value.toString(), "20200102");
+              assert.strictEqual(attrs[1].type, pkcs11.CKA_END_DATE);
+              assert.strictEqual(attrs[1].value.toString(), "20200103");
+            });
+            it("Buffer", () => {
+              const obj = token.C_CreateObject(session, [
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_CERTIFICATE },
+                { type: pkcs11.CKA_CERTIFICATE_TYPE, value: pkcs11.CKC_X_509 },
+                { type: pkcs11.CKA_CERTIFICATE_CATEGORY, value: 0 },
+                { type: pkcs11.CKA_ID, value: Buffer.from("1234") },
+                { type: pkcs11.CKA_LABEL, value: Buffer.from("CKA_DATE") },
+                { type: pkcs11.CKA_SUBJECT, value: subjectRaw },
+                { type: pkcs11.CKA_VALUE, value: certRaw },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_START_DATE, value: Buffer.from("20200102") },
+                { type: pkcs11.CKA_END_DATE, value: Buffer.from("20200103") },
+              ]);
+
+              const attrs = token.C_GetAttributeValue(session, obj, [
+                { type: pkcs11.CKA_START_DATE },
+                { type: pkcs11.CKA_END_DATE },
+              ]);
+              assert.strictEqual(attrs.length, 2);
+              assert.strictEqual(attrs[0].type, pkcs11.CKA_START_DATE);
+              assert.strictEqual(attrs[0].value.toString(), "20200102");
+              assert.strictEqual(attrs[1].type, pkcs11.CKA_END_DATE);
+              assert.strictEqual(attrs[1].value.toString(), "20200103");
+            });
+            it("Date", () => {
+              const obj = token.C_CreateObject(session, [
+                { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_CERTIFICATE },
+                { type: pkcs11.CKA_CERTIFICATE_TYPE, value: pkcs11.CKC_X_509 },
+                { type: pkcs11.CKA_CERTIFICATE_CATEGORY, value: 0 },
+                { type: pkcs11.CKA_ID, value: Buffer.from("1234") },
+                { type: pkcs11.CKA_LABEL, value: Buffer.from("CKA_DATE") },
+                { type: pkcs11.CKA_SUBJECT, value: subjectRaw },
+                { type: pkcs11.CKA_VALUE, value: certRaw },
+                { type: pkcs11.CKA_TOKEN, value: false },
+                { type: pkcs11.CKA_START_DATE, value: new Date("2020-01-02") },
+                { type: pkcs11.CKA_END_DATE, value: new Date("2020-01-03") },
+              ]);
+
+              const attrs = token.C_GetAttributeValue(session, obj, [
+                { type: pkcs11.CKA_START_DATE },
+                { type: pkcs11.CKA_END_DATE },
+              ]);
+              assert.strictEqual(attrs.length, 2);
+              assert.strictEqual(attrs[0].type, pkcs11.CKA_START_DATE);
+              assert.strictEqual(attrs[0].value.toString(), "20200102");
+              assert.strictEqual(attrs[1].type, pkcs11.CKA_END_DATE);
+              assert.strictEqual(attrs[1].value.toString(), "20200103");
+            });
+            it("should throw error if argument is not a String, Buffer or Date", () => {
+              assert.throws(() => {
+                token.C_CreateObject(session, [
+                  { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_CERTIFICATE },
+                  { type: pkcs11.CKA_CERTIFICATE_TYPE, value: pkcs11.CKC_X_509 },
+                  { type: pkcs11.CKA_CERTIFICATE_CATEGORY, value: 0 },
+                  { type: pkcs11.CKA_ID, value: Buffer.from("1234") },
+                  { type: pkcs11.CKA_LABEL, value: Buffer.from("CKA_DATE") },
+                  { type: pkcs11.CKA_SUBJECT, value: subjectRaw },
+                  { type: pkcs11.CKA_VALUE, value: certRaw },
+                  { type: pkcs11.CKA_TOKEN, value: false },
+                  { type: pkcs11.CKA_START_DATE, value: 123 },
+                  { type: pkcs11.CKA_END_DATE, value: 123 },
+                ]);
+              }, (e) => {
+                assert.strictEqual(e instanceof TypeError, true);
+                assert.strictEqual(e.message, "Attribute with type 0x00000110 is not convertible to CK_DATE. Should be a String, Buffer or Date");
+                return true;
+              });
+            });
+            it("should throw error if argument is less than 8 bytes", () => {
+              assert.throws(() => {
+                token.C_CreateObject(session, [
+                  { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_CERTIFICATE },
+                  { type: pkcs11.CKA_CERTIFICATE_TYPE, value: pkcs11.CKC_X_509 },
+                  { type: pkcs11.CKA_CERTIFICATE_CATEGORY, value: 0 },
+                  { type: pkcs11.CKA_ID, value: Buffer.from("1234") },
+                  { type: pkcs11.CKA_LABEL, value: Buffer.from("CKA_DATE") },
+                  { type: pkcs11.CKA_SUBJECT, value: subjectRaw },
+                  { type: pkcs11.CKA_VALUE, value: certRaw },
+                  { type: pkcs11.CKA_TOKEN, value: false },
+                  { type: pkcs11.CKA_START_DATE, value: "123" },
+                  { type: pkcs11.CKA_END_DATE, value: "123" },
+                ]);
+              }, (e) => {
+                assert.strictEqual(e instanceof TypeError, true);
+                assert.strictEqual(e.message, "Attribute with type 0x00000110 is not convertible to CK_DATE. The length of the data should be at least 8 bytes.");
+                return true;
+              });
             });
           });
         });

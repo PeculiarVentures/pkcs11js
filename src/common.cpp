@@ -119,7 +119,7 @@ void throw_rv_error(napi_env env, CK_RV rv)
 
 void throw_type_errorf(napi_env env, const char *format, ...)
 {
-  char error_message[100];
+  char error_message[256];
   va_list args;
   va_start(args, format);
   vsnprintf(error_message, sizeof(error_message), format, args);
