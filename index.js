@@ -1,4 +1,3 @@
-// @ts-check
 const pkcs11 = require("./build/Release/pkcs11.node");
 const util = require("node:util");
 
@@ -249,6 +248,18 @@ function modify(obj) {
   }
 }
 
+function processAttributes(attrs) {
+  if (attrs && Array.isArray(attrs)) {
+    for (const attr of attrs) {
+      if (attr.type === pkcs11.CKA_START_DATE || attr.type === pkcs11.CKA_END_DATE) {
+        if (attr.value instanceof Date) {
+          attr.value = Buffer.from(attr.value.toISOString().slice(0, 10).replace(/-/g, ""));
+        }
+      }
+    }
+  }
+}
+
 class PKCS11 extends pkcs11.PKCS11 {
   constructor(library) {
     super();
@@ -263,6 +274,21 @@ class PKCS11 extends pkcs11.PKCS11 {
   load(library) {
     super.load(library);
     this.libPath = library;
+  }
+
+  C_SetAttributeValue(session, object, attrs) {
+    processAttributes(attrs);
+    return super.C_SetAttributeValue(session, object, attrs);
+  }
+
+  C_CreateObject(session, attrs) {
+    processAttributes(attrs);
+    return super.C_CreateObject(session, attrs);
+  }
+
+  C_CopyObject(session, object, attrs) {
+    processAttributes(attrs);
+    return super.C_CopyObject(session, object, attrs);
   }
 }
 

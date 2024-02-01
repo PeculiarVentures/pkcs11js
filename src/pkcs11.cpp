@@ -591,6 +591,34 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
  * @brief Get the attributes object from the argument list at a specified index.
  *
  * @param env The N-API environment.
+ * @param attr The CK_ATTRIBUTE to store the retrieved attributes.
+ * @param data The data to store the retrieved attributes.
+ * @param length The length of the data.
+ */
+bool processDate(napi_env env, CK_ATTRIBUTE *attr, const char *data, size_t length)
+{
+  if (length < 8)
+  {
+    THROW_TYPE_ERRORF(false, "Attribute with type 0x%08lX is not convertible to CK_DATE. The length of the data should be at least 8 bytes.", attr->type);
+  }
+
+  CK_DATE *datePtr = (CK_DATE *)attr->pValue;
+  char year[5], month[3], day[3];
+  strncpy(year, data, 4);
+  strncpy(month, data + 4, 2);
+  strncpy(day, data + 6, 2);
+  year[4] = month[2] = day[2] = '\0';
+  strncpy((char *)datePtr->year, year, 4);
+  strncpy((char *)datePtr->month, month, 2);
+  strncpy((char *)datePtr->day, day, 2);
+
+  return true;
+}
+
+/**
+ * @brief Get the attributes object from the argument list at a specified index.
+ *
+ * @param env The N-API environment.
  * @param arg The array of N-API values representing the arguments.
  * @param argc The number of arguments in the array.
  * @param index The index of the argument to retrieve.
@@ -669,6 +697,39 @@ bool get_args_attributes(napi_env env, napi_value *arg, size_t argc, size_t inde
     uint32_t type;
     napi_get_value_uint32(env, typeValue, &type);
     attr->type = (CK_ATTRIBUTE_TYPE)type;
+
+    if (attr->type == CKA_START_DATE || attr->type == CKA_END_DATE)
+    {
+      if (valueValueType == napi_string)
+      {
+        size_t length;
+        napi_get_value_string_utf8(env, valueValue, nullptr, 0, &length);
+        attrs->allocValue(i, sizeof(CK_DATE));
+        if (processDate(env, attr, (char *)valueValue, length) == false)
+        {
+          return false;
+        }
+      }
+      else if (valueIsBuffer)
+      {
+        void *data;
+        size_t length;
+        napi_get_buffer_info(env, valueValue, &data, &length);
+        attrs->allocValue(i, sizeof(CK_DATE));
+        if (processDate(env, attr, (char *)data, length) == false)
+        {
+          return false;
+        }
+      }
+      else if (valueValueType == napi_undefined || valueValueType == napi_null)
+      {
+        // do nothing
+      }
+      else
+      {
+        THROW_TYPE_ERRORF(false, "Attribute with type 0x%08lX is not convertible to CK_DATE. Should be a String, Buffer or Date", attr->type);
+      }
+    }
 
     if (valueValueType == napi_undefined || valueValueType == napi_null)
     {
@@ -1709,6 +1770,35 @@ public:
       // create Buffer for value
       napi_value value;
       CK_ATTRIBUTE_PTR attr = &attrs.attributes[i];
+
+      if (attr->ulValueLen == CK_UNAVAILABLE_INFORMATION)
+      {
+        napi_get_undefined(env, &value);
+        napi_set_named_property(env, element, "value", value);
+        continue;
+      }
+
+      if (attr->type == CKA_START_DATE || attr->type == CKA_END_DATE)
+      {
+        if (attr->ulValueLen != sizeof(CK_DATE))
+        {
+          THROW_TYPE_ERRORF(nullptr, "Attribute 0x%08lX has wrong length. Should be %lu, but is %lu", attr->type, sizeof(CK_DATE), attr->ulValueLen);
+        }
+
+        char *dateStr = (char *)malloc(9);
+        CK_DATE *datePtr = (CK_DATE *)attr->pValue;
+        snprintf(dateStr, 9, "%04d%02d%02d",
+                 atoi((char *)datePtr->year),  // year
+                 atoi((char *)datePtr->month), // month
+                 atoi((char *)datePtr->day));  // day
+
+        napi_create_buffer_copy(env, 8, dateStr, nullptr, &value);
+        free(dateStr);
+        napi_set_named_property(env, element, "value", value);
+
+        continue;
+      }
+
       napi_create_buffer_copy(env, attr->ulValueLen, attr->pValue, nullptr, &value);
 
       // set value property on element

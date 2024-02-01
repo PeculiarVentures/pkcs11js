@@ -229,7 +229,7 @@ declare module "pkcs11js" {
         /**
          * The value of the attribute
          */
-        value?: number | boolean | string | Buffer;
+        value?: number | boolean | string | Buffer | Date;
     }
 
     /**
@@ -471,6 +471,12 @@ declare module "pkcs11js" {
          * Library path
          */
         public libPath: string;
+
+        /**
+         * Creates an instance of PKCS11
+         * @param libPath The path to PKCS#11 library
+         */
+        constructor(libPath?: string);
 
         /**
          * Loads dynamic library with PKCS#11 interface
