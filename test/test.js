@@ -183,6 +183,15 @@ context("PKCS11", () => {
         const mechanisms = token.C_GetMechanismList(slot);
         assert.strictEqual(mechanisms.length > 0, true);
       });
+      it("C_GetMechanismInfo should return the same flags for one mechanism", () => {
+        const mechanisms = token.C_GetMechanismList(slot);
+        let iter = 10;
+        const mechanism = mechanisms.find((m) => m === pkcs11.CKM_AES_ECB)
+        while (iter--) {
+          const info = token.C_GetMechanismInfo(slot, mechanism);
+          assert.strictEqual(info.flags, 768);
+        }
+      });
       it("C_GetMechanismInfo", () => {
         const mechanisms = token.C_GetMechanismList(slot);
         const info = token.C_GetMechanismInfo(slot, mechanisms[0]);

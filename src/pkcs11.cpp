@@ -1080,7 +1080,7 @@ public:
     UNWRAP_PKCS11();
 
     // Call PKCS11 function
-    CK_INFO ckInfo;
+    CK_INFO ckInfo = {};
     CK_RV rv = pkcs11->functionList->C_GetInfo(&ckInfo);
     ASSERT_RV(rv);
 
@@ -1165,7 +1165,7 @@ public:
     GET_ARGS_SLOT_ID(0, slotId)
 
     // Call PKCS11 function
-    CK_SLOT_INFO ckSlotInfo;
+    CK_SLOT_INFO ckSlotInfo = {};
     CK_RV rv = pkcs11->functionList->C_GetSlotInfo(slotId, &ckSlotInfo);
     ASSERT_RV(rv);
 
@@ -1203,7 +1203,7 @@ public:
     GET_ARGS_SLOT_ID(0, slotId)
 
     // Call PKCS11 function
-    CK_TOKEN_INFO ckTokenInfo;
+    CK_TOKEN_INFO ckTokenInfo = {};
     CK_RV rv = pkcs11->functionList->C_GetTokenInfo(slotId, &ckTokenInfo);
     ASSERT_RV(rv);
 
@@ -1342,7 +1342,7 @@ public:
     GET_ARGS_MECHANISM_TYPE(1, mechanismType)
 
     // Call PKCS11 function
-    CK_MECHANISM_INFO ckMechanismInfo;
+    CK_MECHANISM_INFO ckMechanismInfo = {};
     CK_RV rv = pkcs11->functionList->C_GetMechanismInfo(slotId, mechanismType, &ckMechanismInfo);
     ASSERT_RV(rv);
 
@@ -1479,7 +1479,7 @@ public:
     GET_ARGS_SESSION_HANDLE(0, sessionHandle)
 
     // Call PKCS11 function
-    CK_SESSION_INFO ckSessionInfo;
+    CK_SESSION_INFO ckSessionInfo = {};
     CK_RV rv = pkcs11->functionList->C_GetSessionInfo(sessionHandle, &ckSessionInfo);
     ASSERT_RV(rv);
 
