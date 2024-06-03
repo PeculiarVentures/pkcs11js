@@ -45,19 +45,27 @@ napi_value create_version(napi_env env, CK_VERSION version)
  */
 napi_value create_date_utc_property(napi_env env, CK_UTF8CHAR_PTR utcTime)
 {
-  // create string from utcTime
-  napi_value utcTimeValue;
-  napi_create_string_utf8(env, (char *)utcTime, 16, &utcTimeValue);
-
   // create Date object from utcTime
   napi_value utcTimeConstructor;
   napi_get_global(env, &utcTimeConstructor);
   napi_get_named_property(env, utcTimeConstructor, "Date", &utcTimeConstructor);
+  napi_value utcTimeDate;
+
+  if (utcTime == nullptr || utcTime[0] == '\0' || utcTime[0] == ' ')
+  {
+    napi_new_instance(env, utcTimeConstructor, 0, nullptr, &utcTimeDate);
+    return utcTimeDate;
+  }
+
+  // create string from utcTime
+  char isoTime[20];
+  sprintf(isoTime, "%c%c%c%c-%c%c-%c%cT%c%c:%c%c:%c%cZ", utcTime[0], utcTime[1], utcTime[2], utcTime[3], utcTime[4], utcTime[5], utcTime[6], utcTime[7], utcTime[8], utcTime[9], utcTime[10], utcTime[11], utcTime[12], utcTime[13]);
+  napi_value utcTimeValue;
+  napi_create_string_utf8(env, isoTime, NAPI_AUTO_LENGTH, &utcTimeValue);
 
   // Date(utcTime)
   napi_value utcTimeArgs[1];
   utcTimeArgs[0] = utcTimeValue;
-  napi_value utcTimeDate;
   napi_new_instance(env, utcTimeConstructor, 1, utcTimeArgs, &utcTimeDate);
 
   return utcTimeDate;
