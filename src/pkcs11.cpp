@@ -948,7 +948,7 @@ public:
     char *pPath = path.data();
     napi_get_value_string_utf8(env, arg[0], pPath, length + 1, &length);
 
-    pkcs11->handle = dlopen(pPath, RTLD_LAZY);
+    pkcs11->handle = dlopen(pPath, RTLD_LAZY | RTLD_LOCAL);
     if (pkcs11->handle == nullptr)
     {
       napi_throw_error(env, nullptr, dlerror());
