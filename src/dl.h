@@ -10,6 +10,7 @@ extern "C"
 
 #define RTLD_LAZY 0x1
 #define RTLD_NOW 0x2
+#define RTLD_LOCAL 0x4
 
 	/**
 	 * Open DLL, returning a handle.
