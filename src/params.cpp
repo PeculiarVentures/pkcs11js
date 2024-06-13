@@ -187,8 +187,8 @@ bool read_property_byte(napi_env env, napi_value object, const char *property, C
   }
 
   // Read the property value and write it to the single byte
-  uint32_t uintValue;
-  napi_get_value_uint32(env, propertyValue, (uint32_t *)&uintValue);
+  uint32_t uintValue = 0;
+  napi_get_value_uint32(env, propertyValue, &uintValue);
   if (uintValue > 255)
   {
     return false;

@@ -106,7 +106,7 @@ bool get_args_ulong(napi_env env, napi_value *arg, size_t argc, size_t index, CK
   }
 
   // get value
-  uint32_t temp;
+  uint32_t temp = 0;
   napi_get_value_uint32(env, arg[index], &temp);
 
   // set value
@@ -424,7 +424,7 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
 
   // set mechanism
   CK_MECHANISM_TYPE mechanismType;
-  uint32_t temp;
+  uint32_t temp = 0;
   napi_get_value_uint32(env, mechanismTypeValue, &temp);
   mechanismType = (CK_MECHANISM_TYPE)temp;
   mechanism->mechanism = mechanismType;
@@ -443,7 +443,7 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
   else if (mechanismParameterType == napi_number)
   {
     // Number
-    uint32_t value;
+    uint32_t value = 0;
     napi_get_value_uint32(env, mechanismParameter, &value);
     mechanism->pParameter = malloc(sizeof(CK_ULONG));
     *(CK_ULONG *)mechanism->pParameter = value;
@@ -459,7 +459,7 @@ bool get_args_mechanism(napi_env env, napi_value *arg, size_t argc, size_t index
       THROW_TYPE_ERRORF(false, "Argument %lu has wrong type. Property 'type' should be a Number", index);
     }
 
-    uint32_t type;
+    uint32_t type = 0;
     napi_get_value_uint32(env, typeValue, &type);
     switch (type)
     {
@@ -649,7 +649,7 @@ bool get_args_attributes(napi_env env, napi_value *arg, size_t argc, size_t inde
 
   // get length
   napi_value array = arg[index];
-  uint32_t arrayLength;
+  uint32_t arrayLength = 0;
   napi_get_array_length(env, array, &arrayLength);
   if (attrs != nullptr && arrayLength != attrs->length)
   {
@@ -702,7 +702,7 @@ bool get_args_attributes(napi_env env, napi_value *arg, size_t argc, size_t inde
 
     CK_ATTRIBUTE_PTR attr = &attrs->attributes[i];
 
-    uint32_t type;
+    uint32_t type = 0;
     napi_get_value_uint32(env, typeValue, &type);
     attr->type = (CK_ATTRIBUTE_TYPE)type;
 
@@ -746,7 +746,7 @@ bool get_args_attributes(napi_env env, napi_value *arg, size_t argc, size_t inde
     else if (valueValueType == napi_number)
     {
       attrs->allocValue(i, sizeof(CK_ULONG));
-      uint32_t value;
+      uint32_t value = 0;
       napi_get_value_uint32(env, valueValue, &value);
       *(CK_ULONG *)attr->pValue = value;
     }
@@ -1004,7 +1004,7 @@ public:
     CK_VOID_PTR pInitArgs = nullptr;
     CK_NSS_C_INITIALIZE_ARGS nssInitArgs = {nullptr, nullptr, nullptr, nullptr, 0, nullptr, nullptr};
     CK_C_INITIALIZE_ARGS initArgs = {nullptr, nullptr, nullptr, nullptr, 0, nullptr};
-    char *path = nullptr;
+    CK_CHAR_PTR path = NULL;
     if (argc > 0 && !is_empty(env, arg[0]))
     {
       napi_valuetype type;
@@ -1018,7 +1018,7 @@ public:
       // Read common C_Initialize args
       napi_value flags;
       napi_get_named_property(env, arg[0], "flags", &flags);
-      uint32_t ckFlags;
+      uint32_t ckFlags = 0;
       napi_get_value_uint32(env, flags, &ckFlags);
 
       bool hasLibraryParameters;
@@ -1039,11 +1039,11 @@ public:
         size_t length;
         napi_get_value_string_utf8(env, libraryParameters, nullptr, 0, &length);
 
-        path = new char[length + 1];
-        napi_get_value_string_utf8(env, libraryParameters, path, length + 1, &length);
+        path = new CK_CHAR[length];
+        napi_get_value_string_utf8(env, libraryParameters, (char *)path, length, &length);
 
-        nssInitArgs.LibraryParameters = (CK_CHAR_PTR)path;
         nssInitArgs.flags = (CK_FLAGS)ckFlags;
+        nssInitArgs.LibraryParameters = (CK_CHAR_PTR)path;
 
         pInitArgs = &nssInitArgs;
       }
