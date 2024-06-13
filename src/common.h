@@ -14,19 +14,6 @@
 #pragma pack(push, cryptoki, 1)
 #endif
 #include <pkcs11/pkcs11.h>
-#ifdef _WIN32
-// Restore default packing
-#pragma pack(pop, cryptoki)
-#endif
-
-#ifndef _WIN32
-#include <dlfcn.h>
-#else
-#include "dl.h"
-#endif
-
-typedef CK_GCM_PARAMS CK_AES_GCM_240_PARAMS;
-typedef CK_AES_GCM_240_PARAMS CK_PTR CK_AES_GCM_240_PARAMS_PTR;
 
 // Extended structure for NSS
 typedef struct CK_NSS_C_INITIALIZE_ARGS
@@ -41,6 +28,20 @@ typedef struct CK_NSS_C_INITIALIZE_ARGS
 } CK_NSS_C_INITIALIZE_ARGS;
 
 typedef CK_NSS_C_INITIALIZE_ARGS *CK_NSS_C_INITIALIZE_ARGS_PTR;
+
+#ifdef _WIN32
+// Restore default packing
+#pragma pack(pop, cryptoki)
+#endif
+
+#ifndef _WIN32
+#include <dlfcn.h>
+#else
+#include "dl.h"
+#endif
+
+typedef CK_GCM_PARAMS CK_AES_GCM_240_PARAMS;
+typedef CK_AES_GCM_240_PARAMS CK_PTR CK_AES_GCM_240_PARAMS_PTR;
 
 // Types of parameters
 #define CK_PARAMS_BUFFER 0
