@@ -173,7 +173,8 @@ context("PKCS11", () => {
         assert.deepEqual(hardwareVersionKeys, ["major", "minor"]);
         const firmwareVersionKeys = Object.keys(info.firmwareVersion);
         assert.deepEqual(firmwareVersionKeys, ["major", "minor"]);
-        assert.ok(info.utcTime instanceof Date);
+        assert.ok(typeof info.utcTime == "string");
+        assert.strictEqual(info.utcTime.length, 16);
         assert.ok(typeof info.totalPublicMemory === 'bigint');
         assert.ok(typeof info.freePublicMemory === 'bigint');
         assert.ok(typeof info.totalPrivateMemory === 'bigint');
