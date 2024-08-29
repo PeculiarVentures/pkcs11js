@@ -1130,6 +1130,16 @@ public:
     CK_RV rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, nullptr, &slotCount); // get slot count
     ASSERT_RV(rv);
 
+    // In some cases, the pkcs11 module from Yubico may return slotCount 0 on the first call to C_GetSlotList,
+    // and a non-zero value on subsequent calls. This can lead to a memory access error when using pSlotList.
+    // To handle this, we check if slotCount is 0 and return an empty array if no slots are available.
+    if (slotCount == 0)
+    {
+      napi_value result;
+      napi_create_array(env, &result);
+      return result;
+    }
+
     std::vector<CK_SLOT_ID> slotList(slotCount);
     CK_SLOT_ID_PTR pSlotList = slotList.data();
     rv = pkcs11->functionList->C_GetSlotList(ckTokenPresent, pSlotList, &slotCount);
@@ -1305,6 +1315,13 @@ public:
     CK_ULONG mechanismCount;
     CK_RV rv = pkcs11->functionList->C_GetMechanismList(slotId, nullptr, &mechanismCount); // get mechanism count
     ASSERT_RV(rv);
+
+    if (mechanismCount == 0)
+    {
+      napi_value result;
+      napi_create_array(env, &result);
+      return result;
+    }
 
     std::vector<CK_MECHANISM_TYPE> mechanismList(mechanismCount);
     CK_MECHANISM_TYPE_PTR pMechanismList = mechanismList.data();

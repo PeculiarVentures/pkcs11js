@@ -64,7 +64,7 @@ jobs:
           SOFTHSM2_CONF: ${{ github.workspace }}/softhsm2.conf
 
       - name: Coveralls
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
   build-os:
