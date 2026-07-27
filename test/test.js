@@ -18,6 +18,28 @@ switch (os.platform()) {
 }
 const pin = "12345";
 
+function withDone(testFn) {
+  return () => new Promise((resolve, reject) => {
+    let settled = false;
+    const done = (err) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    };
+    try {
+      testFn(done);
+    } catch (e) {
+      done(e);
+    }
+  });
+}
+
 context("PKCS11", () => {
   context("load", () => {
     it("load via constructor", () => {
@@ -50,7 +72,21 @@ context("PKCS11", () => {
       token.C_Finalize();
     });
     it("with NSS params", () => {
-      const nssLib = os.platform() === "darwin" ? "/usr/local/opt/nss/lib/libsoftokn3.dylib" : "/usr/lib/x86_64-linux-gnu/nss/libsoftokn3.so";
+      const fs = require("fs");
+      const nssCandidates = os.platform() === "darwin"
+        ? [
+          "/usr/local/opt/nss/lib/libsoftokn3.dylib",
+          "/opt/homebrew/opt/nss/lib/libsoftokn3.dylib",
+        ]
+        : [
+          "/usr/lib/x86_64-linux-gnu/nss/libsoftokn3.so",
+          "/usr/lib/nss/libsoftokn3.so",
+          "/usr/lib64/nss/libsoftokn3.so",
+        ];
+      const nssLib = nssCandidates.find((candidate) => fs.existsSync(candidate));
+      if (!nssLib) {
+        return;
+      }
       const token = new pkcs11.PKCS11();
       token.load(nssLib);
       token.C_Initialize({
@@ -565,7 +601,7 @@ context("PKCS11", () => {
                 return true;
               });
             });
-            it("callback", (done) => {
+            it("callback", withDone((done) => {
               const data = Buffer.from("message");
               const encrypted = Buffer.alloc(40);
               token.C_DigestEncryptUpdate(session, data, encrypted, (error, encrypted2) => {
@@ -574,7 +610,7 @@ context("PKCS11", () => {
                 assert.strictEqual(encrypted2, null);
                 done();
               });
-            });
+            }));
             it("async", async () => {
               const data = Buffer.from("message");
               const encrypted = Buffer.alloc(40);
@@ -607,7 +643,7 @@ context("PKCS11", () => {
             ]);
             assert.strictEqual(Buffer.isBuffer(key), true);
           });
-          it("AES with callback", (done) => {
+          it("AES with callback", withDone((done) => {
             token.C_GenerateKey(session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, [
               { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
               { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_AES },
@@ -622,7 +658,7 @@ context("PKCS11", () => {
               assert.strictEqual(Buffer.isBuffer(key), true);
               done();
             });
-          });
+          }));
           it("AES with async", async () => {
             const key = await token.C_GenerateKeyAsync(session, { mechanism: pkcs11.CKM_AES_KEY_GEN }, [
               { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_SECRET_KEY },
@@ -661,7 +697,7 @@ context("PKCS11", () => {
             assert.strictEqual(Buffer.isBuffer(keys.publicKey), true);
             assert.strictEqual(Buffer.isBuffer(keys.privateKey), true);
           });
-          it("RSA with callback", (done) => {
+          it("RSA with callback", withDone((done) => {
             token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [
               { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
               { type: pkcs11.CKA_KEY_TYPE, value: pkcs11.CKK_RSA },
@@ -683,7 +719,7 @@ context("PKCS11", () => {
               assert.strictEqual(Buffer.isBuffer(keys.privateKey), true);
               done();
             });
-          });
+          }));
           it("RSA with async", async () => {
             const keys = await token.C_GenerateKeyPairAsync(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [
               { type: pkcs11.CKA_CLASS, value: pkcs11.CKO_PUBLIC_KEY },
@@ -724,7 +760,7 @@ context("PKCS11", () => {
             assert.strictEqual(hash.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d0000000000000000");
             assert.strictEqual(hash2.toString("hex"), "ab530a13e45914982b79f9b7e3fba994cfd1f3fb22f71cea1afbf02b460c6d1d");
           });
-          it("C_DigestInit, C_Digest callback", (done) => {
+          it("C_DigestInit, C_Digest callback", withDone((done) => {
             const data = Buffer.from("message");
             const hash = Buffer.alloc(40);
             token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
@@ -737,7 +773,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_DigestInit, C_Digest async", async () => {
             const data = Buffer.from("message");
             const hash = Buffer.alloc(40);
@@ -772,7 +808,7 @@ context("PKCS11", () => {
             assert.strictEqual(/^[a-f0-9]{64}$/.test(hash2.toString("hex")), true);
             assert.strictEqual(hash.toString("hex").startsWith(hash2.toString("hex")), true);
           });
-          it("C_DigestInit, C_DigestUpdate, C_DigestFinal with callback", (done) => {
+          it("C_DigestInit, C_DigestUpdate, C_DigestFinal with callback", withDone((done) => {
             const data = Buffer.from("message");
             const hash = Buffer.alloc(40);
             token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
@@ -784,8 +820,8 @@ context("PKCS11", () => {
               assert.strictEqual(hash.toString("hex").startsWith(hash2.toString("hex")), true);
               done();
             });
-          });
-          it("C_DigestInit, C_DigestUpdate, C_DigestFinal with callback error", (done) => {
+          }));
+          it("C_DigestInit, C_DigestUpdate, C_DigestFinal with callback error", withDone((done) => {
             const data = Buffer.from("message");
             const hash = Buffer.alloc(4);
             token.C_DigestInit(session, { mechanism: pkcs11.CKM_SHA256 });
@@ -796,7 +832,7 @@ context("PKCS11", () => {
               assert.strictEqual(hash2, null);
               done();
             });
-          });
+          }));
           it("C_DigestInit, C_DigestUpdate, C_DigestFinal with async", async () => {
             const data = Buffer.from("message");
             const hash = Buffer.alloc(40);
@@ -844,7 +880,7 @@ context("PKCS11", () => {
             assert.strictEqual(signature2.length < signature.length, true);
             assert.strictEqual(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
           });
-          it("C_SignInit, C_Sign callback", (done) => {
+          it("C_SignInit, C_Sign callback", withDone((done) => {
             const signature = Buffer.alloc(1024);
             token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
             token.C_Sign(session, data, signature, (error, signature2) => {
@@ -856,7 +892,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_SignInit, C_Sign async", async () => {
             const signature = Buffer.alloc(1024);
             token.C_SignInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.privateKey);
@@ -871,7 +907,7 @@ context("PKCS11", () => {
             assert.strictEqual(signature2.length < signature.length, true);
             assert.strictEqual(signature2.toString("hex"), signature.slice(0, signature2.length).toString("hex"));
           });
-          it("C_SignInit, C_SignUpdate, C_SignFinal callback", (done) => {
+          it("C_SignInit, C_SignUpdate, C_SignFinal callback", withDone((done) => {
             const signature = Buffer.alloc(1024);
             token.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
             token.C_SignUpdate(session, data);
@@ -884,7 +920,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_SignInit, C_SignUpdate, C_SignFinal async", async () => {
             const signature = Buffer.alloc(1024);
             token.C_SignInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.privateKey);
@@ -897,7 +933,7 @@ context("PKCS11", () => {
             const ok = token.C_Verify(session, data, rsaPkcsSignature);
             assert.strictEqual(ok, true);
           });
-          it("C_VerifyInit, C_Verify callback", (done) => {
+          it("C_VerifyInit, C_Verify callback", withDone((done) => {
             token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
             token.C_Verify(session, data, rsaPkcsSignature, (error, ok) => {
               if (error) {
@@ -908,7 +944,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_VerifyInit, C_Verify async", async () => {
             token.C_VerifyInit(session, { mechanism: pkcs11.CKM_RSA_PKCS }, keys.publicKey);
             const ok = await token.C_VerifyAsync(session, data, rsaPkcsSignature);
@@ -920,7 +956,7 @@ context("PKCS11", () => {
             const ok = token.C_VerifyFinal(session, rsaPkcsSha256Signature);
             assert.strictEqual(ok, true);
           });
-          it("C_VerifyInit, C_VerifyUpdate, C_VerifyFinal callback", (done) => {
+          it("C_VerifyInit, C_VerifyUpdate, C_VerifyFinal callback", withDone((done) => {
             token.C_VerifyInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.publicKey);
             token.C_VerifyUpdate(session, data);
             token.C_VerifyFinal(session, rsaPkcsSha256Signature, (error, ok) => {
@@ -932,7 +968,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_VerifyInit, C_VerifyUpdate, C_VerifyFinal async", async () => {
             token.C_VerifyInit(session, { mechanism: pkcs11.CKM_SHA256_RSA_PKCS }, keys.publicKey);
             token.C_VerifyUpdate(session, data);
@@ -1019,7 +1055,7 @@ context("PKCS11", () => {
             assert.strictEqual(enc2.length < enc.length, true);
             assert.strictEqual(enc2.toString("hex"), enc.slice(0, enc2.length).toString("hex"));
           });
-          it("C_EncryptInit, C_Encrypt callback", (done) => {
+          it("C_EncryptInit, C_Encrypt callback", withDone((done) => {
             const enc = Buffer.alloc(1024);
             token.C_EncryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             token.C_Encrypt(session, data, enc, (error, enc2) => {
@@ -1031,7 +1067,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_EncryptInit, C_Encrypt async", async () => {
             const enc = Buffer.alloc(1024);
             token.C_EncryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
@@ -1044,7 +1080,7 @@ context("PKCS11", () => {
             enc = Buffer.concat([enc, token.C_EncryptFinal(session, Buffer.alloc(128))]);
             assert.strictEqual(enc.length > 0, true);
           });
-          it("C_EncryptInit, C_EncryptUpdate, C_EncryptFinal callback", (done) => {
+          it("C_EncryptInit, C_EncryptUpdate, C_EncryptFinal callback", withDone((done) => {
             token.C_EncryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             token.C_EncryptUpdate(session, data, Buffer.alloc(128));
             token.C_EncryptFinal(session, Buffer.alloc(128), (error, enc) => {
@@ -1056,7 +1092,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_EncryptInit, C_EncryptUpdate, C_EncryptFinal async", async () => {
             token.C_EncryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             token.C_EncryptUpdate(session, data, Buffer.alloc(128));
@@ -1070,7 +1106,7 @@ context("PKCS11", () => {
             assert.strictEqual(dec2.length < dec.length, true);
             assert.strictEqual(dec2.toString("hex"), dec.subarray(0, dec2.length).toString("hex"));
           });
-          it("C_DecryptInit, C_Decrypt callback", (done) => {
+          it("C_DecryptInit, C_Decrypt callback", withDone((done) => {
             const dec = Buffer.alloc(1024);
             token.C_DecryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             token.C_Decrypt(session, encrypted, dec, (error, dec2) => {
@@ -1082,7 +1118,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_DecryptInit, C_Decrypt async", async () => {
             const dec = Buffer.alloc(1024);
             token.C_DecryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
@@ -1095,7 +1131,7 @@ context("PKCS11", () => {
             dec = Buffer.concat([dec, token.C_DecryptFinal(session, Buffer.alloc(128))]);
             assert.strictEqual(dec.length > 0, true);
           });
-          it("C_DecryptInit, C_DecryptUpdate, C_DecryptFinal callback", (done) => {
+          it("C_DecryptInit, C_DecryptUpdate, C_DecryptFinal callback", withDone((done) => {
             token.C_DecryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             token.C_DecryptUpdate(session, encrypted, Buffer.alloc(128));
             token.C_DecryptFinal(session, Buffer.alloc(128), (error, dec) => {
@@ -1107,7 +1143,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_DecryptInit, C_DecryptUpdate, C_DecryptFinal async", async () => {
             token.C_DecryptInit(session, { mechanism: pkcs11.CKM_AES_CBC_PAD, parameter }, key);
             token.C_DecryptUpdate(session, encrypted, Buffer.alloc(128));
@@ -1144,7 +1180,7 @@ context("PKCS11", () => {
             ]);
             assert.strictEqual(!!key, true);
           });
-          it("C_DeriveKey callback", (done) => {
+          it("C_DeriveKey callback", withDone((done) => {
             token.C_DeriveKey(session, {
               mechanism: pkcs11.CKM_ECDH1_DERIVE,
               parameter: {
@@ -1166,7 +1202,7 @@ context("PKCS11", () => {
                 done();
               }
             });
-          });
+          }));
           it("C_DeriveKey async", async () => {
             const key = await token.C_DeriveKeyAsync(session, {
               mechanism: pkcs11.CKM_ECDH1_DERIVE,
@@ -1220,7 +1256,7 @@ context("PKCS11", () => {
           ]);
           assert.strictEqual(!!unwrappedKey, true);
         });
-        it("C_WrapKey, C_UnwrapKey callback", (done) => {
+        it("C_WrapKey, C_UnwrapKey callback", withDone((done) => {
           const mechanism = { mechanism: pkcs11.CKM_AES_KEY_WRAP_PAD };
 
           token.C_WrapKey(session, mechanism, key, key, Buffer.alloc(1024), (error, wrapped) => {
@@ -1245,7 +1281,7 @@ context("PKCS11", () => {
               });
             }
           });
-        });
+        }));
         it("C_WrapKey, C_UnwrapKey async", async () => {
           const mechanism = { mechanism: pkcs11.CKM_AES_KEY_WRAP_PAD };
 
@@ -1310,13 +1346,13 @@ context("PKCS11", () => {
         }
       });
 
-      it("Pkcs11Error", (done) => {
+      it("Pkcs11Error", withDone((done) => {
         token.C_GenerateKeyPair(session, { mechanism: pkcs11.CKM_RSA_PKCS_KEY_PAIR_GEN }, [], [], (error) => {
           assert.strictEqual(error instanceof pkcs11.Pkcs11Error, true);
           assert.strictEqual(error.code, pkcs11.CKR_TEMPLATE_INCOMPLETE);
           done();
         });
-      });
+      }));
     });
     context("async", () => {
       let token, session;
