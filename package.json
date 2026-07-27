@@ -34,40 +34,26 @@
   "scripts": {
     "clean": "rm -rf build/ buildjs/ coverage/ .nyc_output/ npm-debug.log npm-debug.log.*",
     "prepare": "npm run build",
-    "test": "mocha",
+    "test": "vitest run",
     "configure:xcode": "node-gyp configure -- -f xcode",
     "configure": "node-gyp configure",
     "build": "node-gyp configure build",
     "pub": "npm run build && npm version patch && git push --follow-tags",
     "sync": "git ac && git pull --rebase && git push",
     "docs": "typedoc",
-    "coverage": "nyc npm test"
+    "coverage": "vitest run --coverage"
   },
   "author": "PeculiarVentures",
   "license": "MIT",
   "devDependencies": {
-    "@types/mocha": "^10.0.7",
     "@types/node": "^22.5.1",
-    "mocha": "^10.7.3",
-    "nyc": "^17.0.0",
+    "@vitest/coverage-v8": "^3.2.7",
     "typedoc": "^0.26.6",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^3.2.7"
   },
   "bugs": {
     "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
-  },
-  "mocha": {
-    "watch-files": "test/**/*.js"
-  },
-  "nyc": {
-    "include": [
-      "index.js"
-    ],
-    "reporter": [
-      "lcov",
-      "text-summary",
-      "html"
-    ]
   },
   "funding": {
     "type": "github",
