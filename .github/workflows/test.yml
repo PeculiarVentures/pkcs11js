@@ -40,7 +40,7 @@ jobs:
       - name: Install NSS
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y libnss3-tools
+          sudo apt-get install -y libnss3 libnss3-tools
 
       - name: Get npm cache directory
         id: npm-cache-dir
