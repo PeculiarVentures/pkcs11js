@@ -62,6 +62,8 @@ jobs:
         run: npm run coverage
         env:
           SOFTHSM2_CONF: ${{ github.workspace }}/softhsm2.conf
+          # softokn3 and its NSS siblings live under .../nss and are not on the default linker path
+          LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu/nss
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
