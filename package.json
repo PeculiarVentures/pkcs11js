@@ -47,10 +47,10 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.5.1",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^3.2.7",
     "typedoc": "^0.26.6",
     "typescript": "^5.5.4",
-    "vitest": "^4.1.10"
+    "vitest": "^3.2.7"
   },
   "bugs": {
     "url": "https://github.com/PeculiarVentures/pkcs11js/issues"
