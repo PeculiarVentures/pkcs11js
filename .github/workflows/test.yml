@@ -1,6 +1,11 @@
 name: test
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize]
+  push:
+    branches: [main, master]
 
 jobs:
   build-and-test:
@@ -40,7 +45,7 @@ jobs:
       - name: Install NSS
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y libnss3-tools
+          sudo apt-get install -y libnss3 libnss3-tools
 
       - name: Get npm cache directory
         id: npm-cache-dir
@@ -62,6 +67,8 @@ jobs:
         run: npm run coverage
         env:
           SOFTHSM2_CONF: ${{ github.workspace }}/softhsm2.conf
+          # softokn3 and its NSS siblings live under .../nss and are not on the default linker path
+          LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu/nss
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
@@ -74,7 +81,7 @@ jobs:
     strategy:
       matrix:
         os:
-          - windows-latest
+          - windows-2022
           - ubuntu-latest
           - macos-latest
         node-version:

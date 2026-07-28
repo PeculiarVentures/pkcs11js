@@ -49,8 +49,33 @@ context("PKCS11", () => {
       token.C_Initialize({ flags: 0 });
       token.C_Finalize();
     });
-    it("with NSS params", () => {
-      const nssLib = os.platform() === "darwin" ? "/usr/local/opt/nss/lib/libsoftokn3.dylib" : "/usr/lib/x86_64-linux-gnu/nss/libsoftokn3.so";
+    it("with NSS params", function () {
+      const fs = require("fs");
+      const path = require("path");
+      const nssCandidates = os.platform() === "darwin"
+        ? [
+          "/usr/local/opt/nss/lib/libsoftokn3.dylib",
+          "/opt/homebrew/opt/nss/lib/libsoftokn3.dylib",
+        ]
+        : [
+          "/usr/lib/x86_64-linux-gnu/nss/libsoftokn3.so",
+          "/usr/lib/nss/libsoftokn3.so",
+          "/usr/lib64/nss/libsoftokn3.so",
+        ];
+      const nssLib = nssCandidates.find((candidate) => fs.existsSync(candidate));
+      if (!nssLib) {
+        this.skip();
+      }
+
+      // softokn3 depends on sibling NSS libs in the same directory
+      const nssDir = path.dirname(nssLib);
+      const currentPath = process.env.LD_LIBRARY_PATH || "";
+      if (!currentPath.split(path.delimiter).includes(nssDir)) {
+        process.env.LD_LIBRARY_PATH = currentPath
+          ? `${nssDir}${path.delimiter}${currentPath}`
+          : nssDir;
+      }
+
       const token = new pkcs11.PKCS11();
       token.load(nssLib);
       token.C_Initialize({
