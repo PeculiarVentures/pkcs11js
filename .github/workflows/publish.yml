@@ -61,7 +61,7 @@ jobs:
       - name: Pack release artifact
         id: pack
         run: |
-          TGZ=$(npm pack --json | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>console.log(JSON.parse(s)[0].filename))")
+          TGZ=$(npm pack --ignore-scripts --json | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>console.log(JSON.parse(s)[0].filename))")
 
           echo "tgz=$TGZ" >> "$GITHUB_OUTPUT"
           sha256sum "$TGZ" > "$TGZ.sha256"
