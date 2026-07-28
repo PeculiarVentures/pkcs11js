@@ -4,7 +4,7 @@
   "description": "A Node.js implementation of the PKCS#11 2.40 interface",
   "repository": {
     "type": "git",
-    "url": "git://github.com/PeculiarVentures/pkcs11js.git"
+    "url": "https://github.com/PeculiarVentures/pkcs11js"
   },
   "keywords": [
     "pkcs11",
